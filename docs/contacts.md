@@ -15,10 +15,10 @@ Included:
 - authenticated web UI for address books and contacts
 - CSRF-protected create, update, rename, and delete operations
 - owner-scoped contact search by name, organization, phone label, and raw phone number
+- explicit personal address-book sharing with read or write access
 
 Not included yet:
 
-- address-book sharing
 - organization-owned address books
 - external contact sources
 - imports
@@ -34,11 +34,24 @@ Address-book views provide a GET-based search across display name, given name, f
 
 All state-changing operations use POST and require a valid CSRF token. Detail and edit reads are resolved through owner-scoped application services before data is rendered.
 
+## Sharing
+
+An address-book owner may share a personal address book with another active, non-deleted user by email address.
+
+Two access levels exist:
+
+- `read`: list, open, and search contacts
+- `write`: all read operations plus create, edit, and soft-delete contacts
+
+Only the owner may rename or soft-delete the address book itself, manage sharing, or revoke a share. A platform `system_admin` receives no implicit access to private address books.
+
+Sharing with the owner is rejected. Repeating a share operation for the same user updates the existing access level rather than creating duplicates.
+
 ## Ownership
 
 Every address book currently has exactly one `owner_user_id`.
 
-Application services require both the resource identifier and the authenticated user's identifier. A contact operation is permitted only after the parent address book has been resolved as owned by that user.
+Application services require both the resource identifier and the authenticated user's identifier. Contact reads require resolved read access; contact mutations require resolved write access. Address-book metadata mutations and sharing administration continue to require ownership.
 
 System-administrator status does not implicitly grant contact access. Private contact data remains outside platform-administration permissions.
 
