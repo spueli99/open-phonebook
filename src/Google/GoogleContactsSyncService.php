@@ -14,7 +14,7 @@ use OpenPhonebook\Sources\ContactSource;
 use OpenPhonebook\Sources\ContactSourceRepositoryInterface;
 use RuntimeException;
 
-final class GoogleContactsSyncService
+final class GoogleContactsSyncService implements GoogleContactSourceSynchronizerInterface
 {
     public function __construct(
         private readonly AddressBookAccessService $access,
