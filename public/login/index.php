@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use OpenPhonebook\Auth\AuthenticationService;
+use OpenPhonebook\Auth\LoginAttemptRepository;
 use OpenPhonebook\Auth\LoginThrottle;
 use OpenPhonebook\Auth\UserRepository;
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Setup\InstallationState;
 use OpenPhonebook\Web\LoginView;
@@ -58,8 +60,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $password = Request::postPassword('password');
         $ipAddress = Request::clientIp();
         $throttle = new LoginThrottle(
-            $runtime->database,
-            $runtime->applicationKey
+            new LoginAttemptRepository($runtime->database),
+            $runtime->applicationKey,
+            new SystemClock(),
         );
 
         if ($throttle->isBlocked($email, $ipAddress)) {
