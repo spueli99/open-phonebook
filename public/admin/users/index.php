@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use OpenPhonebook\Auth\Authorization;
 use OpenPhonebook\Auth\Permission;
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Setup\InstallationState;
+use OpenPhonebook\UserManagement\InvitationAdministrationService;
+use OpenPhonebook\UserManagement\InvitationRepository;
 use OpenPhonebook\UserManagement\UserAdministrationRepository;
 use OpenPhonebook\Web\SecurityHeaders;
 use OpenPhonebook\Web\UserManagementView;
@@ -57,13 +60,19 @@ if (!$authorization->allows($user, Permission::ManageUsers)) {
     exit;
 }
 
-$repository = new UserAdministrationRepository($runtime->database);
+$userRepository = new UserAdministrationRepository($runtime->database);
+$invitationService = new InvitationAdministrationService(
+    new InvitationRepository($runtime->database),
+    new SystemClock(),
+    $runtime->applicationKey,
+);
 
 SecurityHeaders::sendHtml();
 
 echo UserManagementView::render(
     $translator,
     $user,
-    $repository->all(),
+    $userRepository->all(),
+    $invitationService->allUsable(),
     CsrfToken::issue()
 );
