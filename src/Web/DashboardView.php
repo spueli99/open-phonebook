@@ -21,6 +21,9 @@ final class DashboardView
                 . Html::escape($translator->get('nav.users'))
                 . '</a></p>'
             : '';
+        $contactsLink = '<p><a href="/address-books/">'
+            . Html::escape($translator->get('nav.contacts'))
+            . '</a></p>';
 
         return '<!doctype html>'
             . '<html lang="' . Html::escape($translator->locale) . '">'
@@ -31,6 +34,7 @@ final class DashboardView
             . '<h1>' . Html::escape($translator->get('dashboard.title')) . '</h1>'
             . '<p>' . Html::escape($translator->get('dashboard.welcome'))
             . ' ' . $name . '</p>'
+            . $contactsLink
             . $adminLink
             . '<form method="post" action="/logout/">'
             . '<input type="hidden" name="_csrf" value="'
