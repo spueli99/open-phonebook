@@ -167,7 +167,10 @@ final class ContactRepository implements ContactRepositoryInterface
                 'address_book_id' => $addressBookId,
             ]);
 
-            if ($statement->rowCount() !== 1) {
+            if (
+                $statement->rowCount() !== 1
+                && !$this->contactExists($contactId, $addressBookId)
+            ) {
                 $this->database->rollBack();
 
                 return false;
@@ -202,6 +205,24 @@ final class ContactRepository implements ContactRepositoryInterface
         ]);
 
         return $statement->rowCount() === 1;
+    }
+
+    private function contactExists(int $contactId, int $addressBookId): bool
+    {
+        $statement = $this->database->prepare(
+            'SELECT 1
+             FROM contacts
+             WHERE id = :id
+               AND address_book_id = :address_book_id
+               AND deleted_at IS NULL
+             LIMIT 1'
+        );
+        $statement->execute([
+            'id' => $contactId,
+            'address_book_id' => $addressBookId,
+        ]);
+
+        return $statement->fetchColumn() !== false;
     }
 
     /**
