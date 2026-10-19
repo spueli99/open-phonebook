@@ -10,6 +10,7 @@ use OpenPhonebook\Contacts\AddressBookService;
 use OpenPhonebook\Import\ContactImportService;
 use OpenPhonebook\Import\ImportContactMerger;
 use OpenPhonebook\Import\ImportDuplicateAction;
+use OpenPhonebook\Import\ImportDuplicateDecision;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
@@ -202,7 +203,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0 => ImportDuplicateAction::Import]
+            [0 => new ImportDuplicateDecision(ImportDuplicateAction::Import)]
         );
 
         self::assertSame(1, $result->importedContacts);
@@ -252,7 +253,10 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0 => ImportDuplicateAction::Merge]
+            [0 => new ImportDuplicateDecision(
+                ImportDuplicateAction::Merge,
+                $existingId
+            )]
         );
 
         self::assertSame(0, $result->importedContacts);
@@ -314,7 +318,10 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0 => ImportDuplicateAction::Merge]
+            [0 => new ImportDuplicateDecision(
+                ImportDuplicateAction::Merge,
+                $existingId
+            )]
         );
 
         $merged = $contacts->findInAddressBook(
@@ -341,8 +348,10 @@ final class ContactImportServiceTest extends TestCase
             $addressBookId,
         ] = $this->fixture();
 
+        $ambiguousIds = [];
+
         foreach (['Existing A', 'Existing B'] as $name) {
-            $contacts->create(
+            $ambiguousIds[] = $contacts->create(
                 $addressBookId,
                 $name,
                 null,
@@ -370,7 +379,10 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0 => ImportDuplicateAction::Merge]
+            [0 => new ImportDuplicateDecision(
+                ImportDuplicateAction::Merge,
+                $existingId
+            )]
         );
     }
 
@@ -399,7 +411,12 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [1 => ImportDuplicateAction::Merge]
+            [
+                1 => new ImportDuplicateDecision(
+                    ImportDuplicateAction::Merge,
+                    999
+                ),
+            ]
         );
     }
 
