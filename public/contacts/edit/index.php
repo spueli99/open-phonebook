@@ -51,7 +51,8 @@ $contactId = isset($_GET['contact_id']) && is_string($_GET['contact_id'])
 $addressBooks = new AddressBookRepository($runtime->database);
 $service = new ContactService(
     $addressBooks,
-    new ContactRepository($runtime->database)
+    new ContactRepository($runtime->database),
+    $runtime->phoneNumberNormalizer()
 );
 
 try {
