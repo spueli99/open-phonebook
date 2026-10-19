@@ -64,6 +64,7 @@ final class ContactRepository implements ContactRepositoryInterface
                         WHERE p.contact_id = c.id
                           AND (
                               p.raw_number LIKE :phone_query ESCAPE '\\\\'
+                              OR p.normalized_e164 LIKE :normalized_query ESCAPE '\\\\'
                               OR p.label LIKE :label_query ESCAPE '\\\\'
                           )
                     )
@@ -77,6 +78,7 @@ final class ContactRepository implements ContactRepositoryInterface
             'family_name_query' => $pattern,
             'organization_query' => $pattern,
             'phone_query' => $pattern,
+            'normalized_query' => $pattern,
             'label_query' => $pattern,
         ]);
 
@@ -344,7 +346,7 @@ final class ContactRepository implements ContactRepositoryInterface
                 :contact_id,
                 :label,
                 :raw_number,
-                NULL,
+                :normalized_e164,
                 :sort_order,
                 UTC_TIMESTAMP()
             )'
@@ -355,6 +357,7 @@ final class ContactRepository implements ContactRepositoryInterface
                 'contact_id' => $contactId,
                 'label' => $phoneNumber->label,
                 'raw_number' => $phoneNumber->rawNumber,
+                'normalized_e164' => $phoneNumber->normalizedE164,
                 'sort_order' => $index,
             ]);
         }
