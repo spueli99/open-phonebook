@@ -102,6 +102,37 @@ final class ContactImportPreviewServiceTest extends TestCase
         );
     }
 
+    public function testNameOrUnnormalizedLocalNumberDoesNotTriggerDuplicate(): void
+    {
+        [$service, , $contacts, $addressBookId] = $this->fixture();
+        $contacts->create(
+            $addressBookId,
+            'Alice',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Home',
+                    '0211 123456',
+                    null
+                ),
+            ]
+        );
+
+        $preview = $service->preview(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nAlice,0211 123456"
+        );
+
+        self::assertSame(
+            ImportDuplicateStatus::None,
+            $preview->candidates[0]->duplicateStatus
+        );
+    }
+
     public function testPreviewMarksDuplicateWithinImport(): void
     {
         [$service, , , $addressBookId] = $this->fixture();
