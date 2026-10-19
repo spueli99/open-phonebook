@@ -104,6 +104,16 @@ final class Config
             ['contacts', 'default_region'],
             Environment::get('OPENPHONEBOOK_DEFAULT_PHONE_REGION')
         );
+        self::assign(
+            $values,
+            ['providers', 'google', 'client_id'],
+            Environment::get('OPENPHONEBOOK_GOOGLE_CLIENT_ID')
+        );
+        self::assign(
+            $values,
+            ['providers', 'google', 'client_secret'],
+            Environment::get('OPENPHONEBOOK_GOOGLE_CLIENT_SECRET')
+        );
 
         self::assign($values, ['database', 'host'], Environment::get('OPENPHONEBOOK_DB_HOST'));
         self::assign($values, ['database', 'port'], Environment::int('OPENPHONEBOOK_DB_PORT'));
