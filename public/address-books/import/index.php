@@ -6,6 +6,8 @@ use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Clock\SystemClock;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportPreviewService;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
@@ -67,7 +69,10 @@ if ($method === 'POST') {
         $contactRepository = new ContactRepository($runtime->database);
         $preview = (new ContactImportPreviewService(
             $access,
-            new CsvContactImportParser(),
+            new ContactImportParserRegistry([
+                ContactImportFormat::Csv->value
+                    => new CsvContactImportParser(),
+            ]),
             new ImportDuplicateDetector(
                 $contactRepository,
                 $runtime->phoneNumberNormalizer()
@@ -75,6 +80,7 @@ if ($method === 'POST') {
         ))->preview(
             $addressBookId,
             $user->id,
+            ContactImportFormat::Csv,
             $contents
         );
         $draftToken = (new SessionContactImportDraftStore(
@@ -83,6 +89,7 @@ if ($method === 'POST') {
         ))->create(
             $addressBookId,
             $user->id,
+            ContactImportFormat::Csv,
             $contents
         );
     } catch (Throwable) {
