@@ -9,6 +9,7 @@ use OpenPhonebook\Google\GoogleContactsConnectionService;
 use OpenPhonebook\Google\GoogleOAuthStateStore;
 use OpenPhonebook\Sources\ContactSourceRepository;
 use OpenPhonebook\Web\WebRuntime;
+use RuntimeException;
 use Throwable;
 
 $projectRoot = dirname(__DIR__, 4);
