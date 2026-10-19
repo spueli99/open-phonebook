@@ -34,6 +34,8 @@ return [
     'role.member' => 'Member',
     'role.system_admin' => 'System administrator',
     'invite.accept.title' => 'Accept invitation',
+    'invite.capture.wait' => 'Preparing your invitation…',
+    'invite.capture.invalid' => 'Invitation token is missing or invalid.',
     'invite.accept.for' => 'Invitation for',
     'invite.accept.password_again' => 'Repeat password',
     'invite.accept.language' => 'Language',
