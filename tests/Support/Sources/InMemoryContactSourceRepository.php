@@ -34,6 +34,11 @@ final class InMemoryContactSourceRepository implements ContactSourceRepositoryIn
         return $this->source;
     }
 
+    public function allGoogleSources(): array
+    {
+        return $this->source === null ? [] : [$this->source];
+    }
+
     public function upsertGoogleSource(
         int $ownerUserId,
         int $addressBookId,
@@ -44,7 +49,8 @@ final class InMemoryContactSourceRepository implements ContactSourceRepositoryIn
             $ownerUserId,
             $addressBookId,
             'google',
-            $encryptedRefreshToken
+            $encryptedRefreshToken,
+            null
         );
 
         return $this->source;
@@ -76,8 +82,21 @@ final class InMemoryContactSourceRepository implements ContactSourceRepositoryIn
         unset($this->records[$externalId]);
     }
 
-    public function markSynced(int $sourceId): void
-    {
+    public function markSynced(
+        int $sourceId,
+        ?string $encryptedSyncToken
+    ): void {
         $this->markSyncedCalls++;
+
+        if ($this->source !== null) {
+            $this->source = new ContactSource(
+                $this->source->id,
+                $this->source->ownerUserId,
+                $this->source->addressBookId,
+                $this->source->provider,
+                $this->source->encryptedRefreshToken,
+                $encryptedSyncToken
+            );
+        }
     }
 }
