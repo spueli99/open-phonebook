@@ -77,6 +77,28 @@ final class Request
         return array_values(array_unique($result));
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public static function postStringMap(string $key): array
+    {
+        $value = $_POST[$key] ?? [];
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($value as $mapKey => $mapValue) {
+            if (is_string($mapValue)) {
+                $result[(string) $mapKey] = trim($mapValue);
+            }
+        }
+
+        return $result;
+    }
+
     private function __construct()
     {
     }

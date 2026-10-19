@@ -87,6 +87,32 @@ final class InMemoryContactRepository implements ContactRepositoryInterface
         return array_keys($numbers);
     }
 
+    public function findByNormalizedPhoneNumbers(
+        int $addressBookId,
+        array $normalizedE164
+    ): array {
+        $lookup = array_fill_keys($normalizedE164, true);
+        $result = [];
+
+        foreach ($this->contacts as $contact) {
+            if ($contact->addressBookId !== $addressBookId) {
+                continue;
+            }
+
+            foreach ($contact->phoneNumbers as $phoneNumber) {
+                if (
+                    $phoneNumber->normalizedE164 !== null
+                    && isset($lookup[$phoneNumber->normalizedE164])
+                ) {
+                    $result[] = $contact;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
     public function findInAddressBook(
         int $contactId,
         int $addressBookId

@@ -59,9 +59,13 @@ Vor der Bestätigung werden Importkandidaten anhand gültiger normalisierter E.1
 
 Namen allein lösen niemals automatisch eine Dublettenentscheidung aus. Mehrdeutige oder nicht normalisierbare Rufnummern gelten nicht als ausreichender Dublettenbeleg.
 
-Dubletten werden standardmäßig übersprungen. In der Vorschau kann für jede betroffene Zeile ausdrücklich `Trotzdem importieren` gewählt werden. Bei der Bestätigung wird die Dublettenlage erneut gegen den aktuellen Stand des Adressbuchs berechnet. Wird ein Kontakt erst nach der Vorschau zur Dublette, wird er daher automatisch übersprungen, sofern diese Zeile nicht ausdrücklich erzwungen wurde.
+Dubletten werden standardmäßig übersprungen. Bei einer Dublette zu einem bestehenden Kontakt wird `Zusammenführen` nur angeboten, wenn alle passenden normalisierten Rufnummern eindeutig genau einen bestehenden Kontakt ergeben. Bei mehrdeutigen Treffern wird keine Merge-Option angeboten. `Als separaten Kontakt importieren` bleibt eine ausdrückliche Alternative.
 
-Das Importergebnis zeigt sowohl die Zahl der importierten als auch der übersprungenen Dubletten an.
+Ein Merge ist bewusst konservativ: Der bestehende Anzeigename bleibt erhalten, bereits befüllte optionale Felder werden niemals automatisch überschrieben, leere optionale Felder dürfen aus dem Import ergänzt werden und nur noch nicht vorhandene Rufnummern werden hinzugefügt. Für die Rufnummerndeduplizierung wird E.164 verwendet; wenn keine Normalisierung möglich ist, dient die bereinigte Rohdarstellung als Fallback. Bereits vorhandene Rufnummernbezeichnungen bleiben erhalten.
+
+Bei der Bestätigung werden Dublettenstatus und Merge-Ziel erneut gegen den aktuellen Stand des Adressbuchs berechnet. Ist ein angeforderter Merge dann nicht mehr eindeutig, wird die gesamte Bestätigung abgelehnt, statt stillschweigend einen neuen Kontakt anzulegen oder ein anderes Ziel auszuwählen.
+
+Das Importergebnis zeigt importierte, zusammengeführte und übersprungene Kontakte getrennt an.
 
 ## Sicherheit
 
@@ -74,6 +78,4 @@ Jede Vorschau per POST benötigt eine gültige Sitzung, Schreibzugriff auf das Z
 ## Noch geplant
 
 - vCard-Parser und Vorschau
-- Zusammenführen bestehender Kontakte
-- Feldregeln für spätere Merge-Entscheidungen
 - Source-Record-Zuordnung für synchronisierte Quellen

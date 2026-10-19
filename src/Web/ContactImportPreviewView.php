@@ -71,15 +71,41 @@ final class ContactImportPreviewView
 
             $statusKey = 'imports.duplicate.'
                 . $candidate->duplicateStatus->value;
-            $force = $candidate->duplicateStatus->isDuplicate()
-                ? '<label><input type="checkbox" '
-                    . 'name="force_duplicate_rows[]" value="'
-                    . $candidate->sourceRow . '"> '
+            $action = '';
+
+            if ($candidate->duplicateStatus->isDuplicate()) {
+                $mergeTargetInput = '';
+                $action = '<select name="duplicate_actions['
+                    . $candidate->sourceRow . ']">'
+                    . '<option value="skip">'
+                    . Html::escape(
+                        $translator->get('imports.duplicate.skip')
+                    )
+                    . '</option>';
+
+                if ($candidate->mergeTarget !== null) {
+                    $mergeTargetInput = '<input type="hidden" '
+                        . 'name="merge_target_ids['
+                        . $candidate->sourceRow . ']" value="'
+                        . $candidate->mergeTarget->id . '">';
+                    $action .= '<option value="merge">'
+                        . Html::escape(
+                            $translator->get('imports.duplicate.merge')
+                        )
+                        . ' → '
+                        . Html::escape(
+                            $candidate->mergeTarget->displayName
+                        )
+                        . '</option>';
+                }
+
+                $action .= '<option value="import">'
                     . Html::escape(
                         $translator->get('imports.duplicate.force')
                     )
-                    . '</label>'
-                : '';
+                    . '</option></select>';
+                $action = $mergeTargetInput . $action;
+            }
 
             $rows .= '<tr><td>'
                 . Html::escape($contact->displayName)
@@ -89,7 +115,7 @@ final class ContactImportPreviewView
                 . implode('<br>', $numbers)
                 . '</td><td>'
                 . Html::escape($translator->get($statusKey))
-                . '</td><td>' . $force . '</td></tr>';
+                . '</td><td>' . $action . '</td></tr>';
         }
 
         $warnings = '';
@@ -148,6 +174,7 @@ final class ContactImportPreviewView
         Translator $translator,
         AddressBook $addressBook,
         int $importedContacts,
+        int $mergedContacts,
         int $skippedDuplicates
     ): string {
         return self::pageStart(
@@ -162,6 +189,14 @@ final class ContactImportPreviewView
                 sprintf(
                     $translator->get('imports.complete.count'),
                     $importedContacts
+                )
+            )
+            . '</p>'
+            . '<p>'
+            . Html::escape(
+                sprintf(
+                    $translator->get('imports.complete.merged'),
+                    $mergedContacts
                 )
             )
             . '</p>'

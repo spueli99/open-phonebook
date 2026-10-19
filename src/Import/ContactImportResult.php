@@ -8,6 +8,7 @@ final readonly class ContactImportResult
 {
     public function __construct(
         public int $importedContacts,
+        public int $mergedContacts,
         public int $skippedDuplicates,
     ) {
     }

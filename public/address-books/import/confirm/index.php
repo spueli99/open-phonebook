@@ -8,6 +8,9 @@ use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Database\PdoTransactionManager;
 use OpenPhonebook\Import\ContactImportService;
+use OpenPhonebook\Import\ImportContactMerger;
+use OpenPhonebook\Import\ImportDuplicateAction;
+use OpenPhonebook\Import\ImportDuplicateDecision;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
@@ -65,6 +68,52 @@ try {
     )->addressBook;
     $contactRepository = new ContactRepository($runtime->database);
     $normalizer = $runtime->phoneNumberNormalizer();
+    $duplicateDecisions = [];
+    $mergeTargets = Request::postStringMap('merge_target_ids');
+
+    foreach (Request::postStringMap('duplicate_actions') as $row => $value) {
+        if (!preg_match('/^\d+$/', $row)) {
+            throw new RuntimeException(
+                'Invalid duplicate import row.'
+            );
+        }
+
+        $rowIndex = (int) $row;
+
+        if (isset($duplicateDecisions[$rowIndex])) {
+            throw new RuntimeException(
+                'Duplicate import row decision.'
+            );
+        }
+
+        $action = ImportDuplicateAction::tryFrom($value);
+
+        if ($action === null) {
+            throw new RuntimeException(
+                'Invalid duplicate import action.'
+            );
+        }
+
+        $mergeTargetId = null;
+
+        if ($action === ImportDuplicateAction::Merge) {
+            $target = $mergeTargets[$row] ?? '';
+
+            if (!preg_match('/^[1-9]\d*$/', $target)) {
+                throw new RuntimeException(
+                    'Invalid duplicate merge target.'
+                );
+            }
+
+            $mergeTargetId = (int) $target;
+        }
+
+        $duplicateDecisions[$rowIndex] = new ImportDuplicateDecision(
+            $action,
+            $mergeTargetId
+        );
+    }
+
     $result = (new ContactImportService(
         $access,
         new CsvContactImportParser(),
@@ -78,12 +127,13 @@ try {
             $contactRepository,
             $normalizer
         ),
+        new ImportContactMerger($normalizer),
         new PdoTransactionManager($runtime->database)
     ))->import(
         Request::postString('draft_token'),
         $addressBookId,
         $user->id,
-        Request::postIntList('force_duplicate_rows')
+        $duplicateDecisions
     );
 } catch (Throwable) {
     http_response_code(400);
@@ -116,5 +166,6 @@ echo ContactImportPreviewView::renderComplete(
     $runtime->translator($user->locale),
     $addressBook,
     $result->importedContacts,
+    $result->mergedContacts,
     $result->skippedDuplicates
 );
