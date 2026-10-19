@@ -46,8 +46,10 @@ final class ImportDuplicateDetector
             }
 
             $status = ImportDuplicateStatus::None;
+            $mergeTarget = null;
+            $normalizedList = array_keys($normalizedNumbers);
 
-            foreach (array_keys($normalizedNumbers) as $normalized) {
+            foreach ($normalizedList as $normalized) {
                 if (isset($existingNumbers[$normalized])) {
                     $status = ImportDuplicateStatus::ExistingContact;
                     break;
@@ -55,6 +57,17 @@ final class ImportDuplicateDetector
 
                 if (isset($seenImportNumbers[$normalized])) {
                     $status = ImportDuplicateStatus::WithinImport;
+                }
+            }
+
+            if ($status === ImportDuplicateStatus::ExistingContact) {
+                $matches = $this->contacts->findByNormalizedPhoneNumbers(
+                    $addressBookId,
+                    $normalizedList
+                );
+
+                if (count($matches) === 1) {
+                    $mergeTarget = $matches[0];
                 }
             }
 
@@ -66,6 +79,7 @@ final class ImportDuplicateDetector
                 $index,
                 $contact,
                 $status,
+                $mergeTarget,
             );
         }
 
