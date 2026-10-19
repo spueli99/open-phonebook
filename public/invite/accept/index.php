@@ -41,10 +41,17 @@ $service = new InvitationService(
     $runtime->applicationKey,
 );
 
-$queryToken = $_GET['token'] ?? null;
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$action = $method === 'POST' ? Request::postString('action') : '';
 
-if (is_string($queryToken) && $queryToken !== '') {
-    $invitation = $service->resolve($queryToken);
+if ($method === 'POST' && $action === 'capture') {
+    if (!CsrfToken::verify(Request::postString('_csrf'))) {
+        http_response_code(400);
+        exit;
+    }
+
+    $plainToken = Request::postString('token');
+    $invitation = $service->resolve($plainToken);
 
     if ($invitation === null) {
         http_response_code(404);
@@ -53,15 +60,28 @@ if (is_string($queryToken) && $queryToken !== '') {
         exit;
     }
 
-    $session->store($queryToken);
+    $session->store($plainToken);
+    CsrfToken::rotate();
+
     header('Location: /invite/accept/', true, 303);
     exit;
 }
 
 $storedToken = $session->token();
-$invitation = $storedToken === null ? null : $service->resolve($storedToken);
+
+if ($storedToken === null) {
+    SecurityHeaders::sendHtml();
+    echo InvitationAcceptView::capture(
+        $translator,
+        CsrfToken::issue()
+    );
+    exit;
+}
+
+$invitation = $service->resolve($storedToken);
 
 if ($invitation === null) {
+    $session->clear();
     http_response_code(404);
     SecurityHeaders::sendHtml();
     echo InvitationAcceptView::invalid($translator);
@@ -70,7 +90,7 @@ if ($invitation === null) {
 
 $error = null;
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+if ($method === 'POST' && $action === 'accept') {
     if (!CsrfToken::verify(Request::postString('_csrf'))) {
         http_response_code(400);
         $error = $translator->get('error.request');
