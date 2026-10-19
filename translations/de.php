@@ -18,6 +18,7 @@ return [
     'nav.devices' => 'Geräte',
     'devices.title' => 'Geräte',
     'devices.create' => 'Gerät anlegen',
+    'devices.save' => 'Gerät speichern',
     'devices.name' => 'Name',
     'devices.vendor' => 'Hersteller',
     'devices.model' => 'Modell',
