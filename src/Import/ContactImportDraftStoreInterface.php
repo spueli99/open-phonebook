@@ -9,6 +9,7 @@ interface ContactImportDraftStoreInterface
     public function create(
         int $addressBookId,
         int $userId,
+        ContactImportFormat $format,
         string $contents
     ): string;
 
