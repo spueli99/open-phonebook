@@ -48,6 +48,15 @@ return [
     'contacts.phone_number' => 'Rufnummer',
     'contacts.save' => 'Kontakt speichern',
     'contacts.back' => 'Zurück zum Adressbuch',
+    'imports.csv.title' => 'CSV-Importvorschau',
+    'imports.csv.help' => 'Wähle eine UTF-8-CSV-Datei aus, um sie vor jeder '
+        . 'Datenänderung zu prüfen und als Vorschau anzuzeigen.',
+    'imports.preview' => 'Importvorschau anzeigen',
+    'imports.preview.no_persistence' => 'Nur Vorschau: Es wurden keine Kontakte importiert oder geändert.',
+    'imports.warnings' => 'Hinweise',
+    'imports.back' => 'Andere Datei auswählen',
+    'imports.error.invalid' => 'Die Datei konnte nicht als Vorschau verarbeitet '
+        . 'werden. Bitte Format, Kodierung, Spalten und Größenlimits prüfen.',
     'users.title' => 'Benutzerverwaltung',
     'users.accounts' => 'Benutzerkonten',
     'users.invitations' => 'Aktive Einladungen',
