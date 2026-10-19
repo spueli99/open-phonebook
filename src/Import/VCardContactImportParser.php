@@ -123,6 +123,9 @@ final class VCardContactImportParser implements ContactImportParserInterface
         return $cards;
     }
 
+    /**
+     * @return VCard<Property>
+     */
     private function parseCard(
         string $contents,
         int $cardNumber
@@ -147,6 +150,7 @@ final class VCardContactImportParser implements ContactImportParserInterface
     }
 
     /**
+     * @param VCard<Property> $card
      * @param list<string> $warnings
      */
     private function mapCard(
@@ -268,6 +272,7 @@ final class VCardContactImportParser implements ContactImportParserInterface
     }
 
     /**
+     * @param VCard<Property> $card
      * @return array{?string, ?string}
      */
     private function structuredName(VCard $card): array
@@ -287,6 +292,9 @@ final class VCardContactImportParser implements ContactImportParserInterface
         return [$givenName, $familyName];
     }
 
+    /**
+     * @param VCard<Property> $card
+     */
     private function firstText(
         VCard $card,
         string $propertyName
@@ -302,6 +310,9 @@ final class VCardContactImportParser implements ContactImportParserInterface
         return $this->optionalText((string) $property);
     }
 
+    /**
+     * @param VCard<Property> $card
+     */
     private function firstTextPart(
         VCard $card,
         string $propertyName
@@ -319,6 +330,9 @@ final class VCardContactImportParser implements ContactImportParserInterface
         return $this->optionalText($parts[0] ?? null);
     }
 
+    /**
+     * @param Property<Parameter> $telephone
+     */
     private function phoneLabel(Property $telephone): ?string
     {
         $type = $telephone['TYPE'] ?? null;
