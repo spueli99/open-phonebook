@@ -41,8 +41,11 @@ Platform user administration currently enforces:
 - no deactivation of the last active system administrator
 - no activation changes for deleted users
 - idempotent activation requests
+- no self-demotion from `system_admin`
+- no demotion of the last active system administrator
+- no assignment of `organization_admin` without organization context
 
-Permanent deletion and role changes require a separate future design because they affect ownership and authorization across other domains.
+Platform role changes are currently limited to `member` and `system_admin`. Permanent deletion remains deferred because it affects ownership and authorization across other domains.
 
 ## Users
 
