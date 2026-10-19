@@ -13,6 +13,7 @@ use RuntimeException;
 final class SessionContactImportDraftStore implements ContactImportDraftStoreInterface
 {
     private const SESSION_KEY = '_open_phonebook_contact_import_draft';
+    private const MAX_CONTENT_BYTES = 2_000_000;
 
     public function __construct(
         private readonly ClockInterface $clock,
@@ -26,6 +27,13 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
         string $contents
     ): string {
         $this->requireSession();
+
+        if (
+            $contents === ''
+            || strlen($contents) > self::MAX_CONTENT_BYTES
+        ) {
+            throw new RuntimeException('Import draft contents are invalid.');
+        }
 
         $token = bin2hex(random_bytes(32));
         $expiresAt = $this->clock->now()->add(new DateInterval('PT15M'));
