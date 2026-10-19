@@ -13,6 +13,9 @@ return [
         'fallback_locale' => 'en',
         'key' => null,
     ],
+    'contacts' => [
+        'default_region' => null,
+    ],
     'database' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
