@@ -31,7 +31,7 @@ Der Installer wird über `/setup/` aufgerufen und führt durch:
 
 Die Datenbank-Zugangsdaten werden beim mehrstufigen Setup nur vorübergehend in der serverseitigen PHP-Session gehalten. Sie werden nicht über URL-Parameter weitergegeben.
 
-Nach erfolgreicher Installation wird die lokale Laufzeitkonfiguration in `config/local.php` abgelegt. Diese Datei ist von Git ausgeschlossen.
+Nach erfolgreicher Installation wird die lokale Laufzeitkonfiguration in `config/local.php` abgelegt. Diese Datei ist von Git ausgeschlossen.\n\nDer Installer erzeugt außerdem einen zufälligen Anwendungsschlüssel. Er wird außerhalb der Datenbank in der lokalen Konfiguration gespeichert und unter anderem für datenschutzfreundliche, HMAC-basierte Sicherheitskennungen verwendet. Alternativ kann `OPENPHONEBOOK_APP_KEY` genutzt werden.
 
 ## Sicherheit
 
