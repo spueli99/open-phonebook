@@ -23,7 +23,6 @@ Noch nicht enthalten:
 - externe Kontaktquellen
 - Importe
 - Dublettenerkennung
-- internationale Rufnummernnormalisierung
 
 ## Weboberfläche
 
@@ -31,7 +30,7 @@ Angemeldete Benutzer können ihre eigenen Adressbücher unter `/address-books/` 
 
 Kontaktformulare bieten mehrere Rufnummernfelder ohne zusätzliche JavaScript-Abhängigkeit. Nicht ausgefüllte Rufnummernfelder werden serverseitig ignoriert.
 
-Adressbuchansichten bieten eine GET-basierte Suche über Anzeigename, Vorname, Nachname, Organisation, Rufnummernbezeichnungen und rohe Rufnummern. Die Suche bleibt auf das bereits berechtigte Adressbuch begrenzt. SQL-LIKE-Wildcards aus Benutzereingaben werden vor der Suche escaped.
+Adressbuchansichten bieten eine GET-basierte Suche über Anzeigename, Vorname, Nachname, Organisation, Rufnummernbezeichnungen, rohe Rufnummern und normalisierte E.164-Werte. Die Suche bleibt auf das bereits berechtigte Adressbuch begrenzt. SQL-LIKE-Wildcards aus Benutzereingaben werden vor der Suche escaped.
 
 Alle zustandsändernden Aktionen verwenden POST und benötigen einen gültigen CSRF-Token. Auch Detail- und Bearbeitungsansichten werden vor der Ausgabe über die eigentümergebundenen Anwendungsservices aufgelöst.
 
@@ -65,9 +64,11 @@ Je Telefonnummer werden gespeichert:
 - optional normalisierte E.164-Nummer
 - Reihenfolge
 
-In diesem ersten Schritt wird bewusst nur die geprüfte Rohdarstellung gespeichert. `normalized_e164` bleibt `NULL`, bis eine echte Normalisierung mit eindeutigem Länder-/Regionenkontext vorhanden ist.
+Rufnummern werden mit libphonenumber normalisiert, wenn sie sicher validiert werden können. Die Rohdarstellung bleibt zusätzlich zum normalisierten Wert gespeichert.
 
-Damit werden lokale Nummern nicht fälschlich in internationale Nummern umgedeutet.
+Internationale Nummern mit führendem `+` können ohne Standardregion normalisiert werden. Lokale bzw. nationale Nummern werden nur interpretiert, wenn `contacts.default_region` ausdrücklich einen unterstützten ISO-3166-1-Alpha-2-Ländercode wie `DE` enthält. Ohne konfigurierte Region bleibt bei mehrdeutigen lokalen Nummern `normalized_e164 = NULL`, statt ein Land zu erraten.
+
+Die Standardregion kann alternativ über `OPENPHONEBOOK_DEFAULT_PHONE_REGION` gesetzt werden. Bei Neuinstallationen steht sie im Web-Installer zur Verfügung. Bereits gespeicherte Rufnummern werden nicht stillschweigend rückwirkend verändert; die Normalisierung erfolgt beim späteren Speichern des Kontakts oder über eine zukünftige ausdrücklich gestartete Wartungs-/Importfunktion.
 
 ## Löschen und Transaktionen
 
