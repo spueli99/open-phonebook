@@ -10,7 +10,7 @@
     "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-pdo": "*",
-    "giggsey/libphonenumber-for-php": "^9.0.41"
+    "giggsey/libphonenumber-for-php-lite": "^9.0.41"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
