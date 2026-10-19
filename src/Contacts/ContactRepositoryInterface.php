@@ -26,6 +26,15 @@ interface ContactRepositoryInterface
         int $addressBookId
     ): array;
 
+    /**
+     * @param list<string> $normalizedE164
+     * @return list<Contact>
+     */
+    public function findByNormalizedPhoneNumbers(
+        int $addressBookId,
+        array $normalizedE164
+    ): array;
+
     public function findInAddressBook(int $contactId, int $addressBookId): ?Contact;
 
     /**
