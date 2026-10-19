@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use OpenPhonebook\Contacts\AddressBookRepository;
-use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\AddressBookListView;
 use OpenPhonebook\Web\SecurityHeaders;
@@ -34,14 +34,14 @@ if ($user === null) {
     exit;
 }
 
-$service = new AddressBookService(
-    new AddressBookRepository($runtime->database)
+$service = new AddressBookAccessService(
+    new AddressBookAccessRepository($runtime->database)
 );
 
 SecurityHeaders::sendHtml();
 
 echo AddressBookListView::render(
     $runtime->translator($user->locale),
-    $service->allOwnedBy($user->id),
+    $service->allAccessibleBy($user->id),
     CsrfToken::issue()
 );
