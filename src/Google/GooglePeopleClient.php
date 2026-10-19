@@ -161,7 +161,17 @@ final class GooglePeopleClient
             $displayName = $organizationName;
         }
 
-        if ($displayName === '') {
+        if (
+            $displayName === ''
+            || mb_strlen($displayName) > 255
+            || ($givenName !== null && mb_strlen($givenName) > 120)
+            || ($familyName !== null && mb_strlen($familyName) > 120)
+            || (
+                $organizationName !== null
+                && mb_strlen($organizationName) > 255
+            )
+            || ($notes !== null && mb_strlen($notes) > 10_000)
+        ) {
             return null;
         }
 
@@ -176,7 +186,7 @@ final class GooglePeopleClient
 
                 $value = $this->stringValue($phone, 'value');
 
-                if ($value === null) {
+                if ($value === null || mb_strlen($value) > 100) {
                     continue;
                 }
 
@@ -184,6 +194,10 @@ final class GooglePeopleClient
                     $phone,
                     'formattedType'
                 ) ?? $this->stringValue($phone, 'type');
+
+                if ($label !== null && mb_strlen($label) > 64) {
+                    $label = null;
+                }
 
                 $phoneNumbers[] = new ImportPreviewPhoneNumber(
                     $label,
