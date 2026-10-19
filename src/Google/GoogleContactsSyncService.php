@@ -9,6 +9,7 @@ use OpenPhonebook\Contacts\ContactPhoneNumberInput;
 use OpenPhonebook\Contacts\ContactRepositoryInterface;
 use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
 use OpenPhonebook\Database\TransactionManagerInterface;
+use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Sources\ContactSourceRepositoryInterface;
 use RuntimeException;
 
@@ -19,6 +20,7 @@ final class GoogleContactsSyncService
         private readonly ContactSourceRepositoryInterface $sources,
         private readonly ContactRepositoryInterface $contacts,
         private readonly PhoneNumberNormalizerInterface $normalizer,
+        private readonly SecretCipher $cipher,
         private readonly GoogleOAuthClient $oauth,
         private readonly GooglePeopleClient $people,
         private readonly TransactionManagerInterface $transactions,
@@ -42,9 +44,10 @@ final class GoogleContactsSyncService
             );
         }
 
-        $tokenSet = $this->oauth->refresh(
+        $refreshToken = $this->cipher->decrypt(
             $source->encryptedRefreshToken
         );
+        $tokenSet = $this->oauth->refresh($refreshToken);
         $snapshot = $this->people->allConnections(
             $tokenSet->accessToken
         );
