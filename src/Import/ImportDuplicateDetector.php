@@ -32,7 +32,7 @@ final class ImportDuplicateDetector
         $seenImportNumbers = [];
         $result = [];
 
-        foreach ($contacts as $contact) {
+        foreach ($contacts as $index => $contact) {
             $normalizedNumbers = [];
 
             foreach ($contact->phoneNumbers as $phoneNumber) {
@@ -63,7 +63,7 @@ final class ImportDuplicateDetector
             }
 
             $result[] = new ImportPreviewCandidate(
-                $contact->sourceRow,
+                $index,
                 $contact,
                 $status,
             );
