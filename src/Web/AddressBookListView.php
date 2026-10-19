@@ -25,15 +25,26 @@ final class AddressBookListView
                 . Html::escape($addressBook->name) . '</a></td>'
                 . '<td class="actions">'
                 . '<form method="post" action="/address-books/rename/">'
-                . '<input type="hidden" name="_csrf" value="' . Html::escape($csrfToken) . '">'
-                . '<input type="hidden" name="address_book_id" value="' . $addressBook->id . '">'
-                . '<input name="name" maxlength="120" required value="' . Html::escape($addressBook->name) . '">'
-                . '<button type="submit">' . Html::escape($translator->get('contacts.address_books.rename')) . '</button>'
+                . '<input type="hidden" name="_csrf" value="'
+                . Html::escape($csrfToken) . '">'
+                . '<input type="hidden" name="address_book_id" value="'
+                . $addressBook->id . '">'
+                . '<input name="name" maxlength="120" required value="'
+                . Html::escape($addressBook->name) . '">'
+                . '<button type="submit">'
+                . Html::escape(
+                    $translator->get('contacts.address_books.rename')
+                )
+                . '</button>'
                 . '</form>'
                 . '<form method="post" action="/address-books/delete/">'
                 . '<input type="hidden" name="_csrf" value="' . Html::escape($csrfToken) . '">'
                 . '<input type="hidden" name="address_book_id" value="' . $addressBook->id . '">'
-                . '<button type="submit">' . Html::escape($translator->get('contacts.address_books.delete')) . '</button>'
+                . '<button type="submit">'
+                . Html::escape(
+                    $translator->get('contacts.address_books.delete')
+                )
+                . '</button>'
                 . '</form></td></tr>';
         }
 
@@ -44,10 +55,14 @@ final class AddressBookListView
         }
 
         return '<!doctype html><html lang="' . Html::escape($translator->locale) . '">'
-            . '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-            . '<title>' . Html::escape($translator->get('contacts.address_books.title')) . ' · Open Phonebook</title>'
+            . '<head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<title>'
+            . Html::escape($translator->get('contacts.address_books.title'))
+            . ' · Open Phonebook</title>'
             . '<style>body{font-family:system-ui,sans-serif;max-width:1000px;margin:5vh auto;padding:20px}'
-            . 'table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left}'
+            . 'table{width:100%;border-collapse:collapse}'
+            . 'th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left}'
             . '.actions{display:flex;gap:8px;flex-wrap:wrap}.actions form{margin:0;display:flex;gap:6px}'
             . '.create{display:flex;gap:8px;margin:20px 0}input,button{padding:8px}</style>'
             . '</head><body><main><nav><a href="/">'
@@ -57,7 +72,11 @@ final class AddressBookListView
             . '<input type="hidden" name="_csrf" value="' . Html::escape($csrfToken) . '">'
             . '<label>' . Html::escape($translator->get('contacts.address_books.name'))
             . ' <input name="name" maxlength="120" required></label>'
-            . '<button type="submit">' . Html::escape($translator->get('contacts.address_books.create')) . '</button>'
+            . '<button type="submit">'
+            . Html::escape(
+                $translator->get('contacts.address_books.create')
+            )
+            . '</button>'
             . '</form><table><thead><tr><th>'
             . Html::escape($translator->get('contacts.address_books.name')) . '</th><th>'
             . Html::escape($translator->get('users.actions')) . '</th></tr></thead><tbody>'
