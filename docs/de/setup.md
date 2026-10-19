@@ -53,3 +53,5 @@ Nach erfolgreicher Installation wird `storage/installed.lock` angelegt. Danach i
 ## Nicht Bestandteil der Erstinstallation
 
 Google Contacts, Pushover, SMTP, Telefone und weitere Integrationen werden später innerhalb der angemeldeten Anwendung eingerichtet. Dadurch bleibt die Grundinstallation unabhängig von einzelnen Diensten oder Herstellern.
+
+Für Google Kontakte werden nach der Installation `OPENPHONEBOOK_GOOGLE_CLIENT_ID` und `OPENPHONEBOOK_GOOGLE_CLIENT_SECRET` gesetzt oder die entsprechenden `providers.google`-Werte in `config/local.php` hinterlegt. Die `base_url` muss HTTPS verwenden; als OAuth-Redirect-URI wird `<base_url>/sources/google/callback/` eingetragen.
