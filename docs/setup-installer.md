@@ -10,7 +10,7 @@ The installer is intentionally small. It uses the same configuration, database, 
 
 1. System and security checks
 2. Database connection
-3. Application defaults and initial administrator
+3. Application defaults, optional default phone region, and initial administrator
 4. Database migrations
 5. Runtime configuration write
 6. Installation lock and completion
@@ -62,6 +62,8 @@ Configuration precedence remains:
 `config/local.php` is excluded from Git.
 
 The installer generates a random application key and stores it in the local runtime configuration. The key is not stored in the database.
+
+The application step also accepts an optional ISO 3166-1 alpha-2 default phone region such as `DE`. Leaving it empty deliberately disables region-based interpretation of local/national phone numbers. The value is written as `contacts.default_region` and may be overridden with `OPENPHONEBOOK_DEFAULT_PHONE_REGION`.
 
 For managed/container deployments, the application key may instead be supplied through `OPENPHONEBOOK_APP_KEY`.
 
