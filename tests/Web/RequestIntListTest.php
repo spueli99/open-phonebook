@@ -34,6 +34,6 @@ final class RequestIntListTest extends TestCase
 
         $_POST = ['rows' => '1'];
 
-        self::assertSame([], Request::postIntList('rows'));
+        self::assertCount(0, Request::postIntList('rows'));
     }
 }
