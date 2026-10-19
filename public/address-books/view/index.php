@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use OpenPhonebook\Contacts\AddressBookRepository;
+use OpenPhonebook\Contacts\AddressBookService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Security\CsrfToken;
@@ -40,9 +41,11 @@ $addressBookId = isset($_GET['id']) && is_string($_GET['id'])
     : 0;
 
 $addressBooks = new AddressBookRepository($runtime->database);
-$addressBook = $addressBooks->findOwnedBy($addressBookId, $user->id);
+$addressBookService = new AddressBookService($addressBooks);
 
-if ($addressBook === null) {
+try {
+    $addressBook = $addressBookService->getOwned($addressBookId, $user->id);
+} catch (Throwable) {
     http_response_code(404);
     exit;
 }
