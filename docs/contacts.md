@@ -14,6 +14,7 @@ Included:
 - transaction-safe creation and updates of contacts with phone numbers
 - authenticated web UI for address books and contacts
 - CSRF-protected create, update, rename, and delete operations
+- owner-scoped contact search by name, organization, phone label, and raw phone number
 
 Not included yet:
 
@@ -21,7 +22,6 @@ Not included yet:
 - organization-owned address books
 - external contact sources
 - imports
-- search
 - duplicate handling
 - international phone-number normalization
 
@@ -30,6 +30,8 @@ Not included yet:
 Authenticated users can manage their own address books from `/address-books/`. The UI supports creating, renaming, opening, and soft-deleting address books as well as creating, editing, and soft-deleting contacts.
 
 Contact forms expose multiple phone-number slots without introducing a JavaScript dependency. Empty phone-number fields are ignored server-side.
+
+Address-book views provide a GET-based search across display name, given name, family name, organization name, phone labels, and raw phone-number values. Search remains scoped to the already authorized address book. SQL LIKE wildcards from user input are escaped before matching.
 
 All state-changing operations use POST and require a valid CSRF token. Detail and edit reads are resolved through owner-scoped application services before data is rendered.
 

@@ -39,12 +39,11 @@ Completed or in active work:
 - owner-scoped contact services
 - soft deletion
 - personal address-book and contact web UI
+- owner-scoped contact search
 
 Still planned:
 
 - international number normalization
-- search
-- soft delete
 - sharing
 
 ## Contact sources and imports

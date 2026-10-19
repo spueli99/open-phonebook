@@ -54,12 +54,27 @@ $service = new ContactService(
     $addressBooks,
     new ContactRepository($runtime->database)
 );
+$searchQuery = isset($_GET['q']) && is_string($_GET['q'])
+    ? trim($_GET['q'])
+    : '';
+
+try {
+    $contacts = $service->searchInOwnedAddressBook(
+        $addressBookId,
+        $user->id,
+        $searchQuery
+    );
+} catch (Throwable) {
+    http_response_code(400);
+    exit;
+}
 
 SecurityHeaders::sendHtml();
 
 echo ContactListView::render(
     $runtime->translator($user->locale),
     $addressBook,
-    $service->allInOwnedAddressBook($addressBookId, $user->id),
-    CsrfToken::issue()
+    $contacts,
+    CsrfToken::issue(),
+    $searchQuery
 );

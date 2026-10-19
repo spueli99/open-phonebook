@@ -31,6 +31,8 @@ return [
     'contacts.organization' => 'Organisation',
     'contacts.notes' => 'Notizen',
     'contacts.phone_numbers' => 'Telefonnummern',
+    'contacts.search' => 'Suche',
+    'contacts.search.submit' => 'Suchen',
     'contacts.phone_numbers.help' => 'Nicht benötigte Telefonnummernfelder einfach leer lassen.',
     'contacts.phone_label' => 'Bezeichnung',
     'contacts.phone_number' => 'Rufnummer',

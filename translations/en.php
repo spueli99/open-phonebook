@@ -31,6 +31,8 @@ return [
     'contacts.organization' => 'Organization',
     'contacts.notes' => 'Notes',
     'contacts.phone_numbers' => 'Phone numbers',
+    'contacts.search' => 'Search',
+    'contacts.search.submit' => 'Search',
     'contacts.phone_numbers.help' => 'Leave unused phone-number fields empty.',
     'contacts.phone_label' => 'Label',
     'contacts.phone_number' => 'Number',
