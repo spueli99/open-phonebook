@@ -31,6 +31,41 @@ final class InMemoryContactRepository implements ContactRepositoryInterface
         return $result;
     }
 
+    public function searchInAddressBook(
+        int $addressBookId,
+        string $query
+    ): array {
+        $needle = mb_strtolower($query);
+        $result = [];
+
+        foreach ($this->contacts as $contact) {
+            if ($contact->addressBookId !== $addressBookId) {
+                continue;
+            }
+
+            $haystacks = [
+                $contact->displayName,
+                $contact->givenName ?? '',
+                $contact->familyName ?? '',
+                $contact->organizationName ?? '',
+            ];
+
+            foreach ($contact->phoneNumbers as $phoneNumber) {
+                $haystacks[] = $phoneNumber->label ?? '';
+                $haystacks[] = $phoneNumber->rawNumber;
+            }
+
+            foreach ($haystacks as $haystack) {
+                if (str_contains(mb_strtolower($haystack), $needle)) {
+                    $result[] = $contact;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
     public function findInAddressBook(
         int $contactId,
         int $addressBookId
