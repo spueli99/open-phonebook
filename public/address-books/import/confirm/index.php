@@ -8,6 +8,8 @@ use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Database\PdoTransactionManager;
 use OpenPhonebook\Import\ContactImportService;
+use OpenPhonebook\Import\ImportContactMerger;
+use OpenPhonebook\Import\ImportDuplicateAction;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
@@ -65,6 +67,26 @@ try {
     )->addressBook;
     $contactRepository = new ContactRepository($runtime->database);
     $normalizer = $runtime->phoneNumberNormalizer();
+    $duplicateActions = [];
+
+    foreach (Request::postStringMap('duplicate_actions') as $row => $value) {
+        if (!preg_match('/^\d+$/', $row)) {
+            throw new RuntimeException(
+                'Invalid duplicate import row.'
+            );
+        }
+
+        $action = ImportDuplicateAction::tryFrom($value);
+
+        if ($action === null) {
+            throw new RuntimeException(
+                'Invalid duplicate import action.'
+            );
+        }
+
+        $duplicateActions[(int) $row] = $action;
+    }
+
     $result = (new ContactImportService(
         $access,
         new CsvContactImportParser(),
@@ -78,12 +100,13 @@ try {
             $contactRepository,
             $normalizer
         ),
+        new ImportContactMerger($normalizer),
         new PdoTransactionManager($runtime->database)
     ))->import(
         Request::postString('draft_token'),
         $addressBookId,
         $user->id,
-        Request::postIntList('force_duplicate_rows')
+        $duplicateActions
     );
 } catch (Throwable) {
     http_response_code(400);
@@ -116,5 +139,6 @@ echo ContactImportPreviewView::renderComplete(
     $runtime->translator($user->locale),
     $addressBook,
     $result->importedContacts,
+    $result->mergedContacts,
     $result->skippedDuplicates
 );
