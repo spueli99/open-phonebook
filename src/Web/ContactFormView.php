@@ -18,6 +18,13 @@ final class ContactFormView
         $isEdit = $contact !== null;
         $action = $isEdit ? '/contacts/update/' : '/contacts/create/';
         $title = $translator->get($isEdit ? 'contacts.edit' : 'contacts.create');
+        $displayName = $contact === null ? '' : $contact->displayName;
+        $givenName = $contact === null ? '' : ($contact->givenName ?? '');
+        $familyName = $contact === null ? '' : ($contact->familyName ?? '');
+        $organizationName = $contact === null
+            ? ''
+            : ($contact->organizationName ?? '');
+        $notes = $contact === null ? '' : ($contact->notes ?? '');
 
         $phoneRows = '';
 
@@ -62,7 +69,7 @@ final class ContactFormView
                 $translator,
                 'contacts.display_name',
                 'display_name',
-                $contact?->displayName ?? '',
+                $displayName,
                 255,
                 true
             )
@@ -70,25 +77,25 @@ final class ContactFormView
                 $translator,
                 'contacts.given_name',
                 'given_name',
-                $contact?->givenName ?? '',
+                $givenName,
                 120
             )
             . self::field(
                 $translator,
                 'contacts.family_name',
                 'family_name',
-                $contact?->familyName ?? '',
+                $familyName,
                 120
             )
             . self::field(
                 $translator,
                 'contacts.organization',
                 'organization_name',
-                $contact?->organizationName ?? '',
+                $organizationName,
                 255
             )
             . '<label>' . Html::escape($translator->get('contacts.notes'))
-            . '<textarea name="notes" rows="5">' . Html::escape($contact?->notes ?? '') . '</textarea></label>'
+            . '<textarea name="notes" rows="5">' . Html::escape($notes) . '</textarea></label>'
             . '<fieldset><legend>' . Html::escape($translator->get('contacts.phone_numbers')) . '</legend>'
             . $phoneRows
             . '<p>' . Html::escape($translator->get('contacts.phone_numbers.help')) . '</p></fieldset>'
