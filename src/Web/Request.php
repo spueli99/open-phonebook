@@ -29,6 +29,17 @@ final class Request
         return is_string($value) ? trim($value) : '';
     }
 
+    public static function postPositiveInt(string $key): int
+    {
+        $value = self::postString($key);
+
+        if (!preg_match('/^[1-9]\d*$/', $value)) {
+            return 0;
+        }
+
+        return (int) $value;
+    }
+
     public static function postPassword(string $key): string
     {
         $value = $_POST[$key] ?? '';
