@@ -8,6 +8,8 @@ use OpenPhonebook\Contacts\AddressBookAccessLevel;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
 use OpenPhonebook\Import\ContactImportService;
+use OpenPhonebook\Import\ImportContactMerger;
+use OpenPhonebook\Import\ImportDuplicateAction;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
@@ -45,6 +47,7 @@ final class ContactImportServiceTest extends TestCase
         $result = $service->import($token, $addressBookId, 10);
 
         self::assertSame(2, $result->importedContacts);
+        self::assertSame(0, $result->mergedContacts);
         self::assertSame(0, $result->skippedDuplicates);
         self::assertSame(1, $transactions->calls);
 
@@ -203,11 +206,128 @@ final class ContactImportServiceTest extends TestCase
         );
 
         self::assertSame(1, $result->importedContacts);
+        self::assertSame(0, $result->mergedContacts);
         self::assertSame(0, $result->skippedDuplicates);
         self::assertCount(
             2,
             $contacts->allInAddressBook($addressBookId)
         );
+    }
+
+    public function testExistingDuplicateCanMergeIntoUnambiguousContact(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $existingId = $contacts->create(
+            $addressBookId,
+            'Existing Name',
+            'Existing',
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            implode("\n", [
+                'display_name,family_name,organization_name,notes,phone_1,phone_2,phone_2_label',
+                'Incoming Name,Example,Example GmbH,Imported note,+49 170 1234567,+49 211 7654321,Office',
+            ])
+        );
+
+        $result = $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [0 => ImportDuplicateAction::Merge]
+        );
+
+        self::assertSame(0, $result->importedContacts);
+        self::assertSame(1, $result->mergedContacts);
+        self::assertSame(0, $result->skippedDuplicates);
+
+        $merged = $contacts->findInAddressBook(
+            $existingId,
+            $addressBookId
+        );
+        self::assertNotNull($merged);
+        self::assertSame('Existing Name', $merged->displayName);
+        self::assertSame('Existing', $merged->givenName);
+        self::assertSame('Example', $merged->familyName);
+        self::assertSame('Example GmbH', $merged->organizationName);
+        self::assertSame('Imported note', $merged->notes);
+        self::assertCount(2, $merged->phoneNumbers);
+        self::assertSame(
+            '+492117654321',
+            $merged->phoneNumbers[1]->normalizedE164
+        );
+    }
+
+    public function testMergeNeverOverwritesExistingNonEmptyFields(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $existingId = $contacts->create(
+            $addressBookId,
+            'Existing Name',
+            'Existing',
+            'Person',
+            'Existing Org',
+            'Existing note',
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            implode("\n", [
+                'display_name,given_name,family_name,organization_name,notes,phone_1',
+                'Incoming Name,Incoming,Example,Incoming Org,Incoming note,+49 170 1234567',
+            ])
+        );
+
+        $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [0 => ImportDuplicateAction::Merge]
+        );
+
+        $merged = $contacts->findInAddressBook(
+            $existingId,
+            $addressBookId
+        );
+        self::assertNotNull($merged);
+        self::assertSame('Existing Name', $merged->displayName);
+        self::assertSame('Existing', $merged->givenName);
+        self::assertSame('Person', $merged->familyName);
+        self::assertSame('Existing Org', $merged->organizationName);
+        self::assertSame('Existing note', $merged->notes);
+        self::assertCount(1, $merged->phoneNumbers);
     }
 
     public function testDuplicateWithinImportSkipsLaterRow(): void
@@ -346,6 +466,7 @@ final class ContactImportServiceTest extends TestCase
                     $contacts,
                     $normalizer
                 ),
+                new ImportContactMerger($normalizer),
                 $transactions
             ),
             $drafts,
