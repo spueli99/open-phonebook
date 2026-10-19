@@ -22,7 +22,7 @@ final class ContactImportPreviewView
 
         return self::pageStart(
             $translator,
-            $translator->get('imports.csv.title')
+            $translator->get('imports.title')
         )
             . '<nav><a href="/address-books/view/?id='
             . $addressBook->id . '">'
