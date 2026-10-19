@@ -30,8 +30,10 @@ final class PdoTransactionManager implements TransactionManagerInterface
 
             return $result;
         } catch (Throwable $exception) {
-            if ($this->database->inTransaction()) {
+            try {
                 $this->database->rollBack();
+            } catch (Throwable) {
+                // Preserve the original transaction failure.
             }
 
             throw $exception;
