@@ -8,6 +8,7 @@ use RuntimeException;
 
 final class CurlHttpClient implements HttpClientInterface
 {
+    private const MAX_RESPONSE_BYTES = 16_000_000;
     public function get(string $url, array $headers = []): HttpResponse
     {
         return $this->request('GET', $url, $headers, null);
@@ -50,20 +51,42 @@ final class CurlHttpClient implements HttpClientInterface
             $headerLines[] = $name . ': ' . $value;
         }
 
-        curl_setopt_array($handle, [
+        $responseBody = '';
+
+        $options = [
             CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_RETURNTRANSFER => false,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTPHEADER => $headerLines,
-            CURLOPT_POSTFIELDS => $body,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-        ]);
+            CURLOPT_WRITEFUNCTION => static function (
+                mixed $curl,
+                string $chunk
+            ) use (&$responseBody): int {
+                if (
+                    strlen($responseBody) + strlen($chunk)
+                    > self::MAX_RESPONSE_BYTES
+                ) {
+                    return 0;
+                }
 
-        $responseBody = curl_exec($handle);
+                $responseBody .= $chunk;
 
-        if (!is_string($responseBody)) {
+                return strlen($chunk);
+            },
+        ];
+
+        if ($body !== null) {
+            $options[CURLOPT_POSTFIELDS] = $body;
+        }
+
+        curl_setopt_array($handle, $options);
+
+        $success = curl_exec($handle);
+
+        if ($success === false) {
             $error = curl_error($handle);
             curl_close($handle);
 
