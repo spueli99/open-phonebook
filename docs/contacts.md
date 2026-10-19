@@ -12,6 +12,8 @@ Included:
 - contact and address-book soft deletion
 - explicit owner checks before reading or mutating contact data
 - transaction-safe creation and updates of contacts with phone numbers
+- authenticated web UI for address books and contacts
+- CSRF-protected create, update, rename, and delete operations
 
 Not included yet:
 
@@ -21,8 +23,15 @@ Not included yet:
 - imports
 - search
 - duplicate handling
-- contact web UI
 - international phone-number normalization
+
+## Web UI
+
+Authenticated users can manage their own address books from `/address-books/`. The UI supports creating, renaming, opening, and soft-deleting address books as well as creating, editing, and soft-deleting contacts.
+
+Contact forms expose multiple phone-number slots without introducing a JavaScript dependency. Empty phone-number fields are ignored server-side.
+
+All state-changing operations use POST and require a valid CSRF token. Detail and edit reads are resolved through owner-scoped application services before data is rendered.
 
 ## Ownership
 
