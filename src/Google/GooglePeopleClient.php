@@ -93,7 +93,11 @@ final class GooglePeopleClient
 
                 $externalId = $person['resourceName'] ?? null;
 
-                if (!is_string($externalId) || $externalId === '') {
+                if (
+                    !is_string($externalId)
+                    || $externalId === ''
+                    || mb_strlen($externalId) > 255
+                ) {
                     continue;
                 }
 
@@ -143,18 +147,17 @@ final class GooglePeopleClient
         $notes = $this->stringValue($biography, 'value');
 
         if ($displayName === null) {
-            $displayName = trim(
-                implode(
-                    ' ',
-                    array_values(
-                        array_filter(
-                            [$givenName, $familyName],
-                            static fn (?string $value): bool =>
-                                $value !== null
-                        )
-                    )
-                )
-            );
+            $nameParts = [];
+
+            if ($givenName !== null) {
+                $nameParts[] = $givenName;
+            }
+
+            if ($familyName !== null) {
+                $nameParts[] = $familyName;
+            }
+
+            $displayName = implode(' ', $nameParts);
         }
 
         if ($displayName === '' && $organizationName !== null) {
