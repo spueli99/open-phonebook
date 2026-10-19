@@ -28,6 +28,14 @@ interface DeviceRepositoryInterface
         ?string $model
     ): int;
 
+    public function updateIdentity(
+        int $deviceId,
+        int $ownerUserId,
+        string $name,
+        ?string $vendor,
+        ?string $model
+    ): bool;
+
     public function setActive(
         int $deviceId,
         int $ownerUserId,
