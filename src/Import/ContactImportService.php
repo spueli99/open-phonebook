@@ -19,14 +19,19 @@ final class ContactImportService
         private readonly ContactImportDraftStoreInterface $drafts,
         private readonly ContactRepositoryInterface $contacts,
         private readonly PhoneNumberNormalizerInterface $phoneNumberNormalizer,
+        private readonly ImportDuplicateDetector $duplicates,
         private readonly TransactionManagerInterface $transactions,
     ) {
     }
 
+    /**
+     * @param list<int> $forceDuplicateRows
+     */
     public function import(
         string $token,
         int $addressBookId,
-        int $userId
+        int $userId,
+        array $forceDuplicateRows = []
     ): ContactImportResult {
         $this->addressBookAccess->requireWritable(
             $addressBookId,
@@ -53,11 +58,32 @@ final class ContactImportService
             );
         }
 
-        $importedContacts = $this->transactions->transactional(
-            function () use ($preview, $addressBookId): int {
-                $count = 0;
+        $candidates = $this->duplicates->detect(
+            $addressBookId,
+            $preview->contacts
+        );
+        $forcedRows = array_fill_keys($forceDuplicateRows, true);
 
-                foreach ($preview->contacts as $contact) {
+        [$importedContacts, $skippedDuplicates] =
+            $this->transactions->transactional(
+                function () use (
+                    $candidates,
+                    $forcedRows,
+                    $addressBookId
+                ): array {
+                    $count = 0;
+                    $skipped = 0;
+
+                    foreach ($candidates as $candidate) {
+                        if (
+                            $candidate->duplicateStatus->isDuplicate()
+                            && !isset($forcedRows[$candidate->sourceRow])
+                        ) {
+                            $skipped++;
+                            continue;
+                        }
+
+                        $contact = $candidate->contact;
                     $phoneNumbers = [];
 
                     foreach ($contact->phoneNumbers as $phoneNumber) {
@@ -80,14 +106,17 @@ final class ContactImportService
                         $phoneNumbers,
                     );
                     $count++;
-                }
+                    }
 
-                return $count;
-            }
-        );
+                    return [$count, $skipped];
+                }
+            );
 
         $this->drafts->discard($token);
 
-        return new ContactImportResult($importedContacts);
+        return new ContactImportResult(
+            $importedContacts,
+            $skippedDuplicates
+        );
     }
 }
