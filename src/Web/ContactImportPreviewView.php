@@ -6,7 +6,7 @@ namespace OpenPhonebook\Web;
 
 use OpenPhonebook\Contacts\AddressBook;
 use OpenPhonebook\I18n\Translator;
-use OpenPhonebook\Import\ImportPreviewResult;
+use OpenPhonebook\Import\ImportReviewResult;
 
 final class ContactImportPreviewView
 {
@@ -52,13 +52,14 @@ final class ContactImportPreviewView
     public static function renderPreview(
         Translator $translator,
         AddressBook $addressBook,
-        ImportPreviewResult $preview,
+        ImportReviewResult $preview,
         string $csrfToken,
         string $draftToken
     ): string {
         $rows = '';
 
-        foreach ($preview->contacts as $contact) {
+        foreach ($preview->candidates as $candidate) {
+            $contact = $candidate->contact;
             $numbers = [];
 
             foreach ($contact->phoneNumbers as $number) {
@@ -68,13 +69,27 @@ final class ContactImportPreviewView
                 $numbers[] = Html::escape($label . $number->rawNumber);
             }
 
+            $statusKey = 'imports.duplicate.'
+                . $candidate->duplicateStatus->value;
+            $force = $candidate->duplicateStatus->isDuplicate()
+                ? '<label><input type="checkbox" '
+                    . 'name="force_duplicate_rows[]" value="'
+                    . $candidate->sourceRow . '"> '
+                    . Html::escape(
+                        $translator->get('imports.duplicate.force')
+                    )
+                    . '</label>'
+                : '';
+
             $rows .= '<tr><td>'
                 . Html::escape($contact->displayName)
                 . '</td><td>'
                 . Html::escape($contact->organizationName ?? '')
                 . '</td><td>'
                 . implode('<br>', $numbers)
-                . '</td></tr>';
+                . '</td><td>'
+                . Html::escape($translator->get($statusKey))
+                . '</td><td>' . $force . '</td></tr>';
         }
 
         $warnings = '';
@@ -103,15 +118,6 @@ final class ContactImportPreviewView
             )
             . '</p>'
             . $warningBlock
-            . '<table><thead><tr><th>'
-            . Html::escape($translator->get('contacts.display_name'))
-            . '</th><th>'
-            . Html::escape($translator->get('contacts.organization'))
-            . '</th><th>'
-            . Html::escape($translator->get('contacts.phone_numbers'))
-            . '</th></tr></thead><tbody>'
-            . $rows
-            . '</tbody></table>'
             . '<form method="post" action="/address-books/import/confirm/">'
             . '<input type="hidden" name="_csrf" value="'
             . Html::escape($csrfToken) . '">'
@@ -119,6 +125,19 @@ final class ContactImportPreviewView
             . $addressBook->id . '">'
             . '<input type="hidden" name="draft_token" value="'
             . Html::escape($draftToken) . '">'
+            . '<table><thead><tr><th>'
+            . Html::escape($translator->get('contacts.display_name'))
+            . '</th><th>'
+            . Html::escape($translator->get('contacts.organization'))
+            . '</th><th>'
+            . Html::escape($translator->get('contacts.phone_numbers'))
+            . '</th><th>'
+            . Html::escape($translator->get('imports.duplicate.status'))
+            . '</th><th>'
+            . Html::escape($translator->get('imports.duplicate.action'))
+            . '</th></tr></thead><tbody>'
+            . $rows
+            . '</tbody></table>'
             . '<button type="submit">'
             . Html::escape($translator->get('imports.confirm'))
             . '</button></form>'
@@ -128,7 +147,8 @@ final class ContactImportPreviewView
     public static function renderComplete(
         Translator $translator,
         AddressBook $addressBook,
-        int $importedContacts
+        int $importedContacts,
+        int $skippedDuplicates
     ): string {
         return self::pageStart(
             $translator,
@@ -142,6 +162,14 @@ final class ContactImportPreviewView
                 sprintf(
                     $translator->get('imports.complete.count'),
                     $importedContacts
+                )
+            )
+            . '</p>'
+            . '<p>'
+            . Html::escape(
+                sprintf(
+                    $translator->get('imports.complete.skipped'),
+                    $skippedDuplicates
                 )
             )
             . '</p>'
