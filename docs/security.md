@@ -20,6 +20,7 @@ Assume the public web interface and device/export endpoints are internet-accessi
 - OAuth state validation
 - no secrets in source control
 - no sensitive values in application logs
+- no-store caching policy for HTML responses containing private data or one-time secrets
 - safe file upload parsing and size limits
 - import preview before persistence
 - database migrations executed explicitly and transactionally where possible
