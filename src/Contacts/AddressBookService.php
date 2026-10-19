@@ -21,6 +21,11 @@ final class AddressBookService
         return $this->addressBooks->allOwnedBy($ownerUserId);
     }
 
+    public function getOwned(int $addressBookId, int $ownerUserId): AddressBook
+    {
+        return $this->requireOwned($addressBookId, $ownerUserId);
+    }
+
     public function create(int $ownerUserId, string $name): int
     {
         return $this->addressBooks->create(
