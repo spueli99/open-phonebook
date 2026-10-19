@@ -69,6 +69,48 @@ final class InvitationRepository implements InvitationRepositoryInterface
         return $statement->fetchColumn() !== false;
     }
 
+    public function allUsable(DateTimeImmutable $now): array
+    {
+        $statement = $this->database->prepare(
+            'SELECT id, email, role, expires_at, accepted_at, revoked_at
+             FROM user_invitations
+             WHERE accepted_at IS NULL
+               AND revoked_at IS NULL
+               AND expires_at > :now
+             ORDER BY expires_at ASC, email ASC'
+        );
+        $statement->execute([
+            'now' => $now->format('Y-m-d H:i:s'),
+        ]);
+
+        $invitations = [];
+
+        while (($row = $statement->fetch()) !== false) {
+            if (!is_array($row)) {
+                throw new RuntimeException('Unexpected invitation query result.');
+            }
+
+            $invitations[] = $this->hydrate($row);
+        }
+
+        return $invitations;
+    }
+
+    public function findUsableById(
+        int $invitationId,
+        DateTimeImmutable $now
+    ): ?Invitation {
+        $statement = $this->database->prepare(
+            'SELECT id, email, role, expires_at, accepted_at, revoked_at
+             FROM user_invitations
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $statement->execute(['id' => $invitationId]);
+
+        return $this->usableFromStatement($statement, $now);
+    }
+
     public function findUsableByTokenHash(
         string $tokenHash,
         DateTimeImmutable $now
@@ -81,34 +123,36 @@ final class InvitationRepository implements InvitationRepositoryInterface
         );
         $statement->execute(['token_hash' => $tokenHash]);
 
-        $row = $statement->fetch();
+        return $this->usableFromStatement($statement, $now);
+    }
 
-        if ($row === false) {
-            return null;
-        }
-
-        if (!is_array($row)) {
-            throw new RuntimeException('Unexpected invitation query result.');
-        }
-
-        $utc = new DateTimeZone('UTC');
-        $acceptedAt = $row['accepted_at'];
-        $revokedAt = $row['revoked_at'];
-
-        $invitation = new Invitation(
-            (int) $row['id'],
-            (string) $row['email'],
-            (string) $row['role'],
-            new DateTimeImmutable((string) $row['expires_at'], $utc),
-            $acceptedAt === null
-                ? null
-                : new DateTimeImmutable((string) $acceptedAt, $utc),
-            $revokedAt === null
-                ? null
-                : new DateTimeImmutable((string) $revokedAt, $utc),
+    public function renew(
+        int $invitationId,
+        string $tokenHash,
+        DateTimeImmutable $expiresAt,
+        int $createdByUserId,
+        DateTimeImmutable $now
+    ): bool {
+        $statement = $this->database->prepare(
+            'UPDATE user_invitations
+             SET token_hash = :token_hash,
+                 expires_at = :expires_at,
+                 created_by_user_id = :created_by_user_id,
+                 created_at = UTC_TIMESTAMP()
+             WHERE id = :id
+               AND accepted_at IS NULL
+               AND revoked_at IS NULL
+               AND expires_at > :now'
         );
+        $statement->execute([
+            'token_hash' => $tokenHash,
+            'expires_at' => $expiresAt->format('Y-m-d H:i:s'),
+            'created_by_user_id' => $createdByUserId,
+            'id' => $invitationId,
+            'now' => $now->format('Y-m-d H:i:s'),
+        ]);
 
-        return $invitation->isUsable($now) ? $invitation : null;
+        return $statement->rowCount() === 1;
     }
 
     public function markAccepted(int $invitationId): void
@@ -137,5 +181,47 @@ final class InvitationRepository implements InvitationRepositoryInterface
                AND revoked_at IS NULL'
         );
         $statement->execute(['id' => $invitationId]);
+    }
+
+    private function usableFromStatement(
+        \PDOStatement $statement,
+        DateTimeImmutable $now
+    ): ?Invitation {
+        $row = $statement->fetch();
+
+        if ($row === false) {
+            return null;
+        }
+
+        if (!is_array($row)) {
+            throw new RuntimeException('Unexpected invitation query result.');
+        }
+
+        $invitation = $this->hydrate($row);
+
+        return $invitation->isUsable($now) ? $invitation : null;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function hydrate(array $row): Invitation
+    {
+        $utc = new DateTimeZone('UTC');
+        $acceptedAt = $row['accepted_at'];
+        $revokedAt = $row['revoked_at'];
+
+        return new Invitation(
+            (int) $row['id'],
+            (string) $row['email'],
+            (string) $row['role'],
+            new DateTimeImmutable((string) $row['expires_at'], $utc),
+            $acceptedAt === null
+                ? null
+                : new DateTimeImmutable((string) $acceptedAt, $utc),
+            $revokedAt === null
+                ? null
+                : new DateTimeImmutable((string) $revokedAt, $utc),
+        );
     }
 }

@@ -18,10 +18,11 @@ Completed or in active foundation work:
 - system-level user administration
 - invitation creation and acceptance
 - initial explicit permission model
+- active invitation management
+- guarded platform role management
 
 Still planned in the foundation area:
 
-- invitation list/revocation UI
 - email delivery for invitations
 - password reset/recovery
 - optional organizations

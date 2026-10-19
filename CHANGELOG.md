@@ -16,6 +16,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - System-level user administration foundation
 - Explicit user-management permissions
 - Secure invitation creation and acceptance flow
+- Active invitation listing, revocation, and token-safe renewal
+- Guarded platform role management for members and system administrators
 - English and German user-management documentation
 
 ### Security
@@ -27,3 +29,5 @@ The project is currently in the pre-release architecture and foundation phase.
 - HMAC-only storage of invitation tokens
 - Fragment-based invitation links to keep invitation tokens out of ordinary HTTP request URLs
 - Protection against self-deactivation and deactivation of the last active system administrator
+- Protection against self-demotion and demotion of the last active system administrator
+- Renewal invalidates the previous invitation token before exposing a replacement token

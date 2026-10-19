@@ -18,10 +18,28 @@ interface InvitationRepositoryInterface
 
     public function hasUsableForEmail(string $email, DateTimeImmutable $now): bool;
 
+    /**
+     * @return list<Invitation>
+     */
+    public function allUsable(DateTimeImmutable $now): array;
+
+    public function findUsableById(
+        int $invitationId,
+        DateTimeImmutable $now
+    ): ?Invitation;
+
     public function findUsableByTokenHash(
         string $tokenHash,
         DateTimeImmutable $now
     ): ?Invitation;
+
+    public function renew(
+        int $invitationId,
+        string $tokenHash,
+        DateTimeImmutable $expiresAt,
+        int $createdByUserId,
+        DateTimeImmutable $now
+    ): bool;
 
     public function markAccepted(int $invitationId): void;
 

@@ -60,6 +60,55 @@ final class UserAdministrationServiceTest extends TestCase
         self::assertTrue($repository->find(1)?->isActive);
     }
 
+    public function testSystemAdminCanPromoteMember(): void
+    {
+        $repository = new InMemoryUserAdministrationRepository([
+            1 => $this->user(1, 'system_admin', true),
+            2 => $this->user(2, 'member', true),
+        ]);
+        $service = new UserAdministrationService($repository);
+
+        $service->setRole(2, \OpenPhonebook\Auth\Role::SystemAdmin, 1);
+
+        self::assertSame('system_admin', $repository->find(2)?->role);
+    }
+
+    public function testSystemAdminCannotRemoveOwnAdminRole(): void
+    {
+        $repository = new InMemoryUserAdministrationRepository([
+            1 => $this->user(1, 'system_admin', true),
+            2 => $this->user(2, 'system_admin', true),
+        ]);
+        $service = new UserAdministrationService($repository);
+
+        $this->expectException(RuntimeException::class);
+        $service->setRole(1, \OpenPhonebook\Auth\Role::Member, 1);
+    }
+
+    public function testLastActiveSystemAdminCannotBeDemoted(): void
+    {
+        $repository = new InMemoryUserAdministrationRepository([
+            1 => $this->user(1, 'system_admin', true),
+            2 => $this->user(2, 'member', true),
+        ]);
+        $service = new UserAdministrationService($repository);
+
+        $this->expectException(RuntimeException::class);
+        $service->setRole(1, \OpenPhonebook\Auth\Role::Member, 99);
+    }
+
+    public function testOrganizationAdminRoleCannotBeAssignedWithoutContext(): void
+    {
+        $repository = new InMemoryUserAdministrationRepository([
+            1 => $this->user(1, 'system_admin', true),
+            2 => $this->user(2, 'member', true),
+        ]);
+        $service = new UserAdministrationService($repository);
+
+        $this->expectException(RuntimeException::class);
+        $service->setRole(2, \OpenPhonebook\Auth\Role::OrganizationAdmin, 1);
+    }
+
     private function user(
         int $id,
         string $role,
