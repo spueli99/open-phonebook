@@ -24,7 +24,11 @@ Membership and role assignment.
 
 A named collection of contacts.
 
-The first physical schema supports personal address books through `owner_user_id`. Sharing and organization ownership remain future extensions rather than nullable or ambiguous ownership shortcuts.
+The physical schema supports personal address books through `owner_user_id`. Explicit user sharing is stored separately in `address_book_shares`, preserving one unambiguous owner. Organization ownership remains a future extension rather than a nullable ownership shortcut.
+
+### address_book_shares
+
+Grants one existing user either `read` or `write` access to one personal address book. The `(address_book_id, user_id)` pair is unique, so changing access updates a single grant rather than creating duplicates.
 
 ### contacts
 
