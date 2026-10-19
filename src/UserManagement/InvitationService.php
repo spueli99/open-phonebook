@@ -13,7 +13,7 @@ final class InvitationService
 {
     public function __construct(
         private readonly InvitationRepositoryInterface $invitations,
-        private readonly UserAdministrationRepository $users,
+        private readonly UserAdministrationRepositoryInterface $users,
         private readonly ClockInterface $clock,
         private readonly string $applicationKey,
     ) {
