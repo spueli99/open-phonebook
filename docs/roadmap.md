@@ -57,12 +57,12 @@ Completed or in active work:
 - explicit CSV confirmation with short-lived session drafts
 - transaction-safe CSV persistence
 - E.164-based duplicate detection with default skip and explicit force-import
+- conservative merge into one unambiguous existing contact
 
 Still planned:
 
 - Google Contacts read-only synchronization
 - vCard import and preview
-- merge decisions for existing contacts
 - future CardDAV client/synchronization
 - future Microsoft 365 source
 
