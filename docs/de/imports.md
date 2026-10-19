@@ -2,9 +2,9 @@
 
 ## Aktueller Umfang
 
-Der erste Import-Baustein ist ausschließlich eine Vorschau. Nicht vertrauenswürdige Eingabedaten werden geprüft und als mögliche Kontakte angezeigt, ohne Kontaktdaten zu speichern oder zu verändern.
+CSV-Importe verwenden jetzt einen ausdrücklichen Vorschau-und-Bestätigen-Ablauf. Nicht vertrauenswürdige Eingabedaten werden zunächst geprüft und angezeigt. Erst nach einer ausdrücklichen Bestätigung wird derselbe serverseitige Entwurf erneut geprüft und gespeichert.
 
-Damit entsteht eine gemeinsame Importgrenze, auf der später vCard- und vollständige CSV-Importe aufbauen können.
+Die gemeinsame Importgrenze bleibt providerneutral, damit spätere vCard- und externe Quellen dieselbe Anwendungsschicht nutzen können.
 
 ## CSV-Vorschau
 
@@ -41,13 +41,17 @@ Die Vorschau begrenzt:
 
 Dateiendung und vom Browser gemeldeter MIME-Typ sind lediglich Komfortangaben. Der Server prüft den tatsächlichen eingelesenen Inhalt unabhängig davon.
 
-## Verhalten der Vorschau
+## Vorschau und Bestätigung
 
 Zeilen ohne `display_name` werden übersprungen und als Hinweis ausgegeben.
 
 Eine Vorschau ohne importierbare Kontakte wird abgelehnt.
 
-Die Vorschau legt keine Kontakte an, ändert keine Kontakte und löscht keine Kontakte. In diesem Entwicklungsstand gibt es bewusst noch keine Bestätigungs- oder Speicherfunktion.
+Nach erfolgreicher Vorschau bleibt der CSV-Inhalt nur als ein kurzlebiger serverseitiger Session-Entwurf erhalten. Der Browser erhält ausschließlich einen zufälligen Entwurfs-Token, nicht den CSV-Inhalt. In der Session wird nur ein HMAC des Tokens zusammen mit Benutzer-ID, Zieladressbuch-ID, CSV-Inhalt und einer Ablaufzeit von 15 Minuten gespeichert.
+
+Die Bestätigung erfolgt über einen separaten CSRF-geschützten POST. Der Entwurf muss weiterhin demselben Benutzer und Adressbuch gehören, darf nicht abgelaufen sein und der Benutzer muss weiterhin Schreibzugriff besitzen. Die CSV-Datei wird bei der Bestätigung erneut vollständig geparst und validiert.
+
+Anschließend werden alle Kontakte innerhalb genau einer äußeren Datenbanktransaktion angelegt. Das Kontakt-Repository beteiligt sich an dieser Transaktion und committet nicht jeden einzelnen Kontakt separat. Der Entwurf wird erst nach erfolgreichem Commit verworfen.
 
 ## Sicherheit
 
@@ -59,10 +63,8 @@ Jede Vorschau per POST benötigt eine gültige Sitzung, Schreibzugriff auf das Z
 
 ## Noch geplant
 
-- tatsächliche CSV-Übernahme nach Bestätigung
 - vCard-Parser und Vorschau
 - Dublettenerkennung
 - Zusammenführen-/Überspringen-Entscheidungen
-- transaktionssichere Speicherung
-- sichere Abbruch-/Rollback-Logik
+- ausdrückliche Behandlung doppelter Importzeilen vor der Speicherung
 - Source-Record-Zuordnung für synchronisierte Quellen
