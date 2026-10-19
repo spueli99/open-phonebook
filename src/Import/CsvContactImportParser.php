@@ -193,13 +193,6 @@ final class CsvContactImportParser implements ContactImportParserInterface
 
         foreach ($columns as $index => $column) {
             $value = $row[$index] ?? '';
-
-            if (!is_string($value)) {
-                throw new RuntimeException(
-                    'CSV row ' . $rowNumber . ' contains an invalid value.'
-                );
-            }
-
             $value = trim($value);
 
             if (mb_strlen($value) > self::MAX_FIELD_LENGTH) {
