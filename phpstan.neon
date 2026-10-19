@@ -2,5 +2,6 @@ parameters:
     level: 8
     paths:
         - src
+        - database/migrations
         - tests
     tmpDir: .phpstan-cache
