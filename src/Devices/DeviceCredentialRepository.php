@@ -73,4 +73,36 @@ final class DeviceCredentialRepository implements DeviceCredentialRepositoryInte
 
         return $statement->fetchColumn() !== false;
     }
+
+    public function findActiveByTokenHash(
+        string $tokenHash,
+        DeviceCredentialScope $scope
+    ): ?AuthenticatedDevice {
+        $statement = $this->database->prepare(
+            'SELECT d.id AS device_id, d.owner_user_id
+             FROM device_credentials c
+             INNER JOIN devices d ON d.id = c.device_id
+             WHERE c.token_hash = :token_hash
+               AND c.scope = :scope
+               AND c.revoked_at IS NULL
+               AND d.is_active = 1
+             LIMIT 1'
+        );
+        $statement->execute([
+            'token_hash' => $tokenHash,
+            'scope' => $scope->value,
+        ]);
+
+        $row = $statement->fetch();
+
+        if ($row === false || !is_array($row)) {
+            return null;
+        }
+
+        return new AuthenticatedDevice(
+            (int) $row['device_id'],
+            (int) $row['owner_user_id'],
+            $scope,
+        );
+    }
 }
