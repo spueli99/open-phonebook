@@ -9,6 +9,7 @@ final readonly class ContactPhoneNumberInput
     public function __construct(
         public ?string $label,
         public string $rawNumber,
+        public ?string $normalizedE164 = null,
     ) {
     }
 }
