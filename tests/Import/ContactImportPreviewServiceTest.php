@@ -100,6 +100,46 @@ final class ContactImportPreviewServiceTest extends TestCase
             ImportDuplicateStatus::ExistingContact,
             $preview->candidates[0]->duplicateStatus
         );
+        self::assertNotNull($preview->candidates[0]->mergeTarget);
+        self::assertSame(
+            'Existing',
+            $preview->candidates[0]->mergeTarget->displayName
+        );
+    }
+
+    public function testPreviewDoesNotOfferMergeForAmbiguousExistingMatch(): void
+    {
+        [$service, , $contacts, $addressBookId] = $this->fixture();
+
+        foreach (['Existing A', 'Existing B'] as $name) {
+            $contacts->create(
+                $addressBookId,
+                $name,
+                null,
+                null,
+                null,
+                null,
+                [
+                    new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                        'Mobile',
+                        '+49 170 1234567',
+                        '+491701234567'
+                    ),
+                ]
+            );
+        }
+
+        $preview = $service->preview(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nIncoming,+49 170 1234567"
+        );
+
+        self::assertSame(
+            ImportDuplicateStatus::ExistingContact,
+            $preview->candidates[0]->duplicateStatus
+        );
+        self::assertNull($preview->candidates[0]->mergeTarget);
     }
 
     public function testNameOrUnnormalizedLocalNumberDoesNotTriggerDuplicate(): void
