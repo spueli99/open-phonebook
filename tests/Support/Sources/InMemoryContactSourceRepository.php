@@ -13,6 +13,11 @@ final class InMemoryContactSourceRepository implements ContactSourceRepositoryIn
     private ?ContactSource $source = null;
 
     /**
+     * @var list<ContactSource>
+     */
+    private array $additionalSources = [];
+
+    /**
      * @var array<string, int>
      */
     private array $records = [];
@@ -36,7 +41,14 @@ final class InMemoryContactSourceRepository implements ContactSourceRepositoryIn
 
     public function allGoogleSources(): array
     {
-        return $this->source === null ? [] : [$this->source];
+        $sources = $this->source === null ? [] : [$this->source];
+
+        return array_merge($sources, $this->additionalSources);
+    }
+
+    public function addSource(ContactSource $source): void
+    {
+        $this->additionalSources[] = $source;
     }
 
     public function upsertGoogleSource(
