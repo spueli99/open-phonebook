@@ -61,7 +61,7 @@ final class CsvContactImportParser implements ContactImportParserInterface
         rewind($stream);
 
         try {
-            $header = fgetcsv($stream);
+            $header = fgetcsv($stream, null, ',', '"', '');
 
             if ($header === false) {
                 throw new RuntimeException('Import file has no header row.');
@@ -74,7 +74,7 @@ final class CsvContactImportParser implements ContactImportParserInterface
             $warnings = [];
             $rowNumber = 1;
 
-            while (($row = fgetcsv($stream)) !== false) {
+            while (($row = fgetcsv($stream, null, ',', '"', '')) !== false) {
                 $rowNumber++;
 
                 if ($rowNumber > self::MAX_ROWS + 1) {
