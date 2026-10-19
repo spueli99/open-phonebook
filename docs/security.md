@@ -26,7 +26,7 @@ Assume the public web interface and device/export endpoints are internet-accessi
 
 ## Secrets
 
-Provider tokens should be encrypted at rest where practical.
+Provider tokens should be encrypted at rest where practical. Google refresh tokens are encrypted with AES-256-GCM using HKDF-SHA-256 key material derived from the application key. Access tokens are not persisted.
 
 The encryption key must not be stored in the same database as encrypted provider credentials.
 
@@ -93,6 +93,12 @@ Uploads require:
 - rollback or safe cancellation
 
 The contact import flow implements successful PHP upload verification, a 2,000,000-byte server-side limit, UTF-8 and NUL-byte validation, a 2,000-row parser limit, explicit supported columns, domain-aligned field limits, CSRF protection, and writable-address-book authorization. Preview itself does not persist contact data. After preview, one 15-minute server-side session draft is bound to the user and target address book through a 256-bit token whose HMAC, not plaintext value, is stored in session state. Confirmation revalidates access, reparses the CSV, and recalculates duplicate status before one outer transaction persists the selected contacts. Duplicate detection uses only valid normalized E.164 values; names alone never suppress an import. Newly appearing duplicates are skipped at confirmation unless an explicit action applies. Merge is allowed only when the current normalized-phone evidence resolves to exactly one existing contact. Existing non-empty contact fields are never automatically overwritten; a stale or ambiguous merge target aborts confirmation. The draft is discarded only after successful commit.
+
+## Google OAuth and contact sources
+
+Google Contacts uses only the `contacts.readonly` OAuth scope. The flow validates a single-use, 10-minute `state` value bound to the signed-in user and target address book and also uses PKCE SHA-256. Only address-book owners may connect, reconnect, or synchronize Google Contacts.
+
+Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. The first synchronization implementation uses a complete paginated People API snapshot and applies local create/update/delete decisions inside one database transaction. Only contacts mapped to that source are eligible for source-driven deletion.
 
 ## Privacy
 
