@@ -8,13 +8,29 @@ final class Environment
 {
     public static function get(string $name): ?string
     {
-        $value = $_ENV[$name] ?? $_SERVER[$name] ?? getenv($name);
+        $value = getenv($name);
 
-        if ($value === false || $value === null || $value === '') {
-            return null;
+        if ($value !== false && $value !== '') {
+            return $value;
         }
 
-        return (string) $value;
+        if (array_key_exists($name, $_ENV)) {
+            $value = $_ENV[$name];
+
+            if (is_scalar($value) && (string) $value !== '') {
+                return (string) $value;
+            }
+        }
+
+        if (array_key_exists($name, $_SERVER)) {
+            $value = $_SERVER[$name];
+
+            if (is_scalar($value) && (string) $value !== '') {
+                return (string) $value;
+            }
+        }
+
+        return null;
     }
 
     public static function bool(string $name): ?bool
