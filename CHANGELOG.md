@@ -19,9 +19,12 @@ The project is currently in the pre-release architecture and foundation phase.
 - Active invitation listing, revocation, and token-safe renewal
 - Guarded platform role management for members and system administrators
 - English and German user-management documentation
+- Local personal address-book and contact persistence foundation
+- Multiple phone numbers per contact with owner-scoped services
 
 ### Security
 
+- Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for login, logout, user administration, and invitation acceptance
 - Session ID regeneration after authentication state changes
 - Generic invalid-credential responses and unknown-user timing mitigation
