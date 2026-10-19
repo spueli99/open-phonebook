@@ -15,6 +15,7 @@ use OpenPhonebook\Import\ImportDuplicateAction;
 use OpenPhonebook\Import\ImportDuplicateDecision;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
+use OpenPhonebook\Import\VCardContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryContactRepository;
@@ -63,6 +64,48 @@ final class ContactImportServiceTest extends TestCase
         );
         self::assertNull(
             $drafts->resolve($token, $addressBookId, 10)
+        );
+    }
+
+    public function testOwnerCanImportPreparedVCardAtomically(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            $transactions,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            ContactImportFormat::VCard,
+            implode("\r\n", [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                'FN:Alice Example',
+                'N:Example;Alice;;;',
+                'TEL;TYPE=CELL:+49 170 1234567',
+                'END:VCARD',
+                '',
+            ])
+        );
+
+        $result = $service->import($token, $addressBookId, 10);
+
+        self::assertSame(1, $result->importedContacts);
+        self::assertSame(0, $result->mergedContacts);
+        self::assertSame(0, $result->skippedDuplicates);
+        self::assertSame(1, $transactions->calls);
+
+        $stored = $contacts->allInAddressBook($addressBookId);
+        self::assertCount(1, $stored);
+        self::assertSame('Alice Example', $stored[0]->displayName);
+        self::assertSame(
+            '+491701234567',
+            $stored[0]->phoneNumbers[0]->normalizedE164
         );
     }
 
@@ -632,6 +675,8 @@ final class ContactImportServiceTest extends TestCase
                 new ContactImportParserRegistry([
                     ContactImportFormat::Csv->value
                         => new CsvContactImportParser(),
+                    ContactImportFormat::VCard->value
+                        => new VCardContactImportParser(),
                 ]),
                 $drafts,
                 $contacts,
