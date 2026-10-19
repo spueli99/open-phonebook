@@ -41,10 +41,11 @@ Completed or in active work:
 - personal address-book and contact web UI
 - owner-scoped contact search
 - libphonenumber-based E.164 normalization with explicit default region
+- personal address-book sharing with read/write access
 
 Still planned:
 
-- sharing
+- organization-owned/shared address books
 
 ## Contact sources and imports
 
