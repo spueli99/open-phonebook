@@ -11,7 +11,7 @@
 
     if (!/^[a-f0-9]{64}$/.test(token)) {
         if (status) {
-            status.textContent = 'Invitation token is missing or invalid.';
+            status.textContent = status.dataset.invalid || 'Invitation unavailable.';
         }
 
         return;
