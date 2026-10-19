@@ -16,6 +16,7 @@ final class SecurityHeaders
         header(
             "Content-Security-Policy: default-src 'none'; "
             . "style-src 'unsafe-inline'; "
+            . "script-src 'self'; "
             . "form-action 'self'; "
             . "base-uri 'none'; "
             . "frame-ancestors 'none'"
