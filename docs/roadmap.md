@@ -4,16 +4,25 @@ The roadmap is capability-driven. Version numbers are provisional until developm
 
 ## Foundation
 
+Completed or in active foundation work:
+
 - Composer/autoloading
 - configuration layer
 - MariaDB/MySQL connection
 - versioned migrations
 - web installer
-- authentication
-- users
+- local email/password authentication
+- secure browser sessions
+- login throttling
+- English/German localization foundation
+
+Still planned in the foundation area:
+
+- user administration
+- invitation workflow
+- password reset/recovery
 - optional organizations
-- permissions
-- localization infrastructure (English and German)
+- authorization policies
 - audit foundation
 
 ## Contacts

@@ -98,6 +98,7 @@ final class Config
         self::assign($values, ['app', 'timezone'], Environment::get('OPENPHONEBOOK_TIMEZONE'));
         self::assign($values, ['app', 'locale'], Environment::get('OPENPHONEBOOK_LOCALE'));
         self::assign($values, ['app', 'debug'], Environment::bool('OPENPHONEBOOK_DEBUG'));
+        self::assign($values, ['app', 'key'], Environment::get('OPENPHONEBOOK_APP_KEY'));
 
         self::assign($values, ['database', 'host'], Environment::get('OPENPHONEBOOK_DB_HOST'));
         self::assign($values, ['database', 'port'], Environment::int('OPENPHONEBOOK_DB_PORT'));

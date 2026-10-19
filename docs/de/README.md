@@ -6,6 +6,11 @@ Die Entwicklungs- und Architektur-Dokumentation des Projekts wird grundsätzlich
 
 Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile Version für den Produktivbetrieb.
 
+## Dokumentation
+
+- [Einrichtung](setup.md)
+- [Anmeldung und Sitzungen](authentication.md)
+
 ## Grundprinzipien
 
 - universeller, herstellerneutraler Kern
@@ -19,5 +24,3 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - Web-Installer für Shared Hosting
 - Deutsch und Englisch für UI/Anwenderdokumentation
 - strikte Trennung von Secrets und öffentlichem Webroot
-
-Weitere deutsche Installations- und Bedienungsanleitungen werden mit den jeweiligen Funktionen ergänzt.

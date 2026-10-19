@@ -6,6 +6,8 @@ Authorization is deny-by-default.
 
 Every application operation must explicitly validate ownership, organization membership, sharing rights, or scoped device permissions.
 
+Authentication answers who the current user is. Authorization separately decides what that user may access.
+
 ## Roles
 
 Initial roles:
@@ -15,6 +17,8 @@ Initial roles:
 - member
 
 Roles are intentionally generic.
+
+The existence of a role in authenticated session state does not replace resource-level authorization checks.
 
 ## Users
 
