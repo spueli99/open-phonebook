@@ -21,10 +21,12 @@ The project is currently in the pre-release architecture and foundation phase.
 - English and German user-management documentation
 - Local personal address-book and contact persistence foundation
 - Multiple phone numbers per contact with owner-scoped services
+- Authenticated personal address-book and contact web UI
 
 ### Security
 
 - Owner-scoped authorization boundary for private address books and contacts
+- CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
 - Session ID regeneration after authentication state changes
 - Generic invalid-credential responses and unknown-user timing mitigation
