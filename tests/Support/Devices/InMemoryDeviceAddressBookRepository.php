@@ -22,8 +22,6 @@ final class InMemoryDeviceAddressBookRepository implements DeviceAddressBookRepo
         int $deviceId,
         array $addressBookIds
     ): void {
-        $this->assignments[$deviceId] = array_values(
-            $addressBookIds
-        );
+        $this->assignments[$deviceId] = $addressBookIds;
     }
 }
