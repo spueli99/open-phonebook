@@ -54,13 +54,15 @@ final class InvitationAdministrationService
         $token = InvitationToken::generate($this->applicationKey);
         $expiresAt = $now->add(new DateInterval('P3D'));
 
-        if (!$this->invitations->renew(
-            $invitationId,
-            $token->hash,
-            $expiresAt,
-            $actingUserId,
-            $now
-        )) {
+        if (
+            !$this->invitations->renew(
+                $invitationId,
+                $token->hash,
+                $expiresAt,
+                $actingUserId,
+                $now
+            )
+        ) {
             throw new RuntimeException('Invitation is no longer usable.');
         }
 
