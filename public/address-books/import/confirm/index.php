@@ -7,6 +7,8 @@ use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Database\PdoTransactionManager;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportService;
 use OpenPhonebook\Import\ImportContactMerger;
 use OpenPhonebook\Import\ImportDuplicateAction;
@@ -116,7 +118,10 @@ try {
 
     $result = (new ContactImportService(
         $access,
-        new CsvContactImportParser(),
+        new ContactImportParserRegistry([
+            ContactImportFormat::Csv->value
+                => new CsvContactImportParser(),
+        ]),
         new SessionContactImportDraftStore(
             new SystemClock(),
             $runtime->applicationKey
