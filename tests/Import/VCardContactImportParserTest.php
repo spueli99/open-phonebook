@@ -135,6 +135,40 @@ final class VCardContactImportParserTest extends TestCase
         self::assertCount(1, $preview->warnings);
     }
 
+    public function testSupportsUtf8BomBeforeFirstCard(): void
+    {
+        $preview = (new VCardContactImportParser())->parse(
+            "\xEF\xBB\xBFBEGIN:VCARD\r\n"
+            . "VERSION:3.0\r\n"
+            . "FN:Alice\r\n"
+            . "END:VCARD\r\n"
+        );
+
+        self::assertSame('Alice', $preview->contacts[0]->displayName);
+    }
+
+    public function testFoldedEndMarkerTextDoesNotCloseCard(): void
+    {
+        $contents = implode("\r\n", [
+            'BEGIN:VCARD',
+            'VERSION:3.0',
+            'FN:Alice',
+            'NOTE:Literal text',
+            ' END:VCARD',
+            'TEL;TYPE=CELL:+49 170 1234567',
+            'END:VCARD',
+            '',
+        ]);
+
+        $preview = (new VCardContactImportParser())->parse($contents);
+
+        self::assertCount(1, $preview->contacts);
+        self::assertCount(
+            1,
+            $preview->contacts[0]->phoneNumbers
+        );
+    }
+
     public function testRejectsDataOutsideVCard(): void
     {
         $this->expectException(RuntimeException::class);
