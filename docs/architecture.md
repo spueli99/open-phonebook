@@ -41,6 +41,8 @@ Database schema changes are versioned migrations.
 
 ### Adapters
 
+Contact imports use a parser interface that converts untrusted provider/file input into a provider-neutral preview model before any persistence is possible. The initial CSV adapter is preview-only; later vCard and external-source adapters should feed the same application boundary.
+
 Examples:
 
 - contact sources: Google Contacts, future CardDAV/Microsoft 365
