@@ -20,6 +20,7 @@ Assume the public web interface and device/export endpoints are internet-accessi
 - OAuth state validation
 - no secrets in source control
 - no sensitive values in application logs
+- no-store caching policy for HTML responses containing private data or one-time secrets
 - safe file upload parsing and size limits
 - import preview before persistence
 - database migrations executed explicitly and transactionally where possible
@@ -99,6 +100,12 @@ The contact import flow implements successful PHP upload verification, a 2,000,0
 Google Contacts uses only the `contacts.readonly` OAuth scope. The flow validates a single-use, 10-minute `state` value bound to the signed-in user and target address book and also uses PKCE SHA-256. Only address-book owners may connect, reconnect, or synchronize Google Contacts.
 
 Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. Google synchronization performs an initial complete paginated snapshot and then uses encrypted People API sync tokens for incremental updates. Delta responses only delete local source contacts when Google explicitly reports `metadata.deleted=true`; absence from a delta is never interpreted as deletion. Expired sync tokens trigger a fresh full snapshot. Each batch and its replacement sync token are committed transactionally. Only contacts mapped to that source are eligible for source-driven deletion.
+
+## Device credentials
+
+Device credentials are independent from human authentication. The initial device scope is `phonebook:read`. Tokens are 256-bit random values displayed only once; the database stores only a domain-separated HMAC-SHA-256 hash keyed by the application key. Rotation revokes previous active credentials for the same device/scope. Device authentication additionally requires an active device and an active, non-deleted owner account.
+
+Device address-book assignments may only be created for books the owner can currently read. Future device-facing export endpoints must re-check current owner access as well as stored assignment before returning contacts.
 
 ## Privacy
 

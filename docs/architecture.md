@@ -69,7 +69,7 @@ Authorization is modeled separately with explicit permission identifiers. Admini
 
 Invitation services are separate from authentication. Invitation tokens create accounts but do not themselves create authenticated sessions.
 
-Devices must never reuse human sessions or human passwords. They receive separately scoped and revocable device credentials in a later device layer.
+Devices never reuse human sessions or human passwords. Each initial device belongs to one user and authenticates with a separately scoped and revocable credential. Device-to-address-book assignments are explicit; future exporters must also revalidate the owner's current address-book access at request time so stale assignments cannot preserve revoked access.
 
 See [Authentication](authentication.md), [Permissions](permissions.md), and [User Management](user-management.md).
 

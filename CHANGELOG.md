@@ -33,6 +33,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - Google Contacts read-only OAuth source with transactional full-snapshot synchronization
 - Incremental Google People API synchronization with encrypted sync tokens and automatic full fallback
 - Cron-compatible Google Contacts scheduler without a continuously running worker
+- User-owned device management with explicit address-book assignment
+- Scoped `phonebook:read` device credentials with rotation and revocation
 
 ### Security
 
@@ -45,6 +47,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Import merges never overwrite existing non-empty fields and are rejected when the merge target becomes ambiguous
 - Import drafts bind the selected parser format so confirmation cannot switch CSV and vCard interpretation
 - Google refresh and incremental sync tokens are AES-256-GCM encrypted at rest; OAuth uses single-use state plus PKCE and the contacts.readonly scope only
+- Device tokens are stored only as domain-separated HMAC hashes and require active device and owner state
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance

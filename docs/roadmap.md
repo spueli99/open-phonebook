@@ -70,9 +70,14 @@ Still planned:
 
 ## Devices and exports
 
+Completed or in active work:
+
 - device management
-- scoped credentials
-- address-book assignment
+- scoped phonebook credentials
+- explicit readable address-book assignment
+
+Still planned:
+
 - exporter interface
 - Yealink exporter
 - JSON exporter

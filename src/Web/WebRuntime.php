@@ -8,7 +8,14 @@ use OpenPhonebook\Auth\UserSession;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\LibPhoneNumberNormalizer;
 use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Database\ConnectionFactory;
+use OpenPhonebook\Database\PdoTransactionManager;
+use OpenPhonebook\Devices\DeviceAddressBookRepository;
+use OpenPhonebook\Devices\DeviceAdministrationService;
+use OpenPhonebook\Devices\DeviceCredentialRepository;
+use OpenPhonebook\Devices\DeviceRepository;
 use OpenPhonebook\Google\GoogleOAuthClient;
 use OpenPhonebook\Google\GooglePeopleClient;
 use OpenPhonebook\Http\CurlHttpClient;
@@ -68,6 +75,25 @@ final readonly class WebRuntime
         }
 
         return new LibPhoneNumberNormalizer($region);
+    }
+
+    public function deviceAdministrationService(): DeviceAdministrationService
+    {
+        $transactions = new PdoTransactionManager($this->database);
+
+        return new DeviceAdministrationService(
+            new DeviceRepository($this->database),
+            new DeviceCredentialRepository($this->database),
+            new DeviceAddressBookRepository(
+                $this->database,
+                $transactions
+            ),
+            new AddressBookAccessService(
+                new AddressBookAccessRepository($this->database)
+            ),
+            $transactions,
+            $this->applicationKey
+        );
     }
 
     public function secretCipher(): SecretCipher
