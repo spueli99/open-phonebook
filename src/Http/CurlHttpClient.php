@@ -53,16 +53,18 @@ final class CurlHttpClient implements HttpClientInterface
 
         $responseBody = '';
 
-        $options = [
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_RETURNTRANSFER => false,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTPHEADER => $headerLines,
-            CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-            CURLOPT_WRITEFUNCTION => static function (
-                mixed $curl,
+        curl_setopt($handle, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 30);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headerLines);
+        curl_setopt($handle, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_setopt(
+            $handle,
+            CURLOPT_WRITEFUNCTION,
+            static function (
+                \CurlHandle $curl,
                 string $chunk
             ) use (&$responseBody): int {
                 if (
@@ -75,14 +77,12 @@ final class CurlHttpClient implements HttpClientInterface
                 $responseBody .= $chunk;
 
                 return strlen($chunk);
-            },
-        ];
+            }
+        );
 
         if ($body !== null) {
-            $options[CURLOPT_POSTFIELDS] = $body;
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $body);
         }
-
-        curl_setopt_array($handle, $options);
 
         $success = curl_exec($handle);
 
