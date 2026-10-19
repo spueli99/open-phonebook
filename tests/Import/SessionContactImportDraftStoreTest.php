@@ -31,7 +31,10 @@ final class SessionContactImportDraftStoreTest extends TestCase
             "display_name\nAlice"
         );
 
-        self::assertNotNull($store->resolve($token, 7, 10));
+        $draft = $store->resolve($token, 7, 10);
+
+        self::assertNotNull($draft);
+        self::assertSame(ContactImportFormat::Csv, $draft->format);
         self::assertNull($store->resolve('wrong-token', 7, 10));
         self::assertNull($store->resolve($token, 8, 10));
         self::assertNull($store->resolve($token, 7, 11));
