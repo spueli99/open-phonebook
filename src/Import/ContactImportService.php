@@ -20,18 +20,19 @@ final class ContactImportService
         private readonly ContactRepositoryInterface $contacts,
         private readonly PhoneNumberNormalizerInterface $phoneNumberNormalizer,
         private readonly ImportDuplicateDetector $duplicates,
+        private readonly ImportContactMerger $merger,
         private readonly TransactionManagerInterface $transactions,
     ) {
     }
 
     /**
-     * @param list<int> $forceDuplicateRows
+     * @param array<int, ImportDuplicateAction> $duplicateActions
      */
     public function import(
         string $token,
         int $addressBookId,
         int $userId,
-        array $forceDuplicateRows = []
+        array $duplicateActions = []
     ): ContactImportResult {
         $this->addressBookAccess->requireWritable(
             $addressBookId,
@@ -62,35 +63,69 @@ final class ContactImportService
             $addressBookId,
             $preview->contacts
         );
-        $forcedRows = [];
-
-        foreach ($forceDuplicateRows as $row) {
-            if ($row < 0) {
-                throw new RuntimeException(
-                    'Invalid duplicate import selection.'
-                );
-            }
-
-            $forcedRows[$row] = true;
-        }
-
-        [$importedContacts, $skippedDuplicates] =
+        [$importedContacts, $mergedContacts, $skippedDuplicates] =
             $this->transactions->transactional(
                 function () use (
                     $candidates,
-                    $forcedRows,
+                    $duplicateActions,
                     $addressBookId
                 ): array {
-                    $count = 0;
+                    $imported = 0;
+                    $merged = 0;
                     $skipped = 0;
 
                     foreach ($candidates as $candidate) {
-                        if (
-                            $candidate->duplicateStatus->isDuplicate()
-                            && !isset($forcedRows[$candidate->sourceRow])
-                        ) {
+                        $action = $duplicateActions[$candidate->sourceRow]
+                            ?? ImportDuplicateAction::Skip;
+
+                        if (!$candidate->duplicateStatus->isDuplicate()) {
+                            $action = ImportDuplicateAction::Import;
+                        }
+
+                        if ($action === ImportDuplicateAction::Skip) {
                             $skipped++;
                             continue;
+                        }
+
+                        if ($action === ImportDuplicateAction::Merge) {
+                            if (
+                                $candidate->duplicateStatus
+                                    !== ImportDuplicateStatus::ExistingContact
+                                || $candidate->mergeTarget === null
+                            ) {
+                                throw new RuntimeException(
+                                    'Import merge target is no longer unambiguous.'
+                                );
+                            }
+
+                            $mergedValues = $this->merger->merge(
+                                $candidate->mergeTarget,
+                                $candidate->contact
+                            );
+
+                            if (!$this->contacts->update(
+                                $candidate->mergeTarget->id,
+                                $addressBookId,
+                                $mergedValues['display_name'],
+                                $mergedValues['given_name'],
+                                $mergedValues['family_name'],
+                                $mergedValues['organization_name'],
+                                $mergedValues['notes'],
+                                $mergedValues['phone_numbers'],
+                            )) {
+                                throw new RuntimeException(
+                                    'Import merge target could not be updated.'
+                                );
+                            }
+
+                            $merged++;
+                            continue;
+                        }
+
+                        if ($action !== ImportDuplicateAction::Import) {
+                            throw new RuntimeException(
+                                'Invalid duplicate import action.'
+                            );
                         }
 
                         $contact = $candidate->contact;
@@ -115,10 +150,10 @@ final class ContactImportService
                             $contact->notes,
                             $phoneNumbers,
                         );
-                        $count++;
+                        $imported++;
                     }
 
-                    return [$count, $skipped];
+                    return [$imported, $merged, $skipped];
                 }
             );
 
@@ -126,6 +161,7 @@ final class ContactImportService
 
         return new ContactImportResult(
             $importedContacts,
+            $mergedContacts,
             $skippedDuplicates
         );
     }
