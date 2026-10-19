@@ -61,8 +61,7 @@ final class GoogleContactsSyncService
                 $records = [];
 
                 foreach (
-                    $this->sources->recordsForSource($source->id)
-                    as $record
+                    $this->sources->recordsForSource($source->id) as $record
                 ) {
                     $records[$record->externalId] = $record->contactId;
                 }
