@@ -22,6 +22,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Local personal address-book and contact persistence foundation
 - Multiple phone numbers per contact with owner-scoped services
 - Authenticated personal address-book and contact web UI
+- Owner-scoped contact search across names, organizations, and phone data
 
 ### Security
 
