@@ -16,6 +16,11 @@ final class InMemoryAddressBookShareRepository implements AddressBookShareReposi
     private array $activeUsersByEmail = [];
 
     /**
+     * @var array<int, array{email: string, display_name: string}>
+     */
+    private array $profiles = [];
+
+    /**
      * @var array<int, array<int, AddressBookShare>>
      */
     private array $shares = [];
@@ -27,6 +32,10 @@ final class InMemoryAddressBookShareRepository implements AddressBookShareReposi
     ): void {
         $email = strtolower(trim($email));
         $this->activeUsersByEmail[$email] = $userId;
+        $this->profiles[$userId] = [
+            'email' => $email,
+            'display_name' => $displayName,
+        ];
 
         foreach ($this->shares as $addressBookId => $shares) {
             if (!isset($shares[$userId])) {
@@ -58,23 +67,16 @@ final class InMemoryAddressBookShareRepository implements AddressBookShareReposi
         int $userId,
         AddressBookAccessLevel $accessLevel
     ): void {
-        $email = array_search(
-            $userId,
-            $this->activeUsersByEmail,
-            true
-        );
+        $profile = $this->profiles[$userId] ?? null;
 
-        if (!is_string($email)) {
+        if ($profile === null) {
             return;
         }
 
-        $existing = $this->shares[$addressBookId][$userId] ?? null;
-        $displayName = $existing?->displayName ?? 'User ' . $userId;
-
         $this->shares[$addressBookId][$userId] = new AddressBookShare(
             $userId,
-            $email,
-            $displayName,
+            $profile['email'],
+            $profile['display_name'],
             $accessLevel,
         );
     }
