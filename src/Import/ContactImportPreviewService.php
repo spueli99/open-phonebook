@@ -11,7 +11,7 @@ final class ContactImportPreviewService
 {
     public function __construct(
         private readonly AddressBookAccessService $addressBookAccess,
-        private readonly ContactImportParserInterface $parser,
+        private readonly ContactImportParserRegistry $parsers,
         private readonly ImportDuplicateDetector $duplicates,
     ) {
     }
@@ -19,6 +19,7 @@ final class ContactImportPreviewService
     public function preview(
         int $addressBookId,
         int $userId,
+        ContactImportFormat $format,
         string $contents
     ): ImportReviewResult {
         $this->addressBookAccess->requireWritable(
@@ -26,7 +27,9 @@ final class ContactImportPreviewService
             $userId
         );
 
-        $preview = $this->parser->parse($contents);
+        $preview = $this->parsers
+            ->parserFor($format)
+            ->parse($contents);
 
         if ($preview->contacts === []) {
             throw new RuntimeException(
