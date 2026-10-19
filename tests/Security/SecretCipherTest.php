@@ -26,9 +26,14 @@ final class SecretCipherTest extends TestCase
     {
         $cipher = new SecretCipher(str_repeat('a', 64));
         $encrypted = $cipher->encrypt('refresh-token');
-        $last = substr($encrypted, -1);
-        $tampered = substr($encrypted, 0, -1)
-            . ($last === 'A' ? 'B' : 'A');
+        $payloadIndex = 3;
+        $current = $encrypted[$payloadIndex];
+        $tampered = substr_replace(
+            $encrypted,
+            $current === 'A' ? 'B' : 'A',
+            $payloadIndex,
+            1
+        );
 
         $this->expectException(RuntimeException::class);
         $cipher->decrypt($tampered);
