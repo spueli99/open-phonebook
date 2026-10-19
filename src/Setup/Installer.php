@@ -26,6 +26,7 @@ final class Installer
         string $baseUrl,
         string $timezone,
         string $locale,
+        ?string $defaultPhoneRegion,
         string $adminEmail,
         string $adminName,
         string $adminPassword
@@ -61,6 +62,9 @@ final class Installer
                 'timezone' => $timezone,
                 'locale' => $locale,
                 'key' => bin2hex(random_bytes(32)),
+            ],
+            'contacts' => [
+                'default_region' => $defaultPhoneRegion,
             ],
             'database' => $databaseConfig,
         ]);
