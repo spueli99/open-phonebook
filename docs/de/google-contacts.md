@@ -61,7 +61,7 @@ Wird der Application Key ohne Migration der Provider-Geheimnisse geändert, kön
 
 ## Synchronisierung
 
-Die erste Umsetzung verwendet einen manuell ausgelösten vollständigen Snapshot-Sync.
+Die Google-Synchronisierung verwendet zunächst einen vollständigen Snapshot und anschließend inkrementelle People-API-Sync-Token-Abfragen.
 
 Abgerufen wird `people/me/connections` mit ausdrücklich ausgewählten Feldern:
 
@@ -70,11 +70,13 @@ Abgerufen wird `people/me/connections` mit ausdrücklich ausgewählten Feldern:
 - Biografien/Notizen
 - Rufnummern
 
-Alle Seiten werden vollständig abgearbeitet.
+Alle Seiten werden vollständig abgearbeitet. Beim ersten vollständigen Sync wird ein `nextSyncToken` angefordert und vor der Datenbankspeicherung verschlüsselt. Folgende Synchronisierungen verwenden diesen Token und verarbeiten nur geänderte Ressourcen.
+
+Google-Sync-Tokens laufen nach sieben Tagen ab. Liefert Google für einen abgelaufenen Token HTTP 410, führt Open Phonebook automatisch einen neuen Full-Sync durch und speichert anschließend den neuen Token.
 
 Google-`resourceName` wird als externe Quell-ID in `source_records` gespeichert.
 
-Beim Sync:
+Beim vollständigen Sync:
 
 - werden bereits zugeordnete Kontakte aktualisiert
 - werden neue Google-Kontakte lokal angelegt
@@ -82,12 +84,29 @@ Beim Sync:
 - dürfen ausschließlich Kontakte dieser Google-Quelle quellenbedingt gelöscht werden
 - gelten Google-Datensätze, die aktuell nicht sauber in die lokale Contact-Domain abgebildet werden können, trotzdem als gesehen und werden übersprungen; dadurch wird eine bestehende lokale Zuordnung nicht versehentlich gelöscht
 
-Die komplette lokale Anwendung des Snapshots erfolgt innerhalb einer Datenbanktransaktion.
+Beim inkrementellen Sync:
+
+- werden ausschließlich geänderte Google-Ressourcen verarbeitet
+- entfernt `metadata.deleted=true` den lokal zugeordneten Quellkontakt
+- bleiben Ressourcen, die im Delta nicht vorkommen, unverändert
+- wird `metadata.previousResourceNames` genutzt, damit bei einer von Google geänderten Resource-ID weiterhin derselbe lokale Kontakt zugeordnet bleibt
+
+Jeder vollständige oder inkrementelle Batch wird innerhalb einer Datenbanktransaktion angewendet. Der neue Sync-Token wird erst nach erfolgreicher Transaktion gespeichert.
+
+## Zeitgesteuerte Synchronisierung
+
+Ein dauerhaft laufender Worker ist nicht erforderlich. Für cron wird ausgeführt:
+
+```bash
+php /pfad/zu/open-phonebook/bin/google-contacts-sync.php
+```
+
+Der Befehl synchronisiert alle eingerichteten Google-Quellen unabhängig voneinander. Der Fehler einer Quelle verhindert nicht die Synchronisierung der übrigen. Exitcode `0` bedeutet vollständigen Erfolg, `1` mindestens eine fehlgeschlagene Quelle und `2`, dass der Scheduler nicht gestartet werden konnte.
+
+Eine tägliche Ausführung hält den inkrementellen Token sicher innerhalb der siebentägigen Google-Gültigkeit. Häufigere Läufe, beispielsweise stündlich, sind ebenfalls möglich.
 
 ## Aktuelle Grenzen
 
-- Synchronisierung wird manuell ausgelöst; zeitgesteuerte Synchronisierung folgt später
-- zunächst vollständiger Snapshot statt inkrementeller People-API-Sync-Tokens
 - E-Mail-Adressen, Postanschriften, Geburtstage, Fotos und noch nicht im lokalen Kontaktmodell vorhandene Felder werden nicht importiert
 - lokale Änderungen an quellenverwalteten Kontakten können beim nächsten Google-Sync überschrieben werden
 - Schreibzugriff zurück zu Google ist bewusst nicht vorgesehen
