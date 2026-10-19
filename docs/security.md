@@ -92,7 +92,7 @@ Uploads require:
 - transactional import
 - rollback or safe cancellation
 
-The initial CSV preview implements the pre-persistence portion of this policy: successful PHP upload verification, a 2,000,000-byte server-side limit, UTF-8 and NUL-byte validation, a 2,000-row parser limit, explicit supported columns, domain-aligned field limits, CSRF protection, and writable-address-book authorization. Preview does not persist uploaded files or contact data.
+The CSV import flow implements successful PHP upload verification, a 2,000,000-byte server-side limit, UTF-8 and NUL-byte validation, a 2,000-row parser limit, explicit supported columns, domain-aligned field limits, CSRF protection, and writable-address-book authorization. Preview itself does not persist contact data. After preview, one 15-minute server-side session draft is bound to the user and target address book through a 256-bit token whose HMAC, not plaintext value, is stored in session state. Confirmation revalidates access and reparses the CSV before one outer transaction persists all contacts. The draft is discarded only after successful commit.
 
 ## Privacy
 
