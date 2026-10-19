@@ -379,10 +379,76 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0 => new ImportDuplicateDecision(
-                ImportDuplicateAction::Merge,
-                $existingId
-            )]
+            [
+                0 => new ImportDuplicateDecision(
+                    ImportDuplicateAction::Merge,
+                    $ambiguousIds[0]
+                ),
+            ]
+        );
+    }
+
+    public function testChangedMergeTargetIsRejectedAtConfirmation(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $originalId = $contacts->create(
+            $addressBookId,
+            'Original',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nIncoming,+49 170 1234567"
+        );
+
+        $contacts->softDelete($originalId, $addressBookId);
+        $replacementId = $contacts->create(
+            $addressBookId,
+            'Replacement',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+
+        self::assertNotSame($originalId, $replacementId);
+
+        $this->expectException(RuntimeException::class);
+        $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [
+                0 => new ImportDuplicateDecision(
+                    ImportDuplicateAction::Merge,
+                    $originalId
+                ),
+            ]
         );
     }
 
