@@ -15,8 +15,8 @@ final class LibPhoneNumberNormalizerTest extends TestCase
         $normalizer = new LibPhoneNumberNormalizer('DE');
 
         self::assertSame(
-            '+49211123456',
-            $normalizer->normalize('0211 123456')
+            '+491701234567',
+            $normalizer->normalize('0170 1234567')
         );
     }
 
