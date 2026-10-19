@@ -52,22 +52,22 @@ final class GooglePeopleClientTest extends TestCase
 
         self::assertCount(2, $people);
         self::assertSame('people/1', $people[0]->externalId);
-        self::assertSame(
-            'Alice Example',
-            $people[0]->contact->displayName
-        );
+
+        $alice = $people[0]->contact;
+        $bob = $people[1]->contact;
+
+        self::assertNotNull($alice);
+        self::assertNotNull($bob);
+        self::assertSame('Alice Example', $alice->displayName);
         self::assertSame(
             'Example GmbH',
-            $people[0]->contact->organizationName
+            $alice->organizationName
         );
         self::assertSame(
             'Mobile',
-            $people[0]->contact->phoneNumbers[0]->label
+            $alice->phoneNumbers[0]->label
         );
-        self::assertSame(
-            'Bob Example',
-            $people[1]->contact->displayName
-        );
+        self::assertSame('Bob Example', $bob->displayName);
         self::assertCount(2, $http->requests);
         self::assertStringContainsString(
             'pageToken=next',
