@@ -14,6 +14,7 @@ Enthalten sind:
 - transaktionssichere Anlage und Änderung von Kontakten samt Telefonnummern
 - Weboberfläche für persönliche Adressbücher und Kontakte
 - CSRF-geschützte Anlage-, Änderungs-, Umbenennungs- und Löschaktionen
+- eigentümergebundene Suche nach Namen, Organisation, Rufnummernbezeichnung und Roh-Rufnummer
 
 Noch nicht enthalten:
 
@@ -21,7 +22,6 @@ Noch nicht enthalten:
 - organisationsbezogene Adressbücher
 - externe Kontaktquellen
 - Importe
-- Suche
 - Dublettenerkennung
 - internationale Rufnummernnormalisierung
 
@@ -30,6 +30,8 @@ Noch nicht enthalten:
 Angemeldete Benutzer können ihre eigenen Adressbücher unter `/address-books/` verwalten. Die Oberfläche unterstützt Anlegen, Umbenennen, Öffnen und logisches Löschen von Adressbüchern sowie Anlegen, Bearbeiten und logisches Löschen von Kontakten.
 
 Kontaktformulare bieten mehrere Rufnummernfelder ohne zusätzliche JavaScript-Abhängigkeit. Nicht ausgefüllte Rufnummernfelder werden serverseitig ignoriert.
+
+Adressbuchansichten bieten eine GET-basierte Suche über Anzeigename, Vorname, Nachname, Organisation, Rufnummernbezeichnungen und rohe Rufnummern. Die Suche bleibt auf das bereits berechtigte Adressbuch begrenzt. SQL-LIKE-Wildcards aus Benutzereingaben werden vor der Suche escaped.
 
 Alle zustandsändernden Aktionen verwenden POST und benötigen einen gültigen CSRF-Token. Auch Detail- und Bearbeitungsansichten werden vor der Ausgabe über die eigentümergebundenen Anwendungsservices aufgelöst.
 
