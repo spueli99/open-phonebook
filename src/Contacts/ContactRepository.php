@@ -54,17 +54,17 @@ final class ContactRepository implements ContactRepositoryInterface
              WHERE c.address_book_id = :address_book_id
                AND c.deleted_at IS NULL
                AND (
-                    c.display_name LIKE :query ESCAPE '\\\\'
-                    OR c.given_name LIKE :query ESCAPE '\\\\'
-                    OR c.family_name LIKE :query ESCAPE '\\\\'
-                    OR c.organization_name LIKE :query ESCAPE '\\\\'
+                    c.display_name LIKE :display_name_query ESCAPE '\\\\'
+                    OR c.given_name LIKE :given_name_query ESCAPE '\\\\'
+                    OR c.family_name LIKE :family_name_query ESCAPE '\\\\'
+                    OR c.organization_name LIKE :organization_query ESCAPE '\\\\'
                     OR EXISTS (
                         SELECT 1
                         FROM contact_phone_numbers p
                         WHERE p.contact_id = c.id
                           AND (
-                              p.raw_number LIKE :query ESCAPE '\\\\'
-                              OR p.label LIKE :query ESCAPE '\\\\'
+                              p.raw_number LIKE :phone_query ESCAPE '\\\\'
+                              OR p.label LIKE :label_query ESCAPE '\\\\'
                           )
                     )
                )
@@ -72,7 +72,12 @@ final class ContactRepository implements ContactRepositoryInterface
         );
         $statement->execute([
             'address_book_id' => $addressBookId,
-            'query' => $pattern,
+            'display_name_query' => $pattern,
+            'given_name_query' => $pattern,
+            'family_name_query' => $pattern,
+            'organization_query' => $pattern,
+            'phone_query' => $pattern,
+            'label_query' => $pattern,
         ]);
 
         $contacts = [];
