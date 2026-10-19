@@ -202,7 +202,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            [0]
+            [0 => ImportDuplicateAction::Import]
         );
 
         self::assertSame(1, $result->importedContacts);
@@ -328,6 +328,79 @@ final class ContactImportServiceTest extends TestCase
         self::assertSame('Existing Org', $merged->organizationName);
         self::assertSame('Existing note', $merged->notes);
         self::assertCount(1, $merged->phoneNumbers);
+    }
+
+    public function testAmbiguousExistingDuplicateCannotBeMerged(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+
+        foreach (['Existing A', 'Existing B'] as $name) {
+            $contacts->create(
+                $addressBookId,
+                $name,
+                null,
+                null,
+                null,
+                null,
+                [
+                    new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                        'Mobile',
+                        '+49 170 1234567',
+                        '+491701234567'
+                    ),
+                ]
+            );
+        }
+
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nIncoming,+49 170 1234567"
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [0 => ImportDuplicateAction::Merge]
+        );
+    }
+
+    public function testDuplicateWithinImportCannotBeMerged(): void
+    {
+        [
+            $service,
+            $drafts,
+            ,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            implode("\n", [
+                'display_name,phone_1',
+                'Alice,+49 170 1234567',
+                'Alice Copy,+49 170 1234567',
+            ])
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [1 => ImportDuplicateAction::Merge]
+        );
     }
 
     public function testDuplicateWithinImportSkipsLaterRow(): void
