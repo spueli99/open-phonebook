@@ -58,11 +58,11 @@ Completed or in active work:
 - transaction-safe CSV persistence
 - E.164-based duplicate detection with default skip and explicit force-import
 - conservative merge into one unambiguous existing contact
+- vCard 2.1/3.0/4.0 preview and confirmed import
 
 Still planned:
 
 - Google Contacts read-only synchronization
-- vCard import and preview
 - future CardDAV client/synchronization
 - future Microsoft 365 source
 

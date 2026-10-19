@@ -11,6 +11,7 @@ final readonly class ContactImportDraft
     public function __construct(
         public int $addressBookId,
         public int $userId,
+        public ContactImportFormat $format,
         public string $contents,
         public DateTimeImmutable $expiresAt,
     ) {

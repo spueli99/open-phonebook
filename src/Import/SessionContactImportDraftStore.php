@@ -24,6 +24,7 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
     public function create(
         int $addressBookId,
         int $userId,
+        ContactImportFormat $format,
         string $contents
     ): string {
         $this->requireSession();
@@ -42,6 +43,7 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
             'token_hash' => $this->tokenHash($token),
             'address_book_id' => $addressBookId,
             'user_id' => $userId,
+            'format' => $format->value,
             'contents' => $contents,
             'expires_at' => $expiresAt->getTimestamp(),
         ];
@@ -64,6 +66,7 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
         $tokenHash = $value['token_hash'] ?? null;
         $storedAddressBookId = $value['address_book_id'] ?? null;
         $storedUserId = $value['user_id'] ?? null;
+        $format = $value['format'] ?? null;
         $contents = $value['contents'] ?? null;
         $expiresAt = $value['expires_at'] ?? null;
 
@@ -71,6 +74,8 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
             !is_string($tokenHash)
             || !is_int($storedAddressBookId)
             || !is_int($storedUserId)
+            || !is_string($format)
+            || ContactImportFormat::tryFrom($format) === null
             || !is_string($contents)
             || !is_int($expiresAt)
         ) {
@@ -96,6 +101,7 @@ final class SessionContactImportDraftStore implements ContactImportDraftStoreInt
         return new ContactImportDraft(
             $storedAddressBookId,
             $storedUserId,
+            ContactImportFormat::from($format),
             $contents,
             (new DateTimeImmutable('@' . $expiresAt))->setTimezone(
                 new DateTimeZone('UTC')

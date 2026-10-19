@@ -48,7 +48,16 @@ return [
     'contacts.phone_number' => 'Number',
     'contacts.save' => 'Save contact',
     'contacts.back' => 'Back to address book',
+    'imports.title' => 'Contact import',
+    'imports.help' => 'Choose CSV or vCard. The file is validated and previewed '
+        . 'before any contact data is written.',
+    'imports.format' => 'File format',
+    'imports.format.csv' => 'CSV',
+    'imports.format.vcard' => 'vCard (.vcf)',
     'imports.csv.title' => 'CSV import preview',
+    'imports.csv.columns' => 'CSV columns:',
+    'imports.vcard.support' => 'vCard 2.1, 3.0, and 4.0 are supported. '
+        . 'Names, organization, notes, and phone numbers are imported.',
     'imports.csv.help' => 'Select a UTF-8 CSV file to validate and preview it before any data is written.',
     'imports.preview' => 'Preview import',
     'imports.preview.no_persistence' => 'Preview only: no contacts have been imported or changed.',

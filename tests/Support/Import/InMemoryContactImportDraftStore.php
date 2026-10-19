@@ -7,6 +7,7 @@ namespace OpenPhonebook\Tests\Support\Import;
 use DateTimeImmutable;
 use OpenPhonebook\Import\ContactImportDraft;
 use OpenPhonebook\Import\ContactImportDraftStoreInterface;
+use OpenPhonebook\Import\ContactImportFormat;
 
 final class InMemoryContactImportDraftStore implements ContactImportDraftStoreInterface
 {
@@ -20,12 +21,14 @@ final class InMemoryContactImportDraftStore implements ContactImportDraftStoreIn
     public function create(
         int $addressBookId,
         int $userId,
+        ContactImportFormat $format,
         string $contents
     ): string {
         $token = 'draft-' . $this->nextToken++;
         $this->drafts[$token] = new ContactImportDraft(
             $addressBookId,
             $userId,
+            $format,
             $contents,
             new DateTimeImmutable('+15 minutes'),
         );

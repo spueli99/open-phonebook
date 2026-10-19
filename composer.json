@@ -6,11 +6,15 @@
   "require": {
     "php": ">=8.3",
     "ext-curl": "*",
+    "ext-dom": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-pdo": "*",
-    "giggsey/libphonenumber-for-php-lite": "^9.0.41"
+    "ext-xmlreader": "*",
+    "ext-xmlwriter": "*",
+    "giggsey/libphonenumber-for-php-lite": "^9.0.41",
+    "sabre/vobject": "^5.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",

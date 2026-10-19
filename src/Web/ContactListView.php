@@ -76,7 +76,7 @@ final class ContactListView
                 . '</a> '
                 . '<a class="button" href="/address-books/import/?id='
                 . $addressBook->id . '">'
-                . Html::escape($translator->get('imports.csv.title'))
+                . Html::escape($translator->get('imports.title'))
                 . '</a></p>'
             : '';
 

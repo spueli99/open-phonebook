@@ -7,10 +7,13 @@ namespace OpenPhonebook\Tests\Import;
 use OpenPhonebook\Contacts\AddressBookAccessLevel;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportPreviewService;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\ImportDuplicateStatus;
 use OpenPhonebook\Import\CsvContactImportParser;
+use OpenPhonebook\Import\VCardContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryContactRepository;
@@ -27,10 +30,36 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
         self::assertCount(1, $preview->candidates);
+    }
+
+    public function testOwnerCanPreviewVCardImport(): void
+    {
+        [$service, , , $addressBookId] = $this->fixture();
+
+        $preview = $service->preview(
+            $addressBookId,
+            10,
+            ContactImportFormat::VCard,
+            implode("\r\n", [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                'FN:Alice Example',
+                'TEL;TYPE=CELL:+49 170 1234567',
+                'END:VCARD',
+                '',
+            ])
+        );
+
+        self::assertCount(1, $preview->candidates);
+        self::assertSame(
+            'Alice Example',
+            $preview->candidates[0]->contact->displayName
+        );
     }
 
     public function testWriteShareCanPreviewImport(): void
@@ -46,6 +75,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
@@ -67,6 +97,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $service->preview(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
     }
@@ -93,6 +124,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,+49 170 1234567"
         );
 
@@ -132,6 +164,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nIncoming,+49 170 1234567"
         );
 
@@ -164,6 +197,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,0211 123456"
         );
 
@@ -180,6 +214,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,phone_1',
                 'Alice,+49 170 1234567',
@@ -206,6 +241,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name\n"
         );
     }
@@ -235,7 +271,12 @@ final class ContactImportPreviewServiceTest extends TestCase
         return [
             new ContactImportPreviewService(
                 new AddressBookAccessService($accessRepository),
-                new CsvContactImportParser(),
+                new ContactImportParserRegistry([
+                    ContactImportFormat::Csv->value
+                        => new CsvContactImportParser(),
+                    ContactImportFormat::VCard->value
+                        => new VCardContactImportParser(),
+                ]),
                 new ImportDuplicateDetector(
                     $contacts,
                     $normalizer

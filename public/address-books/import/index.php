@@ -6,10 +6,13 @@ use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Clock\SystemClock;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportPreviewService;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
 use OpenPhonebook\Import\CsvContactImportParser;
+use OpenPhonebook\Import\VCardContactImportParser;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\ContactImportPreviewView;
 use OpenPhonebook\Web\Request;
@@ -54,6 +57,14 @@ if ($method === 'POST') {
     }
 
     $addressBookId = (int) Request::postString('address_book_id');
+    $format = ContactImportFormat::tryFrom(
+        Request::postString('format')
+    );
+
+    if ($format === null) {
+        http_response_code(400);
+        exit;
+    }
 
     try {
         $addressBook = $access->requireWritable(
@@ -62,12 +73,17 @@ if ($method === 'POST') {
         )->addressBook;
         $contents = UploadedFile::contents(
             'import_file',
-            CsvContactImportParser::MAX_BYTES
+            2_000_000
         );
         $contactRepository = new ContactRepository($runtime->database);
         $preview = (new ContactImportPreviewService(
             $access,
-            new CsvContactImportParser(),
+            new ContactImportParserRegistry([
+                ContactImportFormat::Csv->value
+                    => new CsvContactImportParser(),
+                ContactImportFormat::VCard->value
+                    => new VCardContactImportParser(),
+            ]),
             new ImportDuplicateDetector(
                 $contactRepository,
                 $runtime->phoneNumberNormalizer()
@@ -75,6 +91,7 @@ if ($method === 'POST') {
         ))->preview(
             $addressBookId,
             $user->id,
+            $format,
             $contents
         );
         $draftToken = (new SessionContactImportDraftStore(
@@ -83,6 +100,7 @@ if ($method === 'POST') {
         ))->create(
             $addressBookId,
             $user->id,
+            $format,
             $contents
         );
     } catch (Throwable) {

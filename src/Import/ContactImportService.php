@@ -15,7 +15,7 @@ final class ContactImportService
 {
     public function __construct(
         private readonly AddressBookAccessService $addressBookAccess,
-        private readonly ContactImportParserInterface $parser,
+        private readonly ContactImportParserRegistry $parsers,
         private readonly ContactImportDraftStoreInterface $drafts,
         private readonly ContactRepositoryInterface $contacts,
         private readonly PhoneNumberNormalizerInterface $phoneNumberNormalizer,
@@ -51,7 +51,9 @@ final class ContactImportService
             );
         }
 
-        $preview = $this->parser->parse($draft->contents);
+        $preview = $this->parsers
+            ->parserFor($draft->format)
+            ->parse($draft->contents);
 
         if ($preview->contacts === []) {
             throw new RuntimeException(
