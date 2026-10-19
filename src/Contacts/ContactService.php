@@ -9,7 +9,7 @@ use RuntimeException;
 final class ContactService
 {
     public function __construct(
-        private readonly AddressBookRepositoryInterface $addressBooks,
+        private readonly AddressBookAccessService $addressBookAccess,
         private readonly ContactRepositoryInterface $contacts,
         private readonly PhoneNumberNormalizerInterface $phoneNumberNormalizer,
     ) {
@@ -18,11 +18,14 @@ final class ContactService
     /**
      * @return list<Contact>
      */
-    public function allInOwnedAddressBook(
+    public function allInAccessibleAddressBook(
         int $addressBookId,
         int $ownerUserId
     ): array {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireReadable(
+            $addressBookId,
+            $ownerUserId
+        );
 
         return $this->contacts->allInAddressBook($addressBookId);
     }
@@ -30,12 +33,15 @@ final class ContactService
     /**
      * @return list<Contact>
      */
-    public function searchInOwnedAddressBook(
+    public function searchInAccessibleAddressBook(
         int $addressBookId,
         int $ownerUserId,
         string $query
     ): array {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireReadable(
+            $addressBookId,
+            $ownerUserId
+        );
         $query = trim($query);
 
         if ($query === '') {
@@ -52,12 +58,15 @@ final class ContactService
         );
     }
 
-    public function getInOwnedAddressBook(
+    public function getInAccessibleAddressBook(
         int $contactId,
         int $addressBookId,
         int $ownerUserId
     ): Contact {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireReadable(
+            $addressBookId,
+            $ownerUserId
+        );
         $contact = $this->contacts->findInAddressBook(
             $contactId,
             $addressBookId
@@ -83,7 +92,10 @@ final class ContactService
         ?string $notes,
         array $phoneNumbers
     ): int {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireWritable(
+            $addressBookId,
+            $ownerUserId
+        );
 
         [$displayName, $givenName, $familyName, $organizationName, $notes] =
             $this->validateContactFields(
@@ -119,7 +131,10 @@ final class ContactService
         ?string $notes,
         array $phoneNumbers
     ): void {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireWritable(
+            $addressBookId,
+            $ownerUserId
+        );
 
         if ($this->contacts->findInAddressBook($contactId, $addressBookId) === null) {
             throw new RuntimeException('Contact not found.');
@@ -155,7 +170,10 @@ final class ContactService
         int $addressBookId,
         int $ownerUserId
     ): void {
-        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $this->addressBookAccess->requireWritable(
+            $addressBookId,
+            $ownerUserId
+        );
 
         if ($this->contacts->findInAddressBook($contactId, $addressBookId) === null) {
             throw new RuntimeException('Contact not found.');
@@ -164,22 +182,6 @@ final class ContactService
         if (!$this->contacts->softDelete($contactId, $addressBookId)) {
             throw new RuntimeException('Contact could not be deleted.');
         }
-    }
-
-    private function requireOwnedAddressBook(
-        int $addressBookId,
-        int $ownerUserId
-    ): AddressBook {
-        $addressBook = $this->addressBooks->findOwnedBy(
-            $addressBookId,
-            $ownerUserId
-        );
-
-        if ($addressBook === null) {
-            throw new RuntimeException('Address book not found.');
-        }
-
-        return $addressBook;
     }
 
     /**
