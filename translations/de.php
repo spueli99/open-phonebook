@@ -34,6 +34,8 @@ return [
     'role.member' => 'Mitglied',
     'role.system_admin' => 'Systemadministrator',
     'invite.accept.title' => 'Einladung annehmen',
+    'invite.capture.wait' => 'Einladung wird vorbereitet…',
+    'invite.capture.invalid' => 'Der Einladungs-Code fehlt oder ist ungültig.',
     'invite.accept.for' => 'Einladung für',
     'invite.accept.password_again' => 'Passwort wiederholen',
     'invite.accept.language' => 'Sprache',
