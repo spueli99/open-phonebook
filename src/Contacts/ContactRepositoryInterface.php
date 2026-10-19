@@ -11,6 +11,14 @@ interface ContactRepositoryInterface
      */
     public function allInAddressBook(int $addressBookId): array;
 
+    /**
+     * @return list<Contact>
+     */
+    public function searchInAddressBook(
+        int $addressBookId,
+        string $query
+    ): array;
+
     public function findInAddressBook(int $contactId, int $addressBookId): ?Contact;
 
     /**
