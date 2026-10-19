@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
+use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Import\ContactImportPreviewService;
+use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Security\CsrfToken;
@@ -62,9 +64,14 @@ if ($method === 'POST') {
             'import_file',
             CsvContactImportParser::MAX_BYTES
         );
+        $contactRepository = new ContactRepository($runtime->database);
         $preview = (new ContactImportPreviewService(
             $access,
-            new CsvContactImportParser()
+            new CsvContactImportParser(),
+            new ImportDuplicateDetector(
+                $contactRepository,
+                $runtime->phoneNumberNormalizer()
+            )
         ))->preview(
             $addressBookId,
             $user->id,
