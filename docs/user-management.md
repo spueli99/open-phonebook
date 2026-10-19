@@ -42,7 +42,9 @@ Safeguards:
 - repeating the current activation state is treated as a no-op
 - deleted users are not modified by activation operations
 
-Permanent deletion and role editing are intentionally not included yet.
+Permanent deletion is intentionally not included yet.
+
+System administrators can change another non-deleted user's platform role between `member` and `system_admin`. A system administrator cannot remove their own administrator role, and the last active system administrator cannot be demoted. `organization_admin` remains unavailable until organization context exists.
 
 ## Invitations
 
@@ -59,7 +61,7 @@ Current rules:
 - invitation tokens are single-use
 - accepted or revoked invitations cannot be reused
 
-The current UI exposes the generated invitation link once so an administrator can send it through an appropriate communication channel. Email delivery will be added later through the notification/mail infrastructure.
+The current UI exposes the generated invitation link once so an administrator can send it through an appropriate communication channel. Active invitations are listed in user administration and can be revoked or renewed. Renewing an invitation replaces its token, invalidates the previous link, and starts a fresh three-day validity period. Email delivery will be added later through the notification/mail infrastructure.
 
 ## Token transport
 
@@ -93,8 +95,6 @@ The user row and invitation acceptance marker are committed in the same database
 Not yet included:
 
 - invitation email delivery
-- invitation list/revoke UI
-- role editing
 - password reset
 - public registration
 - organization-scoped administration
