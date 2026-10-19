@@ -12,8 +12,8 @@ final class InvitationAcceptanceService
 {
     public function __construct(
         private readonly PDO $database,
-        private readonly InvitationRepository $invitations,
-        private readonly UserAdministrationRepository $users,
+        private readonly InvitationRepositoryInterface $invitations,
+        private readonly UserAdministrationRepositoryInterface $users,
     ) {
     }
 
