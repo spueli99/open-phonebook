@@ -12,45 +12,32 @@ final class DashboardView
     public static function render(
         Translator $translator,
         AuthenticatedUser $user,
-        string $csrfToken
+        string $csrfToken,
+        bool $canManageUsers
     ): string {
-        $name = htmlspecialchars(
-            $user->displayName,
-            ENT_QUOTES | ENT_SUBSTITUTE,
-            'UTF-8'
-        );
+        $name = Html::escape($user->displayName);
+        $adminLink = $canManageUsers
+            ? '<p><a href="/admin/users/">'
+                . Html::escape($translator->get('nav.users'))
+                . '</a></p>'
+            : '';
 
         return '<!doctype html>'
-            . '<html lang="' . htmlspecialchars($translator->locale, ENT_QUOTES, 'UTF-8') . '">'
+            . '<html lang="' . Html::escape($translator->locale) . '">'
             . '<head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
-            . '<title>' . htmlspecialchars(
-                $translator->get('dashboard.title'),
-                ENT_QUOTES,
-                'UTF-8'
-            )
+            . '<title>' . Html::escape($translator->get('dashboard.title'))
             . ' · Open Phonebook</title></head><body><main>'
-            . '<h1>' . htmlspecialchars(
-                $translator->get('dashboard.title'),
-                ENT_QUOTES,
-                'UTF-8'
-            ) . '</h1>'
-            . '<p>' . htmlspecialchars(
-                $translator->get('dashboard.welcome'),
-                ENT_QUOTES,
-                'UTF-8'
-            ) . ' ' . $name . '</p>'
+            . '<h1>' . Html::escape($translator->get('dashboard.title')) . '</h1>'
+            . '<p>' . Html::escape($translator->get('dashboard.welcome'))
+            . ' ' . $name . '</p>'
+            . $adminLink
             . '<form method="post" action="/logout/">'
-            . '<input type="hidden" name="_csrf" value="' . htmlspecialchars(
-                $csrfToken,
-                ENT_QUOTES,
-                'UTF-8'
-            ) . '">'
-            . '<button type="submit">' . htmlspecialchars(
-                $translator->get('auth.logout'),
-                ENT_QUOTES,
-                'UTF-8'
-            ) . '</button></form>'
+            . '<input type="hidden" name="_csrf" value="'
+            . Html::escape($csrfToken) . '">'
+            . '<button type="submit">'
+            . Html::escape($translator->get('auth.logout'))
+            . '</button></form>'
             . '</main></body></html>';
     }
 
