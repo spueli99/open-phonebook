@@ -42,6 +42,55 @@ final class ContactRepository implements ContactRepositoryInterface
         return $contacts;
     }
 
+    public function searchInAddressBook(
+        int $addressBookId,
+        string $query
+    ): array {
+        $pattern = '%' . $this->escapeLike($query) . '%';
+        $statement = $this->database->prepare(
+            "SELECT c.id, c.address_book_id, c.display_name, c.given_name,
+                    c.family_name, c.organization_name, c.notes
+             FROM contacts c
+             WHERE c.address_book_id = :address_book_id
+               AND c.deleted_at IS NULL
+               AND (
+                    c.display_name LIKE :query ESCAPE '\\\\'
+                    OR c.given_name LIKE :query ESCAPE '\\\\'
+                    OR c.family_name LIKE :query ESCAPE '\\\\'
+                    OR c.organization_name LIKE :query ESCAPE '\\\\'
+                    OR EXISTS (
+                        SELECT 1
+                        FROM contact_phone_numbers p
+                        WHERE p.contact_id = c.id
+                          AND (
+                              p.raw_number LIKE :query ESCAPE '\\\\'
+                              OR p.label LIKE :query ESCAPE '\\\\'
+                          )
+                    )
+               )
+             ORDER BY c.display_name ASC, c.id ASC"
+        );
+        $statement->execute([
+            'address_book_id' => $addressBookId,
+            'query' => $pattern,
+        ]);
+
+        $contacts = [];
+
+        while (($row = $statement->fetch()) !== false) {
+            if (!is_array($row)) {
+                throw new RuntimeException('Unexpected contact query result.');
+            }
+
+            $contacts[] = $this->hydrate(
+                $row,
+                $this->phoneNumbersFor((int) $row['id'])
+            );
+        }
+
+        return $contacts;
+    }
+
     public function findInAddressBook(
         int $contactId,
         int $addressBookId
@@ -205,6 +254,15 @@ final class ContactRepository implements ContactRepositoryInterface
         ]);
 
         return $statement->rowCount() === 1;
+    }
+
+    private function escapeLike(string $value): string
+    {
+        return str_replace(
+            ['\\', '%', '_'],
+            ['\\\\', '\\%', '\\_'],
+            $value
+        );
     }
 
     private function contactExists(int $contactId, int $addressBookId): bool
