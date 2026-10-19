@@ -8,6 +8,7 @@ use OpenPhonebook\Contacts\AddressBookAccessLevel;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
 use OpenPhonebook\Import\ContactImportService;
+use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
@@ -44,6 +45,7 @@ final class ContactImportServiceTest extends TestCase
         $result = $service->import($token, $addressBookId, 10);
 
         self::assertSame(2, $result->importedContacts);
+        self::assertSame(0, $result->skippedDuplicates);
         self::assertSame(1, $transactions->calls);
 
         $stored = $contacts->allInAddressBook($addressBookId);
@@ -121,6 +123,161 @@ final class ContactImportServiceTest extends TestCase
         $service->import('missing', $addressBookId, 10);
     }
 
+    public function testExistingDuplicateIsSkippedByDefault(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $contacts->create(
+            $addressBookId,
+            'Existing',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nAlice,+49 170 1234567"
+        );
+
+        $result = $service->import($token, $addressBookId, 10);
+
+        self::assertSame(0, $result->importedContacts);
+        self::assertSame(1, $result->skippedDuplicates);
+        self::assertCount(
+            1,
+            $contacts->allInAddressBook($addressBookId)
+        );
+    }
+
+    public function testExistingDuplicateCanBeForcedExplicitly(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $contacts->create(
+            $addressBookId,
+            'Existing',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nAlice,+49 170 1234567"
+        );
+
+        $result = $service->import(
+            $token,
+            $addressBookId,
+            10,
+            [0]
+        );
+
+        self::assertSame(1, $result->importedContacts);
+        self::assertSame(0, $result->skippedDuplicates);
+        self::assertCount(
+            2,
+            $contacts->allInAddressBook($addressBookId)
+        );
+    }
+
+    public function testDuplicateWithinImportSkipsLaterRow(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            implode("\n", [
+                'display_name,phone_1',
+                'Alice,+49 170 1234567',
+                'Alice Copy,+49 170 1234567',
+            ])
+        );
+
+        $result = $service->import($token, $addressBookId, 10);
+
+        self::assertSame(1, $result->importedContacts);
+        self::assertSame(1, $result->skippedDuplicates);
+        self::assertCount(
+            1,
+            $contacts->allInAddressBook($addressBookId)
+        );
+    }
+
+    public function testDuplicateStateIsRecheckedAtConfirmation(): void
+    {
+        [
+            $service,
+            $drafts,
+            $contacts,
+            ,
+            ,
+            $addressBookId,
+        ] = $this->fixture();
+        $token = $drafts->create(
+            $addressBookId,
+            10,
+            "display_name,phone_1\nAlice,+49 170 1234567"
+        );
+
+        $contacts->create(
+            $addressBookId,
+            'Added after preview',
+            null,
+            null,
+            null,
+            null,
+            [
+                new \OpenPhonebook\Contacts\ContactPhoneNumberInput(
+                    'Mobile',
+                    '+49 170 1234567',
+                    '+491701234567'
+                ),
+            ]
+        );
+
+        $result = $service->import($token, $addressBookId, 10);
+
+        self::assertSame(0, $result->importedContacts);
+        self::assertSame(1, $result->skippedDuplicates);
+    }
+
     public function testDraftIsRevalidatedAtConfirmation(): void
     {
         [
@@ -176,6 +333,7 @@ final class ContactImportServiceTest extends TestCase
         $drafts = new InMemoryContactImportDraftStore();
         $contacts = new InMemoryContactRepository();
         $transactions = new InMemoryTransactionManager();
+        $normalizer = new TestPhoneNumberNormalizer();
 
         return [
             new ContactImportService(
@@ -183,7 +341,11 @@ final class ContactImportServiceTest extends TestCase
                 new CsvContactImportParser(),
                 $drafts,
                 $contacts,
-                new TestPhoneNumberNormalizer(),
+                $normalizer,
+                new ImportDuplicateDetector(
+                    $contacts,
+                    $normalizer
+                ),
                 $transactions
             ),
             $drafts,
