@@ -24,13 +24,13 @@ Membership and role assignment.
 
 A named collection of contacts.
 
-An address book has an owner scope and sharing policy. It may be personal, organization-owned, or shared explicitly.
+The first physical schema supports personal address books through `owner_user_id`. Sharing and organization ownership remain future extensions rather than nullable or ambiguous ownership shortcuts.
 
 ### contacts
 
 Canonical local contact records.
 
-Suggested fields include display name, given name, family name, organization name, notes, timestamps, and soft-delete state.
+The first physical schema includes display name, given name, family name, organization name, notes, timestamps, and soft-delete state.
 
 ### contact_phone_numbers
 
