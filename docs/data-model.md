@@ -51,11 +51,11 @@ E.164 normalization helps matching but must not be treated as a globally unique 
 
 ### contact_sources
 
-Source definition, e.g. local, Google, imported vCard, CSV, future CardDAV.
+External source definitions. The initial physical implementation stores an owner, destination address book, provider identifier, encrypted provider refresh token, and synchronization timestamps. Google is the first provider.
 
 ### source_records
 
-Mapping between external source identifiers and local records. This allows synchronization without hard-coding provider fields into the contact table.
+Mapping between one external provider record identifier and one canonical local contact. Google uses the People API `resourceName` as the external identifier. This allows repeatable synchronization without hard-coding provider fields into the contact table.
 
 ## Devices
 
