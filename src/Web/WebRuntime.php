@@ -6,6 +6,8 @@ namespace OpenPhonebook\Web;
 
 use OpenPhonebook\Auth\UserSession;
 use OpenPhonebook\Config\Config;
+use OpenPhonebook\Contacts\LibPhoneNumberNormalizer;
+use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
 use OpenPhonebook\Database\ConnectionFactory;
 use OpenPhonebook\I18n\Translator;
 use OpenPhonebook\Security\Session;
@@ -51,6 +53,17 @@ final readonly class WebRuntime
             $applicationKey,
             $projectRoot,
         );
+    }
+
+    public function phoneNumberNormalizer(): PhoneNumberNormalizerInterface
+    {
+        $region = $this->config->get('contacts.default_region');
+
+        if ($region !== null && !is_string($region)) {
+            throw new RuntimeException('Default phone region is invalid.');
+        }
+
+        return new LibPhoneNumberNormalizer($region);
     }
 
     public function translator(?string $locale = null): Translator

@@ -53,6 +53,7 @@ final class InMemoryContactRepository implements ContactRepositoryInterface
             foreach ($contact->phoneNumbers as $phoneNumber) {
                 $haystacks[] = $phoneNumber->label ?? '';
                 $haystacks[] = $phoneNumber->rawNumber;
+                $haystacks[] = $phoneNumber->normalizedE164 ?? '';
             }
 
             foreach ($haystacks as $haystack) {
@@ -155,7 +156,7 @@ final class InMemoryContactRepository implements ContactRepositoryInterface
                 $this->nextPhoneId++,
                 $phoneNumber->label,
                 $phoneNumber->rawNumber,
-                null,
+                $phoneNumber->normalizedE164,
                 $index,
             );
         }

@@ -40,7 +40,11 @@ if ($user === null) {
 
 $addressBooks = new AddressBookRepository($runtime->database);
 $contacts = new ContactRepository($runtime->database);
-$service = new ContactService($addressBooks, $contacts);
+$service = new ContactService(
+    $addressBooks,
+    $contacts,
+    $runtime->phoneNumberNormalizer()
+);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'POST') {

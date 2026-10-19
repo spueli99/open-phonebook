@@ -11,6 +11,7 @@ final class ContactService
     public function __construct(
         private readonly AddressBookRepositoryInterface $addressBooks,
         private readonly ContactRepositoryInterface $contacts,
+        private readonly PhoneNumberNormalizerInterface $phoneNumberNormalizer,
     ) {
     }
 
@@ -229,6 +230,7 @@ final class ContactService
             $validated[] = new ContactPhoneNumberInput(
                 $this->optionalText($phoneNumber->label, 64),
                 $rawNumber,
+                $this->phoneNumberNormalizer->normalize($rawNumber),
             );
         }
 
