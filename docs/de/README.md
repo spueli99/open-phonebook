@@ -14,6 +14,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Adressbücher und Kontakte](contacts.md)
 - [Kontaktimporte](imports.md)
 - [Google Kontakte](google-contacts.md)
+- [Geräte](devices.md)
 
 ## Grundprinzipien
 
