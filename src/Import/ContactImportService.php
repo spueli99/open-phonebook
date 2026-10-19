@@ -26,13 +26,13 @@ final class ContactImportService
     }
 
     /**
-     * @param array<int, ImportDuplicateAction> $duplicateActions
+     * @param array<int, ImportDuplicateDecision> $duplicateDecisions
      */
     public function import(
         string $token,
         int $addressBookId,
         int $userId,
-        array $duplicateActions = []
+        array $duplicateDecisions = []
     ): ContactImportResult {
         $this->addressBookAccess->requireWritable(
             $addressBookId,
@@ -67,7 +67,7 @@ final class ContactImportService
             $this->transactions->transactional(
                 function () use (
                     $candidates,
-                    $duplicateActions,
+                    $duplicateDecisions,
                     $addressBookId
                 ): array {
                     $imported = 0;
@@ -75,8 +75,12 @@ final class ContactImportService
                     $skipped = 0;
 
                     foreach ($candidates as $candidate) {
-                        $action = $duplicateActions[$candidate->sourceRow]
-                            ?? ImportDuplicateAction::Skip;
+                        $decision = $duplicateDecisions[
+                            $candidate->sourceRow
+                        ] ?? new ImportDuplicateDecision(
+                            ImportDuplicateAction::Skip
+                        );
+                        $action = $decision->action;
 
                         if (
                             $action === ImportDuplicateAction::Merge
@@ -84,6 +88,8 @@ final class ContactImportService
                                 $candidate->duplicateStatus
                                     !== ImportDuplicateStatus::ExistingContact
                                 || $candidate->mergeTarget === null
+                                || $decision->mergeTargetContactId
+                                    !== $candidate->mergeTarget->id
                             )
                         ) {
                             throw new RuntimeException(
