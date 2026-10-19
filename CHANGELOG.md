@@ -26,12 +26,15 @@ The project is currently in the pre-release architecture and foundation phase.
 - Region-aware E.164 phone-number normalization while preserving raw values
 - Personal address-book sharing with explicit read or write access
 - Preview-only CSV contact import foundation with strict validation and access checks
+- Explicit CSV import confirmation with short-lived session drafts and atomic persistence
 
 ### Security
 
 - Ambiguous local phone numbers are never assigned a country without explicit region configuration
 - Shared address books retain owner-only metadata and sharing administration
 - Contact import preview validates untrusted uploads before any persistence and requires write access plus CSRF protection
+- CSV confirmation reparses the server-side draft, rechecks write access, and persists all contacts in one transaction
+- Import draft tokens are 256-bit random values stored only as HMACs in session state and expire after 15 minutes
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
