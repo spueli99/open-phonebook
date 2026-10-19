@@ -59,9 +59,13 @@ Before confirmation, import candidates are compared by valid normalized E.164 ph
 
 Names alone never trigger automatic duplicate handling. Ambiguous or non-normalizable phone numbers are not treated as duplicate evidence.
 
-Duplicate candidates are skipped by default. The preview offers an explicit `Import anyway` choice per duplicate row. At confirmation time duplicate detection runs again against the current address-book state. This means a contact that became a duplicate after preview is skipped automatically unless that same row was explicitly forced by the user.
+Duplicate candidates are skipped by default. For an existing-contact duplicate, the preview offers `Merge` only when all matching normalized phone numbers resolve to exactly one existing contact. Ambiguous matches never offer merge. `Import as separate contact` remains an explicit alternative.
 
-The confirmation result reports both imported contacts and duplicates skipped.
+A merge is conservative: the existing display name is retained, non-empty existing optional fields are never overwritten, empty optional fields may be filled from the import, and only phone numbers not already represented by the same E.164 value (or raw fallback when E.164 is unavailable) are appended. Existing phone labels are retained.
+
+At confirmation time duplicate detection and the merge target are recalculated against the current address-book state. If a requested merge is no longer unambiguous, the entire confirmation is rejected instead of silently importing a new contact or selecting another target.
+
+The confirmation result reports imported, merged, and skipped contacts separately.
 
 ## Security
 
@@ -74,6 +78,4 @@ All preview POST requests require a valid authenticated session, write access to
 ## Still planned
 
 - vCard parser and preview
-- merge decisions for existing contacts
-- field-level merge policies
 - source-record tracking for synchronized providers
