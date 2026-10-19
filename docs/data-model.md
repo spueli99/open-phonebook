@@ -51,7 +51,7 @@ E.164 normalization helps matching but must not be treated as a globally unique 
 
 ### contact_sources
 
-External source definitions. The initial physical implementation stores an owner, destination address book, provider identifier, encrypted provider refresh token, and synchronization timestamps. Google is the first provider.
+External source definitions. The physical implementation stores an owner, destination address book, provider identifier, encrypted provider refresh token, encrypted incremental sync token, and synchronization timestamps. Google is the first provider.
 
 ### source_records
 
