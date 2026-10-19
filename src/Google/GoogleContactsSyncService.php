@@ -112,7 +112,9 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
                             $this->deleteSourceMappings(
                                 $source->id,
                                 $person->externalId,
-                                $person->previousExternalIds
+                                $person->previousExternalIds,
+                                $records,
+                                $contactId
                             );
                             $deleted++;
                         }
@@ -121,6 +123,19 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
                     }
 
                     if ($person->contact === null) {
+                        if (
+                            $contactId !== null
+                            && $previousRecordId !== null
+                        ) {
+                            $this->moveSourceMapping(
+                                $source->id,
+                                $person->externalId,
+                                $person->previousExternalIds,
+                                $records,
+                                $contactId
+                            );
+                        }
+
                         $skipped++;
                         continue;
                     }
@@ -152,20 +167,11 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
                         );
 
                         if ($didUpdate) {
-                            if (
-                                $previousRecordId !== null
-                                && $previousRecordId
-                                    !== $person->externalId
-                            ) {
-                                $this->sources->deleteRecord(
-                                    $source->id,
-                                    $previousRecordId
-                                );
-                            }
-
-                            $this->sources->upsertRecord(
+                            $this->moveSourceMapping(
                                 $source->id,
                                 $person->externalId,
+                                $person->previousExternalIds,
+                                $records,
                                 $contactId
                             );
                             $updated++;
@@ -248,20 +254,62 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
     /**
      * @param list<string> $previousExternalIds
      */
+    /**
+     * @param list<string> $previousExternalIds
+     * @param array<string, int> $records
+     */
     private function deleteSourceMappings(
         int $sourceId,
         string $externalId,
-        array $previousExternalIds
+        array $previousExternalIds,
+        array $records,
+        int $contactId
     ): void {
-        $this->sources->deleteRecord($sourceId, $externalId);
+        if (($records[$externalId] ?? null) === $contactId) {
+            $this->sources->deleteRecord($sourceId, $externalId);
+        }
 
         foreach ($previousExternalIds as $previousExternalId) {
-            if ($previousExternalId !== $externalId) {
+            if (
+                ($records[$previousExternalId] ?? null)
+                === $contactId
+            ) {
                 $this->sources->deleteRecord(
                     $sourceId,
                     $previousExternalId
                 );
             }
         }
+    }
+
+    /**
+     * @param list<string> $previousExternalIds
+     * @param array<string, int> $records
+     */
+    private function moveSourceMapping(
+        int $sourceId,
+        string $externalId,
+        array $previousExternalIds,
+        array $records,
+        int $contactId
+    ): void {
+        foreach ($previousExternalIds as $previousExternalId) {
+            if (
+                $previousExternalId !== $externalId
+                && ($records[$previousExternalId] ?? null)
+                    === $contactId
+            ) {
+                $this->sources->deleteRecord(
+                    $sourceId,
+                    $previousExternalId
+                );
+            }
+        }
+
+        $this->sources->upsertRecord(
+            $sourceId,
+            $externalId,
+            $contactId
+        );
     }
 }
