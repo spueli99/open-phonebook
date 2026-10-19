@@ -12,6 +12,7 @@ final readonly class ContactSource
         public int $addressBookId,
         public string $provider,
         public string $encryptedRefreshToken,
+        public ?string $encryptedSyncToken,
     ) {
     }
 }
