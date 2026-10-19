@@ -91,10 +91,7 @@ final class Request
         $result = [];
 
         foreach ($value as $mapKey => $mapValue) {
-            if (
-                (is_string($mapKey) || is_int($mapKey))
-                && is_string($mapValue)
-            ) {
+            if (is_string($mapValue)) {
                 $result[(string) $mapKey] = trim($mapValue);
             }
         }
