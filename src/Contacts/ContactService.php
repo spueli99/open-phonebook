@@ -26,6 +26,31 @@ final class ContactService
         return $this->contacts->allInAddressBook($addressBookId);
     }
 
+    /**
+     * @return list<Contact>
+     */
+    public function searchInOwnedAddressBook(
+        int $addressBookId,
+        int $ownerUserId,
+        string $query
+    ): array {
+        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $query = trim($query);
+
+        if ($query === '') {
+            return $this->contacts->allInAddressBook($addressBookId);
+        }
+
+        if (mb_strlen($query) > 120) {
+            throw new RuntimeException('Search query is too long.');
+        }
+
+        return $this->contacts->searchInAddressBook(
+            $addressBookId,
+            $query
+        );
+    }
+
     public function getInOwnedAddressBook(
         int $contactId,
         int $addressBookId,
