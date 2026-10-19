@@ -40,10 +40,10 @@ Completed or in active work:
 - soft deletion
 - personal address-book and contact web UI
 - owner-scoped contact search
+- libphonenumber-based E.164 normalization with explicit default region
 
 Still planned:
 
-- international number normalization
 - sharing
 
 ## Contact sources and imports
