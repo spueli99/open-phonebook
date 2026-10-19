@@ -59,10 +59,11 @@ Completed or in active work:
 - E.164-based duplicate detection with default skip and explicit force-import
 - conservative merge into one unambiguous existing contact
 - vCard 2.1/3.0/4.0 preview and confirmed import
+- Google Contacts read-only OAuth connection and manual full-snapshot sync
 
 Still planned:
 
-- Google Contacts read-only synchronization
+- scheduled/incremental Google Contacts synchronization
 - future CardDAV client/synchronization
 - future Microsoft 365 source
 
