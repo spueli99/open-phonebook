@@ -78,6 +78,10 @@ final class VCardContactImportParser implements ContactImportParserInterface
             "\n",
             $contents
         );
+        if (str_starts_with($normalized, "\xEF\xBB\xBF")) {
+            $normalized = substr($normalized, 3);
+        }
+
         $lines = explode("\n", $normalized);
         $cards = [];
         $current = [];
@@ -89,7 +93,7 @@ final class VCardContactImportParser implements ContactImportParserInterface
                     continue;
                 }
 
-                if (strcasecmp(trim($line), 'BEGIN:VCARD') !== 0) {
+                if (strcasecmp($line, 'BEGIN:VCARD') !== 0) {
                     throw new RuntimeException(
                         'Import file contains data outside a vCard.'
                     );
@@ -102,7 +106,7 @@ final class VCardContactImportParser implements ContactImportParserInterface
 
             $current[] = $line;
 
-            if (strcasecmp(trim($line), 'END:VCARD') === 0) {
+            if (strcasecmp($line, 'END:VCARD') === 0) {
                 $cards[] = implode("\r\n", $current) . "\r\n";
                 $current = [];
                 $insideCard = false;
