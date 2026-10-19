@@ -53,7 +53,7 @@ A normal user may eventually manage:
 
 - own profile and security settings
 - owned address books
-- contacts in writable address books
+- contacts in owned or otherwise writable address books
 - own external contact connections
 - permitted devices
 - own notification channels and rules
@@ -63,7 +63,7 @@ A normal user may eventually manage:
 
 Organization administrators may manage organization-level resources according to policy, including shared address books and assigned devices.
 
-Private personal address books remain inaccessible unless explicitly shared.
+Private personal address books remain inaccessible unless explicitly shared. The initial local-contact services enforce owner-scoped access and do not grant system administrators implicit access to private contacts.
 
 ## Devices
 

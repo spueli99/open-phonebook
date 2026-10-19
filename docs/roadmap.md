@@ -31,9 +31,17 @@ Still planned in the foundation area:
 
 ## Contacts
 
-- local address books
-- local contacts
+Completed or in active work:
+
+- local personal address-book persistence
+- local contact persistence
 - multiple phone numbers
+- owner-scoped contact services
+- soft deletion
+
+Still planned:
+
+- contact web UI
 - international number normalization
 - search
 - soft delete
