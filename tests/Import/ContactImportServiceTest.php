@@ -79,7 +79,6 @@ final class ContactImportServiceTest extends TestCase
         $accessRepository->grant(
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             11,
             AddressBookAccessLevel::Write
         );
@@ -111,7 +110,6 @@ final class ContactImportServiceTest extends TestCase
         $accessRepository->grant(
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             11,
             AddressBookAccessLevel::Read
         );
@@ -212,7 +210,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(ImportDuplicateAction::Import)]
         );
 
@@ -264,7 +261,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(
                 ImportDuplicateAction::Merge,
                 $existingId
@@ -331,7 +327,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(
                 ImportDuplicateAction::Merge,
                 $existingId
@@ -394,7 +389,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [
                 0 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
@@ -460,7 +454,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [
                 0 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
@@ -496,7 +489,6 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
-            ContactImportFormat::Csv,
             [
                 1 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
