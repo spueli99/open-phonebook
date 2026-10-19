@@ -2,7 +2,7 @@
 
 ## Threat model
 
-Open Phonebook stores personal contacts and may store call metadata, provider tokens, device credentials, notification credentials, and authentication metadata.
+Open Phonebook stores personal contacts and may store call metadata, provider tokens, device credentials, notification credentials, authentication metadata, and invitation metadata.
 
 Assume the public web interface and device/export endpoints are internet-accessible.
 
@@ -32,7 +32,7 @@ The encryption key must not be stored in the same database as encrypted provider
 
 Runtime secret configuration must be excluded from Git.
 
-The setup process generates an application key outside the database. It is currently used for keyed security hashes such as login-throttling subjects. Future cryptographic features must define appropriate key derivation or separate keys.
+The setup process generates an application key outside the database. It is currently used for keyed security hashes such as login-throttling subjects and invitation-token hashes. Future cryptographic features must define appropriate key derivation or separate keys.
 
 ## Authentication
 
@@ -51,13 +51,32 @@ Controls include:
 
 See [Authentication](authentication.md).
 
-Account recovery and password reset must be designed before public multi-user deployment.
+## Invitations
 
-Future-compatible authentication:
+Invitation tokens are capability secrets.
 
-- TOTP/WebAuthn
-- OIDC
-- LDAP
+Controls include:
+
+- 256-bit random tokens
+- HMAC-derived token hashes at rest
+- finite expiration
+- single-use semantics
+- duplicate-active-invitation prevention per email address
+- transactional account creation and acceptance
+- fragment-based client transport so tokens are not included in ordinary HTTP request URLs
+- immediate fragment removal before the token is submitted in a CSRF-protected same-origin POST
+
+Invitation links must still be transmitted to recipients through an appropriately secure channel.
+
+See [User Management](user-management.md).
+
+## Administrative safeguards
+
+Initial user-management operations enforce explicit permissions.
+
+The current activation flow prevents both self-deactivation and disabling the final active system administrator.
+
+Role editing and permanent deletion are intentionally deferred until ownership and organization rules exist.
 
 ## Imports
 
@@ -79,10 +98,12 @@ Call-history retention is configurable and may be disabled.
 
 Authentication throttling does not persist raw email/IP combinations.
 
+Invitation tokens are not persisted in plaintext.
+
 Users should eventually be able to export and delete their own application data.
 
 ## Logging
 
 Audit administrative and security actions without turning the audit log into contact-access surveillance.
 
-Authentication logs must not include plaintext passwords, provider secrets, session identifiers, or unnecessary personal data.
+Authentication logs must not include plaintext passwords, provider secrets, session identifiers, invitation tokens, or unnecessary personal data.

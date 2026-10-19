@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use OpenPhonebook\Auth\Authorization;
+use OpenPhonebook\Auth\Permission;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Setup\InstallationState;
 use OpenPhonebook\Web\DashboardView;
@@ -45,11 +47,13 @@ if ($user === null) {
 }
 
 $translator = $runtime->translator($user->locale);
+$authorization = new Authorization();
 
 SecurityHeaders::sendHtml();
 
 echo DashboardView::render(
     $translator,
     $user,
-    CsrfToken::issue()
+    CsrfToken::issue(),
+    $authorization->allows($user, Permission::ManageUsers)
 );

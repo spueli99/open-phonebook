@@ -12,6 +12,8 @@ The core understands:
 
 - users
 - authentication and sessions
+- permissions
+- invitations
 - organizations
 - memberships
 - address books
@@ -53,13 +55,17 @@ The web UI and REST API use the same application services. Business logic must n
 
 The initial web runtime centralizes configuration loading, database creation, secure session startup, application-key validation, and localization access.
 
-## Authentication boundary
+## Authentication and authorization boundary
 
 Human users authenticate through secure browser sessions.
 
+Authorization is modeled separately with explicit permission identifiers. Administrative controllers must validate permissions before performing user-management actions.
+
+Invitation services are separate from authentication. Invitation tokens create accounts but do not themselves create authenticated sessions.
+
 Devices must never reuse human sessions or human passwords. They receive separately scoped and revocable device credentials in a later device layer.
 
-See [Authentication](authentication.md).
+See [Authentication](authentication.md), [Permissions](permissions.md), and [User Management](user-management.md).
 
 ## Deployment
 

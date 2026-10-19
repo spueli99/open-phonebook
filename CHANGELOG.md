@@ -13,11 +13,17 @@ The project is currently in the pre-release architecture and foundation phase.
 - Secure authenticated browser sessions
 - Database-backed login throttling with HMAC-derived subject identifiers
 - English and German authentication localization
-- Authentication and security documentation
+- System-level user administration foundation
+- Explicit user-management permissions
+- Secure invitation creation and acceptance flow
+- English and German user-management documentation
 
 ### Security
 
-- CSRF protection for login and logout
+- CSRF protection for login, logout, user administration, and invitation acceptance
 - Session ID regeneration after authentication state changes
 - Generic invalid-credential responses and unknown-user timing mitigation
 - Application key generation outside the database
+- HMAC-only storage of invitation tokens
+- Fragment-based invitation links to keep invitation tokens out of ordinary HTTP request URLs
+- Protection against self-deactivation and deactivation of the last active system administrator

@@ -10,6 +10,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 
 - [Einrichtung](setup.md)
 - [Anmeldung und Sitzungen](authentication.md)
+- [Benutzerverwaltung](user-management.md)
 
 ## Grundprinzipien
 

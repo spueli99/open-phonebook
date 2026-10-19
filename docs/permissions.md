@@ -18,11 +18,35 @@ Initial roles:
 
 Roles are intentionally generic.
 
+Unknown stored roles degrade to `member` permissions rather than gaining administrative access.
+
 The existence of a role in authenticated session state does not replace resource-level authorization checks.
+
+## Initial permissions
+
+The first permission identifiers are:
+
+- `manage_users`
+- `invite_users`
+
+Only `system_admin` currently receives these platform-wide permissions.
+
+`organization_admin` remains reserved for organization-scoped permissions once the organization model exists.
+
+## User administration safeguards
+
+Platform user administration currently enforces:
+
+- no self-deactivation
+- no deactivation of the last active system administrator
+- no activation changes for deleted users
+- idempotent activation requests
+
+Permanent deletion and role changes require a separate future design because they affect ownership and authorization across other domains.
 
 ## Users
 
-A normal user may manage:
+A normal user may eventually manage:
 
 - own profile and security settings
 - owned address books
