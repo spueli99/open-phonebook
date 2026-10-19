@@ -22,7 +22,26 @@ final class EnvironmentChecker
             new EnvironmentCheck('PDO MySQL', extension_loaded('pdo_mysql'), 'pdo_mysql extension'),
             new EnvironmentCheck('cURL', extension_loaded('curl'), 'curl extension'),
             new EnvironmentCheck('mbstring', extension_loaded('mbstring'), 'mbstring extension'),
-            new EnvironmentCheck('OpenSSL', extension_loaded('openssl'), 'openssl extension'),
+            new EnvironmentCheck(
+                'OpenSSL',
+                extension_loaded('openssl'),
+                'openssl extension'
+            ),
+            new EnvironmentCheck(
+                'DOM',
+                extension_loaded('dom'),
+                'dom extension'
+            ),
+            new EnvironmentCheck(
+                'XMLReader',
+                extension_loaded('xmlreader'),
+                'xmlreader extension'
+            ),
+            new EnvironmentCheck(
+                'XMLWriter',
+                extension_loaded('xmlwriter'),
+                'xmlwriter extension'
+            ),
             new EnvironmentCheck(
                 'Storage',
                 is_dir($storage) && is_writable($storage),
