@@ -41,7 +41,7 @@ Database schema changes are versioned migrations.
 
 ### Adapters
 
-Contact imports use a parser interface that converts untrusted provider/file input into a provider-neutral preview model before any persistence is possible. The initial CSV adapter is preview-only; later vCard and external-source adapters should feed the same application boundary.
+Contact imports use a parser interface that converts untrusted provider/file input into a provider-neutral preview model before persistence. CSV confirmation uses a short-lived session draft and reparses the original contents before one application transaction writes all contacts. Later vCard and external-source adapters should feed the same preview/confirmation boundary.
 
 Examples:
 

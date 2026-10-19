@@ -52,7 +52,9 @@ final class ContactImportPreviewView
     public static function renderPreview(
         Translator $translator,
         AddressBook $addressBook,
-        ImportPreviewResult $preview
+        ImportPreviewResult $preview,
+        string $csrfToken,
+        string $draftToken
     ): string {
         $rows = '';
 
@@ -97,7 +99,7 @@ final class ContactImportPreviewView
             . '<h1>' . Html::escape($translator->get('imports.preview'))
             . '</h1>'
             . '<p>' . Html::escape(
-                $translator->get('imports.preview.no_persistence')
+                $translator->get('imports.preview.confirm_help')
             )
             . '</p>'
             . $warningBlock
@@ -110,6 +112,43 @@ final class ContactImportPreviewView
             . '</th></tr></thead><tbody>'
             . $rows
             . '</tbody></table>'
+            . '<form method="post" action="/address-books/import/confirm/">'
+            . '<input type="hidden" name="_csrf" value="'
+            . Html::escape($csrfToken) . '">'
+            . '<input type="hidden" name="address_book_id" value="'
+            . $addressBook->id . '">'
+            . '<input type="hidden" name="draft_token" value="'
+            . Html::escape($draftToken) . '">'
+            . '<button type="submit">'
+            . Html::escape($translator->get('imports.confirm'))
+            . '</button></form>'
+            . self::pageEnd();
+    }
+
+    public static function renderComplete(
+        Translator $translator,
+        AddressBook $addressBook,
+        int $importedContacts
+    ): string {
+        return self::pageStart(
+            $translator,
+            $translator->get('imports.complete.title')
+        )
+            . '<h1>'
+            . Html::escape($translator->get('imports.complete.title'))
+            . '</h1>'
+            . '<p>'
+            . Html::escape(
+                sprintf(
+                    $translator->get('imports.complete.count'),
+                    $importedContacts
+                )
+            )
+            . '</p>'
+            . '<p><a href="/address-books/view/?id='
+            . $addressBook->id . '">'
+            . Html::escape($translator->get('contacts.back'))
+            . '</a></p>'
             . self::pageEnd();
     }
 

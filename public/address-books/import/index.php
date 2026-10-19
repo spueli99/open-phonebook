@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Import\ContactImportPreviewService;
+use OpenPhonebook\Import\SessionContactImportDraftStore;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\ContactImportPreviewView;
@@ -68,6 +70,14 @@ if ($method === 'POST') {
             $user->id,
             $contents
         );
+        $draftToken = (new SessionContactImportDraftStore(
+            new SystemClock(),
+            $runtime->applicationKey
+        ))->create(
+            $addressBookId,
+            $user->id,
+            $contents
+        );
     } catch (Throwable) {
         http_response_code(400);
         SecurityHeaders::sendHtml();
@@ -98,7 +108,9 @@ if ($method === 'POST') {
     echo ContactImportPreviewView::renderPreview(
         $runtime->translator($user->locale),
         $addressBook,
-        $preview
+        $preview,
+        CsrfToken::issue(),
+        $draftToken
     );
     exit;
 }

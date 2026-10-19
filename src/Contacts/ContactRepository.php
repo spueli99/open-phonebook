@@ -141,7 +141,11 @@ final class ContactRepository implements ContactRepositoryInterface
         ?string $notes,
         array $phoneNumbers
     ): int {
-        $this->database->beginTransaction();
+        $ownsTransaction = !$this->database->inTransaction();
+
+        if ($ownsTransaction) {
+            $this->database->beginTransaction();
+        }
 
         try {
             $statement = $this->database->prepare(
@@ -176,11 +180,14 @@ final class ContactRepository implements ContactRepositoryInterface
 
             $contactId = (int) $this->database->lastInsertId();
             $this->replacePhoneNumbers($contactId, $phoneNumbers);
-            $this->database->commit();
+
+            if ($ownsTransaction) {
+                $this->database->commit();
+            }
 
             return $contactId;
         } catch (Throwable $exception) {
-            if ($this->database->inTransaction()) {
+            if ($ownsTransaction && $this->database->inTransaction()) {
                 $this->database->rollBack();
             }
 
@@ -198,7 +205,11 @@ final class ContactRepository implements ContactRepositoryInterface
         ?string $notes,
         array $phoneNumbers
     ): bool {
-        $this->database->beginTransaction();
+        $ownsTransaction = !$this->database->inTransaction();
+
+        if ($ownsTransaction) {
+            $this->database->beginTransaction();
+        }
 
         try {
             $statement = $this->database->prepare(
@@ -227,17 +238,22 @@ final class ContactRepository implements ContactRepositoryInterface
                 $statement->rowCount() !== 1
                 && !$this->contactExists($contactId, $addressBookId)
             ) {
-                $this->database->rollBack();
+                if ($ownsTransaction) {
+                    $this->database->rollBack();
+                }
 
                 return false;
             }
 
             $this->replacePhoneNumbers($contactId, $phoneNumbers);
-            $this->database->commit();
+
+            if ($ownsTransaction) {
+                $this->database->commit();
+            }
 
             return true;
         } catch (Throwable $exception) {
-            if ($this->database->inTransaction()) {
+            if ($ownsTransaction && $this->database->inTransaction()) {
                 $this->database->rollBack();
             }
 

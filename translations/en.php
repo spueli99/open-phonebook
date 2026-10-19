@@ -52,6 +52,12 @@ return [
     'imports.csv.help' => 'Select a UTF-8 CSV file to validate and preview it before any data is written.',
     'imports.preview' => 'Preview import',
     'imports.preview.no_persistence' => 'Preview only: no contacts have been imported or changed.',
+    'imports.preview.confirm_help' => 'Review the preview carefully. The contacts '
+        . 'are only written after explicit confirmation.',
+    'imports.confirm' => 'Import these contacts',
+    'imports.complete.title' => 'Import complete',
+    'imports.complete.count' => '%d contacts were imported successfully.',
+    'imports.error.confirm' => 'The import could not be completed. The file may need to be previewed again.',
     'imports.warnings' => 'Warnings',
     'imports.back' => 'Choose another file',
     'imports.error.invalid' => 'The file could not be previewed. Check its format, encoding, columns, and size limits.',
