@@ -28,10 +28,10 @@ final class ContactImportPreviewView
             . $addressBook->id . '">'
             . Html::escape($translator->get('contacts.back'))
             . '</a></nav>'
-            . '<h1>' . Html::escape($translator->get('imports.csv.title'))
+            . '<h1>' . Html::escape($translator->get('imports.title'))
             . '</h1>'
             . $errorHtml
-            . '<p>' . Html::escape($translator->get('imports.csv.help'))
+            . '<p>' . Html::escape($translator->get('imports.help'))
             . '</p>'
             . '<form method="post" enctype="multipart/form-data">'
             . '<input type="hidden" name="_csrf" value="'
@@ -39,13 +39,28 @@ final class ContactImportPreviewView
             . '<input type="hidden" name="address_book_id" value="'
             . $addressBook->id . '">'
             . '<input type="hidden" name="MAX_FILE_SIZE" value="2000000">'
-            . '<input type="file" name="import_file" accept=".csv,text/csv" required>'
+            . '<label>'
+            . Html::escape($translator->get('imports.format'))
+            . ' <select name="format">'
+            . '<option value="csv">'
+            . Html::escape($translator->get('imports.format.csv'))
+            . '</option>'
+            . '<option value="vcard">'
+            . Html::escape($translator->get('imports.format.vcard'))
+            . '</option></select></label>'
+            . '<input type="file" name="import_file" '
+            . 'accept=".csv,.vcf,text/csv,text/vcard,text/x-vcard" required>'
             . '<button type="submit">'
             . Html::escape($translator->get('imports.preview'))
             . '</button></form>'
-            . '<p><code>display_name,given_name,family_name,'
+            . '<p>'
+            . Html::escape($translator->get('imports.csv.columns'))
+            . '</p><p><code>display_name,given_name,family_name,'
             . 'organization_name,notes,phone_1,phone_1_label,'
             . 'phone_2,phone_2_label,phone_3,phone_3_label</code></p>'
+            . '<p>'
+            . Html::escape($translator->get('imports.vcard.support'))
+            . '</p>'
             . self::pageEnd();
     }
 
