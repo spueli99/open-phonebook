@@ -133,12 +133,6 @@ final class ContactImportService
                             continue;
                         }
 
-                        if ($action !== ImportDuplicateAction::Import) {
-                            throw new RuntimeException(
-                                'Invalid duplicate import action.'
-                            );
-                        }
-
                         $contact = $candidate->contact;
                         $phoneNumbers = [];
 
