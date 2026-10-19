@@ -241,8 +241,17 @@ final class CsvContactImportParser implements ContactImportParserInterface
                 continue;
             }
 
-            $label = $this->optional(
-                $row['phone_' . $index . '_label'] ?? ''
+            if (mb_strlen($number) > 100) {
+                throw new RuntimeException(
+                    'CSV row ' . $rowNumber
+                    . ' contains an invalid phone number.'
+                );
+            }
+
+            $label = $this->boundedOptional(
+                $row['phone_' . $index . '_label'] ?? '',
+                64,
+                $rowNumber
             );
 
             $phoneNumbers[] = new ImportPreviewPhoneNumber(
@@ -251,20 +260,57 @@ final class CsvContactImportParser implements ContactImportParserInterface
             );
         }
 
+        if (mb_strlen($displayName) > 255) {
+            throw new RuntimeException(
+                'CSV row ' . $rowNumber
+                . ' contains an invalid display name.'
+            );
+        }
+
         return new ImportPreviewContact(
             $displayName,
-            $this->optional($row['given_name'] ?? ''),
-            $this->optional($row['family_name'] ?? ''),
-            $this->optional($row['organization_name'] ?? ''),
-            $this->optional($row['notes'] ?? ''),
+            $this->boundedOptional(
+                $row['given_name'] ?? '',
+                120,
+                $rowNumber
+            ),
+            $this->boundedOptional(
+                $row['family_name'] ?? '',
+                120,
+                $rowNumber
+            ),
+            $this->boundedOptional(
+                $row['organization_name'] ?? '',
+                255,
+                $rowNumber
+            ),
+            $this->boundedOptional(
+                $row['notes'] ?? '',
+                10_000,
+                $rowNumber
+            ),
             $phoneNumbers,
         );
     }
 
-    private function optional(string $value): ?string
-    {
+    private function boundedOptional(
+        string $value,
+        int $maxLength,
+        int $rowNumber
+    ): ?string {
         $value = trim($value);
 
-        return $value === '' ? null : $value;
+        if ($value === '') {
+            return null;
+        }
+
+        if (mb_strlen($value) > $maxLength) {
+            throw new RuntimeException(
+                'CSV row ' . $rowNumber
+                . ' contains an oversized contact field.'
+            );
+        }
+
+        return $value;
     }
 }
