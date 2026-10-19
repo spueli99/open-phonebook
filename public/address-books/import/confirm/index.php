@@ -15,6 +15,7 @@ use OpenPhonebook\Import\ImportDuplicateAction;
 use OpenPhonebook\Import\ImportDuplicateDecision;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
+use OpenPhonebook\Import\VCardContactImportParser;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\ContactImportPreviewView;
@@ -121,6 +122,8 @@ try {
         new ContactImportParserRegistry([
             ContactImportFormat::Csv->value
                 => new CsvContactImportParser(),
+            ContactImportFormat::VCard->value
+                => new VCardContactImportParser(),
         ]),
         new SessionContactImportDraftStore(
             new SystemClock(),
