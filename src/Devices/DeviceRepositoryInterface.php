@@ -16,6 +16,11 @@ interface DeviceRepositoryInterface
         int $ownerUserId
     ): ?Device;
 
+    public function findOwnedByForUpdate(
+        int $deviceId,
+        int $ownerUserId
+    ): ?Device;
+
     public function create(
         int $ownerUserId,
         string $name,
