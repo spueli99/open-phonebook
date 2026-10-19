@@ -115,7 +115,13 @@ final class GoogleOAuthClient
             || $accessToken === ''
             || !is_int($expiresIn)
             || $expiresIn <= 0
-            || ($refreshToken !== null && !is_string($refreshToken))
+            || (
+                $refreshToken !== null
+                && (
+                    !is_string($refreshToken)
+                    || $refreshToken === ''
+                )
+            )
         ) {
             throw new RuntimeException('Google OAuth response is invalid.');
         }
