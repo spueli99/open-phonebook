@@ -81,7 +81,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
 
             $invitationUrl = rtrim($baseUrl, '/')
-                . '/invite/accept/?token='
+                . '/invite/accept/#'
                 . rawurlencode($result->token);
 
             CsrfToken::rotate();
