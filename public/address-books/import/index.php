@@ -68,25 +68,26 @@ if ($method === 'POST') {
             $user->id,
             $contents
         );
-    } catch (Throwable $exception) {
+    } catch (Throwable) {
         http_response_code(400);
         SecurityHeaders::sendHtml();
 
-        $fallbackId = $addressBookId > 0 ? $addressBookId : 0;
-        $fallback = $access->findAccessibleBy(
-            $fallbackId,
-            $user->id
-        );
-
-        if ($fallback === null || !$fallback->canWrite()) {
+        try {
+            $fallback = $access->requireWritable(
+                $addressBookId,
+                $user->id
+            );
+        } catch (Throwable) {
             exit;
         }
 
+        $translator = $runtime->translator($user->locale);
+
         echo ContactImportPreviewView::renderUpload(
-            $runtime->translator($user->locale),
+            $translator,
             $fallback->addressBook,
             CsrfToken::issue(),
-            $exception->getMessage()
+            $translator->get('imports.error.invalid')
         );
         exit;
     }
