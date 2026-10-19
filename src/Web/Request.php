@@ -58,6 +58,25 @@ final class Request
         return $result;
     }
 
+    /**
+     * @return list<int>
+     */
+    public static function postIntList(string $key): array
+    {
+        $values = self::postStringList($key);
+        $result = [];
+
+        foreach ($values as $value) {
+            if (!preg_match('/^\d+$/', $value)) {
+                continue;
+            }
+
+            $result[] = (int) $value;
+        }
+
+        return array_values(array_unique($result));
+    }
+
     private function __construct()
     {
     }
