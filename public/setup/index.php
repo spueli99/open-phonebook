@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use libphonenumber\PhoneNumberUtil;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Security\Session;
@@ -168,6 +169,9 @@ if ($step === 'application') {
         $baseUrl = rtrim(SetupRequest::postString('base_url'), '/');
         $timezone = SetupRequest::postString('timezone');
         $locale = SetupRequest::postString('locale');
+        $defaultPhoneRegion = strtoupper(
+            SetupRequest::postString('default_phone_region')
+        );
         $adminEmail = SetupRequest::postString('admin_email');
         $adminName = SetupRequest::postString('admin_name');
         $adminPassword = SetupRequest::postPassword('admin_password');
@@ -188,6 +192,17 @@ if ($step === 'application') {
 
         if (!in_array($locale, ['en', 'de'], true)) {
             $errors[] = 'Select a supported language.';
+        }
+
+        if (
+            $defaultPhoneRegion !== ''
+            && !in_array(
+                $defaultPhoneRegion,
+                PhoneNumberUtil::getInstance()->getSupportedRegions(),
+                true
+            )
+        ) {
+            $errors[] = 'Enter a valid ISO country code for phone numbers.';
         }
 
         if ($adminPassword !== $adminPasswordConfirm) {
@@ -216,6 +231,9 @@ if ($step === 'application') {
                     $baseUrl,
                     $timezone,
                     $locale,
+                    $defaultPhoneRegion === ''
+                        ? null
+                        : $defaultPhoneRegion,
                     $adminEmail,
                     $adminName,
                     $adminPassword
@@ -278,6 +296,11 @@ if ($step === 'application') {
         . '<option value="en">English</option>'
         . '<option value="de">Deutsch</option>'
         . '</select></label>'
+        . '<label>Default phone region (optional ISO country code)'
+        . '<input name="default_phone_region" maxlength="2" '
+        . 'placeholder="DE" autocomplete="country"></label>'
+        . '<p class="muted">Leave empty to avoid interpreting local '
+        . 'phone numbers without an explicit country context.</p>'
         . '<label>Administrator name'
         . '<input name="admin_name" required autocomplete="name">'
         . '</label>'
