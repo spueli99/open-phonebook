@@ -38,10 +38,10 @@ Completed or in active work:
 - multiple phone numbers
 - owner-scoped contact services
 - soft deletion
+- personal address-book and contact web UI
 
 Still planned:
 
-- contact web UI
 - international number normalization
 - search
 - soft delete

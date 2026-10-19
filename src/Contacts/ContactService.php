@@ -26,6 +26,24 @@ final class ContactService
         return $this->contacts->allInAddressBook($addressBookId);
     }
 
+    public function getInOwnedAddressBook(
+        int $contactId,
+        int $addressBookId,
+        int $ownerUserId
+    ): Contact {
+        $this->requireOwnedAddressBook($addressBookId, $ownerUserId);
+        $contact = $this->contacts->findInAddressBook(
+            $contactId,
+            $addressBookId
+        );
+
+        if ($contact === null) {
+            throw new RuntimeException('Contact not found.');
+        }
+
+        return $contact;
+    }
+
     /**
      * @param list<ContactPhoneNumberInput> $phoneNumbers
      */

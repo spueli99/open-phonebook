@@ -12,6 +12,8 @@ Enthalten sind:
 - Soft-Delete für Adressbücher und Kontakte
 - ausdrückliche Eigentümerprüfung vor Lesen oder Ändern von Kontaktdaten
 - transaktionssichere Anlage und Änderung von Kontakten samt Telefonnummern
+- Weboberfläche für persönliche Adressbücher und Kontakte
+- CSRF-geschützte Anlage-, Änderungs-, Umbenennungs- und Löschaktionen
 
 Noch nicht enthalten:
 
@@ -21,8 +23,15 @@ Noch nicht enthalten:
 - Importe
 - Suche
 - Dublettenerkennung
-- Weboberfläche für Kontakte
 - internationale Rufnummernnormalisierung
+
+## Weboberfläche
+
+Angemeldete Benutzer können ihre eigenen Adressbücher unter `/address-books/` verwalten. Die Oberfläche unterstützt Anlegen, Umbenennen, Öffnen und logisches Löschen von Adressbüchern sowie Anlegen, Bearbeiten und logisches Löschen von Kontakten.
+
+Kontaktformulare bieten mehrere Rufnummernfelder ohne zusätzliche JavaScript-Abhängigkeit. Nicht ausgefüllte Rufnummernfelder werden serverseitig ignoriert.
+
+Alle zustandsändernden Aktionen verwenden POST und benötigen einen gültigen CSRF-Token. Auch Detail- und Bearbeitungsansichten werden vor der Ausgabe über die eigentümergebundenen Anwendungsservices aufgelöst.
 
 ## Eigentum und Berechtigungen
 

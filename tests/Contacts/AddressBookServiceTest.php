@@ -52,6 +52,25 @@ final class AddressBookServiceTest extends TestCase
         $service->delete($id, 11);
     }
 
+    public function testOwnerCanGetOwnAddressBook(): void
+    {
+        $repository = new InMemoryAddressBookRepository();
+        $service = new AddressBookService($repository);
+        $id = $service->create(10, 'Family');
+
+        self::assertSame('Family', $service->getOwned($id, 10)->name);
+    }
+
+    public function testOtherUserCannotGetAddressBook(): void
+    {
+        $repository = new InMemoryAddressBookRepository();
+        $service = new AddressBookService($repository);
+        $id = $service->create(10, 'Family');
+
+        $this->expectException(RuntimeException::class);
+        $service->getOwned($id, 11);
+    }
+
     public function testRejectsBlankAddressBookName(): void
     {
         $service = new AddressBookService(new InMemoryAddressBookRepository());
