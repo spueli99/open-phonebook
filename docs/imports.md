@@ -2,11 +2,11 @@
 
 ## Current scope
 
-CSV imports now use an explicit preview-and-confirm flow. Untrusted input is validated and rendered first. Only after explicit confirmation is the same server-side draft parsed again and persisted.
+CSV and vCard imports use the same explicit preview-and-confirm flow. Untrusted input is validated and rendered first. Only after explicit confirmation is the same server-side draft parsed again with the same format-specific parser and persisted.
 
-The shared import boundary remains provider-neutral so future vCard and external-source adapters can reuse the same application model.
+The shared import boundary remains provider-neutral so future external-source adapters can reuse the same application model.
 
-## CSV preview
+## CSV
 
 Writable address books expose a CSV preview action.
 
@@ -28,12 +28,27 @@ Optional columns:
 
 Unknown or duplicate columns are rejected rather than silently ignored.
 
+## vCard
+
+The vCard adapter uses `sabre/vobject` and accepts UTF-8 vCard 2.1, 3.0, and 4.0 input. Multiple cards in one `.vcf` file are supported.
+
+Mapped fields:
+
+- `FN` as display name
+- `N` as given and family name fallback data
+- `ORG`
+- `NOTE`
+- all `TEL` entries, including `TYPE` labels
+
+If `FN` is missing, the parser derives the display name from `N`, then from `ORG`. A card without any usable display name is skipped with a warning. vCard 4.0 `tel:` URIs are converted to their raw phone value before normalization.
+
 ## Limits
 
 The preview enforces:
 
 - maximum upload size: 2,000,000 bytes
-- maximum data rows: 2,000
+- maximum CSV data rows: 2,000
+- maximum vCards per file: 2,000
 - valid UTF-8
 - no NUL bytes
 - domain-aligned field length limits
@@ -47,9 +62,9 @@ Rows with an empty `display_name` are skipped and reported as warnings.
 
 A preview containing no importable contacts is rejected.
 
-After a successful preview, the uploaded CSV content is kept only as one short-lived server-side session draft. The browser receives a random one-time draft token, not the CSV contents. The session stores only an HMAC of that token together with the user ID, destination address-book ID, CSV contents, and a 15-minute expiration.
+After a successful preview, the uploaded file content and its selected import format are kept only as one short-lived server-side session draft. The browser receives a random one-time draft token, not the CSV contents. The session stores only an HMAC of that token together with the user ID, destination address-book ID, CSV contents, and a 15-minute expiration.
 
-Confirmation is a separate CSRF-protected POST. The draft must still belong to the same user and address book, must not be expired, and the user must still have write access. The CSV is parsed and validated again at confirmation time.
+Confirmation is a separate CSRF-protected POST. The draft must still belong to the same user and address book, must not be expired, and the user must still have write access. The draft is parsed and validated again at confirmation time with the parser bound to its stored format.
 
 All contacts are then inserted inside one outer database transaction. The contact repository participates in that outer transaction rather than committing each contact independently. The draft is discarded only after successful commit.
 
@@ -77,5 +92,4 @@ All preview POST requests require a valid authenticated session, write access to
 
 ## Still planned
 
-- vCard parser and preview
 - source-record tracking for synchronized providers
