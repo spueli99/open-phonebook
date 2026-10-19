@@ -5,6 +5,7 @@
 - [User management](user-management.md)
 - [Address books and contacts](contacts.md)
 - [Contact imports](imports.md)
+- [Google Contacts](google-contacts.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Setup installer](setup-installer.md)
