@@ -27,6 +27,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Personal address-book sharing with explicit read or write access
 - Preview-only CSV contact import foundation with strict validation and access checks
 - Explicit CSV import confirmation with short-lived session drafts and atomic persistence
+- E.164-based import duplicate detection with default skip and explicit force-import
 
 ### Security
 
@@ -35,6 +36,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Contact import preview validates untrusted uploads before any persistence and requires write access plus CSRF protection
 - CSV confirmation reparses the server-side draft, rechecks write access, and persists all contacts in one transaction
 - Import draft tokens are 256-bit random values stored only as HMACs in session state and expire after 15 minutes
+- Duplicate status is recalculated at confirmation so newly appearing duplicates are skipped unless explicitly forced
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
