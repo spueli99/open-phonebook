@@ -106,6 +106,19 @@ final class UserAdministrationRepository implements UserAdministrationRepository
         ]);
     }
 
+    public function setRole(int $userId, string $role): void
+    {
+        $statement = $this->database->prepare(
+            'UPDATE users
+             SET role = :role, updated_at = UTC_TIMESTAMP()
+             WHERE id = :id AND deleted_at IS NULL'
+        );
+        $statement->execute([
+            'role' => $role,
+            'id' => $userId,
+        ]);
+    }
+
     /**
      * @param array<string, mixed> $row
      */
