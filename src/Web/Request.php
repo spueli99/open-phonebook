@@ -37,7 +37,13 @@ final class Request
             return 0;
         }
 
-        return (int) $value;
+        $integer = filter_var(
+            $value,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1]]
+        );
+
+        return is_int($integer) ? $integer : 0;
     }
 
     public static function postPassword(string $key): string
