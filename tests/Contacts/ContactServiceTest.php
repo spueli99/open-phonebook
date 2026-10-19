@@ -113,9 +113,10 @@ final class ContactServiceTest extends TestCase
         );
 
         $contact = $contacts->findInAddressBook($contactId, $addressBookId);
-        self::assertSame('Alice Example', $contact?->displayName);
-        self::assertSame('Example', $contact?->familyName);
-        self::assertCount(1, $contact?->phoneNumbers ?? []);
+        self::assertNotNull($contact);
+        self::assertSame('Alice Example', $contact->displayName);
+        self::assertSame('Example', $contact->familyName);
+        self::assertCount(1, $contact->phoneNumbers);
     }
 
     public function testOtherUserCannotDeleteContact(): void
