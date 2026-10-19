@@ -31,6 +31,7 @@ final class CurlHttpClient implements HttpClientInterface
     }
 
     /**
+     * @param non-empty-string $method
      * @param array<string, string> $headers
      */
     private function request(
