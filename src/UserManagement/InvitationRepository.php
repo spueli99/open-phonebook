@@ -50,6 +50,25 @@ final class InvitationRepository implements InvitationRepositoryInterface
         return (int) $this->database->lastInsertId();
     }
 
+    public function hasUsableForEmail(string $email, DateTimeImmutable $now): bool
+    {
+        $statement = $this->database->prepare(
+            'SELECT 1
+             FROM user_invitations
+             WHERE email = :email
+               AND accepted_at IS NULL
+               AND revoked_at IS NULL
+               AND expires_at > :now
+             LIMIT 1'
+        );
+        $statement->execute([
+            'email' => strtolower(trim($email)),
+            'now' => $now->format('Y-m-d H:i:s'),
+        ]);
+
+        return $statement->fetchColumn() !== false;
+    }
+
     public function findUsableByTokenHash(
         string $tokenHash,
         DateTimeImmutable $now
