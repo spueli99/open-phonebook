@@ -34,12 +34,17 @@ final class AddressBookService
         int $ownerUserId,
         string $name
     ): void {
-        $this->requireOwned($addressBookId, $ownerUserId);
+        $addressBook = $this->requireOwned($addressBookId, $ownerUserId);
+        $name = $this->validateName($name);
+
+        if ($addressBook->name === $name) {
+            return;
+        }
 
         if (!$this->addressBooks->rename(
             $addressBookId,
             $ownerUserId,
-            $this->validateName($name)
+            $name
         )) {
             throw new RuntimeException('Address book could not be updated.');
         }
