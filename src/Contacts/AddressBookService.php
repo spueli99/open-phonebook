@@ -41,11 +41,13 @@ final class AddressBookService
             return;
         }
 
-        if (!$this->addressBooks->rename(
-            $addressBookId,
-            $ownerUserId,
-            $name
-        )) {
+        if (
+            !$this->addressBooks->rename(
+                $addressBookId,
+                $ownerUserId,
+                $name
+            )
+        ) {
             throw new RuntimeException('Address book could not be updated.');
         }
     }
