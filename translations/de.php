@@ -49,13 +49,15 @@ return [
     'contacts.save' => 'Kontakt speichern',
     'contacts.back' => 'Zurück zum Adressbuch',
     'imports.title' => 'Kontaktimport',
-    'imports.help' => 'Wähle CSV oder vCard. Die Datei wird geprüft und als Vorschau angezeigt, bevor Kontaktdaten gespeichert werden.',
+    'imports.help' => 'Wähle CSV oder vCard. Die Datei wird geprüft und als '
+        . 'Vorschau angezeigt, bevor Kontaktdaten gespeichert werden.',
     'imports.format' => 'Dateiformat',
     'imports.format.csv' => 'CSV',
     'imports.format.vcard' => 'vCard (.vcf)',
     'imports.csv.title' => 'CSV-Importvorschau',
     'imports.csv.columns' => 'CSV-Spalten:',
-    'imports.vcard.support' => 'Unterstützt werden vCard 2.1, 3.0 und 4.0. Namen, Organisation, Notizen und Rufnummern werden übernommen.',
+    'imports.vcard.support' => 'Unterstützt werden vCard 2.1, 3.0 und 4.0. '
+        . 'Namen, Organisation, Notizen und Rufnummern werden übernommen.',
     'imports.csv.help' => 'Wähle eine UTF-8-CSV-Datei aus, um sie vor jeder '
         . 'Datenänderung zu prüfen und als Vorschau anzuzeigen.',
     'imports.preview' => 'Importvorschau anzeigen',
