@@ -62,13 +62,15 @@ final class InMemoryInvitationRepository implements InvitationRepositoryInterfac
 
     public function allUsable(DateTimeImmutable $now): array
     {
-        return array_values(array_map(
-            static fn (array $row): Invitation => $row['invitation'],
-            array_filter(
-                $this->invitations,
-                static fn (array $row): bool => $row['invitation']->isUsable($now)
-            )
-        ));
+        $result = [];
+
+        foreach ($this->invitations as $row) {
+            if ($row['invitation']->isUsable($now)) {
+                $result[] = $row['invitation'];
+            }
+        }
+
+        return $result;
     }
 
     public function findUsableById(
