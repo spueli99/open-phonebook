@@ -18,4 +18,6 @@ interface UserAdministrationRepositoryInterface
     public function countActiveSystemAdmins(): int;
 
     public function setActive(int $userId, bool $active): void;
+
+    public function setRole(int $userId, string $role): void;
 }
