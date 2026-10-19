@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use OpenPhonebook\Contacts\AddressBookRepository;
-use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Security\CsrfToken;
@@ -40,18 +40,22 @@ $addressBookId = isset($_GET['id']) && is_string($_GET['id'])
     ? (int) $_GET['id']
     : 0;
 
-$addressBooks = new AddressBookRepository($runtime->database);
-$addressBookService = new AddressBookService($addressBooks);
+$accessService = new AddressBookAccessService(
+    new AddressBookAccessRepository($runtime->database)
+);
 
 try {
-    $addressBook = $addressBookService->getOwned($addressBookId, $user->id);
+    $access = $accessService->requireReadable(
+        $addressBookId,
+        $user->id
+    );
 } catch (Throwable) {
     http_response_code(404);
     exit;
 }
 
 $service = new ContactService(
-    $addressBooks,
+    $accessService,
     new ContactRepository($runtime->database),
     $runtime->phoneNumberNormalizer()
 );
@@ -60,7 +64,7 @@ $searchQuery = isset($_GET['q']) && is_string($_GET['q'])
     : '';
 
 try {
-    $contacts = $service->searchInOwnedAddressBook(
+    $contacts = $service->searchInAccessibleAddressBook(
         $addressBookId,
         $user->id,
         $searchQuery
@@ -74,7 +78,7 @@ SecurityHeaders::sendHtml();
 
 echo ContactListView::render(
     $runtime->translator($user->locale),
-    $addressBook,
+    $access,
     $contacts,
     CsrfToken::issue(),
     $searchQuery
