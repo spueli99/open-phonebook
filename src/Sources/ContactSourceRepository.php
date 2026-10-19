@@ -19,7 +19,7 @@ final class ContactSourceRepository implements ContactSourceRepositoryInterface
     ): ?ContactSource {
         $statement = $this->database->prepare(
             "SELECT id, owner_user_id, address_book_id, provider,
-                    encrypted_refresh_token
+                    encrypted_refresh_token, encrypted_sync_token
              FROM contact_sources
              WHERE owner_user_id = :owner_user_id
                AND address_book_id = :address_book_id
@@ -46,6 +46,37 @@ final class ContactSourceRepository implements ContactSourceRepositoryInterface
         return $this->hydrateSource($row);
     }
 
+    public function allGoogleSources(): array
+    {
+        $statement = $this->database->query(
+            "SELECT id, owner_user_id, address_book_id, provider,
+                    encrypted_refresh_token, encrypted_sync_token
+             FROM contact_sources
+             WHERE provider = 'google'
+             ORDER BY id ASC"
+        );
+
+        if ($statement === false) {
+            throw new RuntimeException(
+                'Google contact sources could not be loaded.'
+            );
+        }
+
+        $sources = [];
+
+        while (($row = $statement->fetch()) !== false) {
+            if (!is_array($row)) {
+                throw new RuntimeException(
+                    'Unexpected contact source query result.'
+                );
+            }
+
+            $sources[] = $this->hydrateSource($row);
+        }
+
+        return $sources;
+    }
+
     public function upsertGoogleSource(
         int $ownerUserId,
         int $addressBookId,
@@ -69,6 +100,7 @@ final class ContactSourceRepository implements ContactSourceRepositoryInterface
              )
              ON DUPLICATE KEY UPDATE
                 encrypted_refresh_token = VALUES(encrypted_refresh_token),
+                encrypted_sync_token = NULL,
                 updated_at = UTC_TIMESTAMP()"
         );
         $statement->execute([
@@ -164,15 +196,21 @@ final class ContactSourceRepository implements ContactSourceRepositoryInterface
         ]);
     }
 
-    public function markSynced(int $sourceId): void
-    {
+    public function markSynced(
+        int $sourceId,
+        ?string $encryptedSyncToken
+    ): void {
         $statement = $this->database->prepare(
             'UPDATE contact_sources
-             SET last_synced_at = UTC_TIMESTAMP(),
+             SET encrypted_sync_token = :encrypted_sync_token,
+                 last_synced_at = UTC_TIMESTAMP(),
                  updated_at = UTC_TIMESTAMP()
              WHERE id = :id'
         );
-        $statement->execute(['id' => $sourceId]);
+        $statement->execute([
+            'id' => $sourceId,
+            'encrypted_sync_token' => $encryptedSyncToken,
+        ]);
     }
 
     /**
@@ -186,6 +224,9 @@ final class ContactSourceRepository implements ContactSourceRepositoryInterface
             (int) $row['address_book_id'],
             (string) $row['provider'],
             (string) $row['encrypted_refresh_token'],
+            isset($row['encrypted_sync_token'])
+                ? (string) $row['encrypted_sync_token']
+                : null,
         );
     }
 }
