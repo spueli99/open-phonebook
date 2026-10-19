@@ -11,6 +11,11 @@ interface ContactSourceRepositoryInterface
         int $addressBookId
     ): ?ContactSource;
 
+    /**
+     * @return list<ContactSource>
+     */
+    public function allGoogleSources(): array;
+
     public function upsertGoogleSource(
         int $ownerUserId,
         int $addressBookId,
@@ -33,5 +38,8 @@ interface ContactSourceRepositoryInterface
         string $externalId
     ): void;
 
-    public function markSynced(int $sourceId): void;
+    public function markSynced(
+        int $sourceId,
+        ?string $encryptedSyncToken
+    ): void;
 }
