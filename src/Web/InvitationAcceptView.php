@@ -23,7 +23,9 @@ final class InvitationAcceptView
             . '<script src="/assets/invite-capture.js" defer></script>'
             . '</head><body><main>'
             . '<h1>' . Html::escape($translator->get('invite.accept.title')) . '</h1>'
-            . '<p id="invite-status">'
+            . '<p id="invite-status" data-invalid="'
+            . Html::escape($translator->get('invite.capture.invalid'))
+            . '">'
             . Html::escape($translator->get('invite.capture.wait'))
             . '</p>'
             . '<form id="invite-capture" method="post">'
