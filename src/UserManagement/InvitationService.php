@@ -12,7 +12,7 @@ use RuntimeException;
 final class InvitationService
 {
     public function __construct(
-        private readonly InvitationRepository $invitations,
+        private readonly InvitationRepositoryInterface $invitations,
         private readonly UserAdministrationRepository $users,
         private readonly ClockInterface $clock,
         private readonly string $applicationKey,
