@@ -60,6 +60,30 @@ final class InMemoryInvitationRepository implements InvitationRepositoryInterfac
         return false;
     }
 
+    public function allUsable(DateTimeImmutable $now): array
+    {
+        return array_values(array_map(
+            static fn (array $row): Invitation => $row['invitation'],
+            array_filter(
+                $this->invitations,
+                static fn (array $row): bool => $row['invitation']->isUsable($now)
+            )
+        ));
+    }
+
+    public function findUsableById(
+        int $invitationId,
+        DateTimeImmutable $now
+    ): ?Invitation {
+        $row = $this->invitations[$invitationId] ?? null;
+
+        if ($row === null || !$row['invitation']->isUsable($now)) {
+            return null;
+        }
+
+        return $row['invitation'];
+    }
+
     public function findUsableByTokenHash(
         string $tokenHash,
         DateTimeImmutable $now
@@ -74,6 +98,35 @@ final class InMemoryInvitationRepository implements InvitationRepositoryInterfac
         }
 
         return null;
+    }
+
+    public function renew(
+        int $invitationId,
+        string $tokenHash,
+        DateTimeImmutable $expiresAt,
+        int $createdByUserId,
+        DateTimeImmutable $now
+    ): bool {
+        $row = $this->invitations[$invitationId] ?? null;
+
+        if ($row === null || !$row['invitation']->isUsable($now)) {
+            return false;
+        }
+
+        $invitation = $row['invitation'];
+        $this->invitations[$invitationId] = [
+            'invitation' => new Invitation(
+                $invitation->id,
+                $invitation->email,
+                $invitation->role,
+                $expiresAt,
+                null,
+                null,
+            ),
+            'token_hash' => $tokenHash,
+        ];
+
+        return true;
     }
 
     public function markAccepted(int $invitationId): void
