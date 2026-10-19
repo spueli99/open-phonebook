@@ -34,7 +34,7 @@ final readonly class DeviceCredentialToken
     ): string {
         return hash_hmac(
             'sha256',
-            $plainText,
+            "open-phonebook/device-credential/v1\0" . $plainText,
             $applicationKey
         );
     }
