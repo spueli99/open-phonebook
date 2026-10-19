@@ -43,6 +43,13 @@ final class InMemoryDeviceRepository implements DeviceRepositoryInterface
         return $device;
     }
 
+    public function findOwnedByForUpdate(
+        int $deviceId,
+        int $ownerUserId
+    ): ?Device {
+        return $this->findOwnedBy($deviceId, $ownerUserId);
+    }
+
     public function create(
         int $ownerUserId,
         string $name,
