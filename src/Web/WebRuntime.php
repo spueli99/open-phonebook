@@ -9,7 +9,11 @@ use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\LibPhoneNumberNormalizer;
 use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
 use OpenPhonebook\Database\ConnectionFactory;
+use OpenPhonebook\Google\GoogleOAuthClient;
+use OpenPhonebook\Google\GooglePeopleClient;
+use OpenPhonebook\Http\CurlHttpClient;
 use OpenPhonebook\I18n\Translator;
+use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
 use PDO;
 use RuntimeException;
@@ -64,6 +68,55 @@ final readonly class WebRuntime
         }
 
         return new LibPhoneNumberNormalizer($region);
+    }
+
+    public function secretCipher(): SecretCipher
+    {
+        return new SecretCipher($this->applicationKey);
+    }
+
+    public function googleOAuthClient(): GoogleOAuthClient
+    {
+        $clientId = $this->config->get(
+            'providers.google.client_id'
+        );
+        $clientSecret = $this->config->get(
+            'providers.google.client_secret'
+        );
+
+        if (!is_string($clientId) || !is_string($clientSecret)) {
+            throw new RuntimeException(
+                'Google OAuth credentials are not configured.'
+            );
+        }
+
+        return new GoogleOAuthClient(
+            new CurlHttpClient(),
+            $clientId,
+            $clientSecret
+        );
+    }
+
+    public function googlePeopleClient(): GooglePeopleClient
+    {
+        return new GooglePeopleClient(new CurlHttpClient());
+    }
+
+    public function googleOAuthRedirectUri(): string
+    {
+        $baseUrl = $this->config->get('app.base_url');
+
+        if (
+            !is_string($baseUrl)
+            || !str_starts_with($baseUrl, 'https://')
+        ) {
+            throw new RuntimeException(
+                'HTTPS application base URL is required for Google OAuth.'
+            );
+        }
+
+        return rtrim($baseUrl, '/')
+            . '/sources/google/callback/';
     }
 
     public function translator(?string $locale = null): Translator
