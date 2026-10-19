@@ -107,23 +107,31 @@ final class DeviceAdministrationService
         int $ownerUserId,
         int $deviceId
     ): DeviceCredentialCreationResult {
-        $device = $this->requireOwnedDevice(
-            $ownerUserId,
-            $deviceId
-        );
-
-        if (!$device->isActive) {
-            throw new RuntimeException(
-                'Inactive device credentials cannot be rotated.'
-            );
-        }
-
         $token = DeviceCredentialToken::generate(
             $this->applicationKey
         );
 
-        $this->transactions->transactional(
-            function () use ($deviceId, $token): void {
+        return $this->transactions->transactional(
+            function () use (
+                $ownerUserId,
+                $deviceId,
+                $token
+            ): DeviceCredentialCreationResult {
+                $device = $this->devices->findOwnedByForUpdate(
+                    $deviceId,
+                    $ownerUserId
+                );
+
+                if ($device === null) {
+                    throw new RuntimeException('Device not found.');
+                }
+
+                if (!$device->isActive) {
+                    throw new RuntimeException(
+                        'Inactive device credentials cannot be rotated.'
+                    );
+                }
+
                 $this->credentials->revokeActive(
                     $deviceId,
                     DeviceCredentialScope::PhonebookRead
@@ -133,13 +141,13 @@ final class DeviceAdministrationService
                     DeviceCredentialScope::PhonebookRead,
                     $token->hash
                 );
-            }
-        );
 
-        return new DeviceCredentialCreationResult(
-            $device,
-            DeviceCredentialScope::PhonebookRead,
-            $token->plainText,
+                return new DeviceCredentialCreationResult(
+                    $device,
+                    DeviceCredentialScope::PhonebookRead,
+                    $token->plainText,
+                );
+            }
         );
     }
 
@@ -147,10 +155,22 @@ final class DeviceAdministrationService
         int $ownerUserId,
         int $deviceId
     ): void {
-        $this->requireOwnedDevice($ownerUserId, $deviceId);
-        $this->credentials->revokeActive(
-            $deviceId,
-            DeviceCredentialScope::PhonebookRead
+        $this->transactions->transactional(
+            function () use ($ownerUserId, $deviceId): void {
+                if (
+                    $this->devices->findOwnedByForUpdate(
+                        $deviceId,
+                        $ownerUserId
+                    ) === null
+                ) {
+                    throw new RuntimeException('Device not found.');
+                }
+
+                $this->credentials->revokeActive(
+                    $deviceId,
+                    DeviceCredentialScope::PhonebookRead
+                );
+            }
         );
     }
 
@@ -159,21 +179,25 @@ final class DeviceAdministrationService
         int $deviceId,
         bool $active
     ): void {
-        $device = $this->requireOwnedDevice(
-            $ownerUserId,
-            $deviceId
-        );
-
-        if ($device->isActive === $active) {
-            return;
-        }
-
         $this->transactions->transactional(
             function () use (
                 $ownerUserId,
                 $deviceId,
                 $active
             ): void {
+                $device = $this->devices->findOwnedByForUpdate(
+                    $deviceId,
+                    $ownerUserId
+                );
+
+                if ($device === null) {
+                    throw new RuntimeException('Device not found.');
+                }
+
+                if ($device->isActive === $active) {
+                    return;
+                }
+
                 if (
                     !$this->devices->setActive(
                         $deviceId,
