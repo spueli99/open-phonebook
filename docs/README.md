@@ -6,6 +6,7 @@
 - [Address books and contacts](contacts.md)
 - [Contact imports](imports.md)
 - [Google Contacts](google-contacts.md)
+- [Devices](devices.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Setup installer](setup-installer.md)
