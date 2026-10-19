@@ -92,8 +92,7 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
 
                     if ($contactId === null) {
                         foreach (
-                            $person->previousExternalIds
-                            as $previousExternalId
+                            $person->previousExternalIds as $previousExternalId
                         ) {
                             if (isset($records[$previousExternalId])) {
                                 $contactId = $records[$previousExternalId];
