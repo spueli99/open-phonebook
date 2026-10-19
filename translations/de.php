@@ -53,6 +53,11 @@ return [
         . 'Datenänderung zu prüfen und als Vorschau anzuzeigen.',
     'imports.preview' => 'Importvorschau anzeigen',
     'imports.preview.no_persistence' => 'Nur Vorschau: Es wurden keine Kontakte importiert oder geändert.',
+    'imports.preview.confirm_help' => 'Prüfe die Vorschau sorgfältig. Die Kontakte werden erst nach ausdrücklicher Bestätigung gespeichert.',
+    'imports.confirm' => 'Diese Kontakte importieren',
+    'imports.complete.title' => 'Import abgeschlossen',
+    'imports.complete.count' => '%d Kontakte wurden erfolgreich importiert.',
+    'imports.error.confirm' => 'Der Import konnte nicht abgeschlossen werden. Die Datei muss gegebenenfalls erneut als Vorschau geprüft werden.',
     'imports.warnings' => 'Hinweise',
     'imports.back' => 'Andere Datei auswählen',
     'imports.error.invalid' => 'Die Datei konnte nicht als Vorschau verarbeitet '
