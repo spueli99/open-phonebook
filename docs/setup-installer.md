@@ -30,6 +30,9 @@ The first step checks:
 - cURL
 - mbstring
 - OpenSSL
+- DOM
+- XMLReader
+- XMLWriter
 - writable `storage/`
 - HTTPS
 
