@@ -33,9 +33,13 @@ final class ImportContactMerger
         $knownNumbers = [];
 
         foreach ($existing->phoneNumbers as $phoneNumber) {
+            $normalized = $phoneNumber->normalizedE164
+                ?? $this->normalizer->normalize(
+                    $phoneNumber->rawNumber
+                );
             $key = $this->phoneKey(
                 $phoneNumber->rawNumber,
-                $phoneNumber->normalizedE164
+                $normalized
             );
             $knownNumbers[$key] = true;
             $phoneNumbers[] = new ContactPhoneNumberInput(
