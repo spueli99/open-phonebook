@@ -49,11 +49,19 @@ Still planned:
 
 ## Contact sources and imports
 
+Completed or in active work:
+
+- shared import-preview application boundary
+- strict UTF-8 CSV preview with upload/parser limits
+- writable-address-book authorization for previews
+
+Still planned:
+
 - Google Contacts read-only synchronization
-- vCard import
-- CSV import
-- import preview
+- vCard import and preview
+- CSV import confirmation/persistence
 - duplicate detection and merge decisions
+- transactional import/rollback behavior
 - future CardDAV client/synchronization
 - future Microsoft 365 source
 
