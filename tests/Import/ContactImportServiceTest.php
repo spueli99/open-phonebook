@@ -7,6 +7,8 @@ namespace OpenPhonebook\Tests\Import;
 use OpenPhonebook\Contacts\AddressBookAccessLevel;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportService;
 use OpenPhonebook\Import\ImportContactMerger;
 use OpenPhonebook\Import\ImportDuplicateAction;
@@ -38,6 +40,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,phone_1,phone_1_label',
                 'Alice,+49 170 1234567,Mobile',
@@ -76,12 +79,14 @@ final class ContactImportServiceTest extends TestCase
         $accessRepository->grant(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             11,
             AddressBookAccessLevel::Write
         );
         $token = $drafts->create(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
@@ -106,12 +111,14 @@ final class ContactImportServiceTest extends TestCase
         $accessRepository->grant(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             11,
             AddressBookAccessLevel::Read
         );
         $token = $drafts->create(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
@@ -155,6 +162,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,+49 170 1234567"
         );
 
@@ -196,6 +204,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,+49 170 1234567"
         );
 
@@ -203,6 +212,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(ImportDuplicateAction::Import)]
         );
 
@@ -243,6 +253,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,family_name,organization_name,notes,phone_1,phone_2,phone_2_label',
                 'Incoming Name,Example,Example GmbH,Imported note,+49 170 1234567,+49 211 7654321,Office',
@@ -253,6 +264,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(
                 ImportDuplicateAction::Merge,
                 $existingId
@@ -308,6 +320,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,given_name,family_name,organization_name,notes,phone_1',
                 'Incoming Name,Incoming,Example,Incoming Org,Incoming note,+49 170 1234567',
@@ -318,6 +331,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [0 => new ImportDuplicateDecision(
                 ImportDuplicateAction::Merge,
                 $existingId
@@ -371,6 +385,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nIncoming,+49 170 1234567"
         );
 
@@ -379,6 +394,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [
                 0 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
@@ -416,6 +432,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nIncoming,+49 170 1234567"
         );
 
@@ -443,6 +460,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [
                 0 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
@@ -465,6 +483,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,phone_1',
                 'Alice,+49 170 1234567',
@@ -477,6 +496,7 @@ final class ContactImportServiceTest extends TestCase
             $token,
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             [
                 1 => new ImportDuplicateDecision(
                     ImportDuplicateAction::Merge,
@@ -499,6 +519,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,phone_1',
                 'Alice,+49 170 1234567',
@@ -529,6 +550,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,+49 170 1234567"
         );
 
@@ -567,6 +589,7 @@ final class ContactImportServiceTest extends TestCase
         $token = $drafts->create(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,unsupported\nAlice,value"
         );
 
@@ -614,7 +637,10 @@ final class ContactImportServiceTest extends TestCase
         return [
             new ContactImportService(
                 $access,
-                new CsvContactImportParser(),
+                new ContactImportParserRegistry([
+                    ContactImportFormat::Csv->value
+                        => new CsvContactImportParser(),
+                ]),
                 $drafts,
                 $contacts,
                 $normalizer,
