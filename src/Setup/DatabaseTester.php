@@ -16,7 +16,13 @@ final class DatabaseTester
     {
         try {
             $database = ConnectionFactory::create($config);
-            $database->query('SELECT 1')->fetchColumn();
+            $statement = $database->query('SELECT 1');
+
+            if ($statement === false) {
+                return 'Unable to verify the database connection.';
+            }
+
+            $statement->fetchColumn();
 
             return null;
         } catch (Throwable) {
