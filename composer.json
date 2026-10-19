@@ -19,7 +19,10 @@
   "autoload": {
     "psr-4": {
       "OpenPhonebook\\": "src/"
-    }
+    },
+    "classmap": [
+      "database/migrations/"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
