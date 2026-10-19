@@ -7,6 +7,7 @@ namespace OpenPhonebook\Database;
 use OpenPhonebook\Database\Migrations\Version202610190001;
 use OpenPhonebook\Database\Migrations\Version202610190002;
 use OpenPhonebook\Database\Migrations\Version202610190003;
+use OpenPhonebook\Database\Migrations\Version202610190004;
 
 final class Migrations
 {
@@ -19,6 +20,7 @@ final class Migrations
             new Version202610190001(),
             new Version202610190002(),
             new Version202610190003(),
+            new Version202610190004(),
         ];
     }
 
