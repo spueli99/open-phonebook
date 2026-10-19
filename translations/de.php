@@ -58,6 +58,13 @@ return [
     'imports.confirm' => 'Diese Kontakte importieren',
     'imports.complete.title' => 'Import abgeschlossen',
     'imports.complete.count' => '%d Kontakte wurden erfolgreich importiert.',
+    'imports.complete.skipped' => '%d doppelte Kontakte wurden übersprungen.',
+    'imports.duplicate.status' => 'Dublettenkontrolle',
+    'imports.duplicate.action' => 'Aktion bei Dublette',
+    'imports.duplicate.none' => 'Neuer Kontakt',
+    'imports.duplicate.existing_contact' => 'Rufnummer ist bereits in einem bestehenden Kontakt vorhanden',
+    'imports.duplicate.within_import' => 'Rufnummer kommt bereits weiter oben in dieser Datei vor',
+    'imports.duplicate.force' => 'Trotzdem importieren',
     'imports.error.confirm' => 'Der Import konnte nicht abgeschlossen werden. '
         . 'Die Datei muss gegebenenfalls erneut als Vorschau geprüft werden.',
     'imports.warnings' => 'Hinweise',

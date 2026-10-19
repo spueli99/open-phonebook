@@ -98,6 +98,31 @@ final class ContactRepository implements ContactRepositoryInterface
         return $contacts;
     }
 
+    public function normalizedPhoneNumbersInAddressBook(
+        int $addressBookId
+    ): array {
+        $statement = $this->database->prepare(
+            'SELECT DISTINCT p.normalized_e164
+             FROM contact_phone_numbers p
+             INNER JOIN contacts c ON c.id = p.contact_id
+             WHERE c.address_book_id = :address_book_id
+               AND c.deleted_at IS NULL
+               AND p.normalized_e164 IS NOT NULL
+             ORDER BY p.normalized_e164 ASC'
+        );
+        $statement->execute([
+            'address_book_id' => $addressBookId,
+        ]);
+
+        $numbers = [];
+
+        while (($value = $statement->fetchColumn()) !== false) {
+            $numbers[] = (string) $value;
+        }
+
+        return $numbers;
+    }
+
     public function findInAddressBook(
         int $contactId,
         int $addressBookId

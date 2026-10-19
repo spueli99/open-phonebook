@@ -19,6 +19,13 @@ interface ContactRepositoryInterface
         string $query
     ): array;
 
+    /**
+     * @return list<string>
+     */
+    public function normalizedPhoneNumbersInAddressBook(
+        int $addressBookId
+    ): array;
+
     public function findInAddressBook(int $contactId, int $addressBookId): ?Contact;
 
     /**

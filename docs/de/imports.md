@@ -53,6 +53,16 @@ Die Bestätigung erfolgt über einen separaten CSRF-geschützten POST. Der Entwu
 
 Anschließend werden alle Kontakte innerhalb genau einer äußeren Datenbanktransaktion angelegt. Das Kontakt-Repository beteiligt sich an dieser Transaktion und committet nicht jeden einzelnen Kontakt separat. Der Entwurf wird erst nach erfolgreichem Commit verworfen.
 
+## Dublettenerkennung
+
+Vor der Bestätigung werden Importkandidaten anhand gültiger normalisierter E.164-Rufnummern verglichen. Eine Zeile gilt als Dublette, wenn mindestens eine normalisierte Rufnummer bereits im Zieladressbuch vorhanden ist oder dieselbe normalisierte Rufnummer bereits in einer vorherigen Importzeile vorkam.
+
+Namen allein lösen niemals automatisch eine Dublettenentscheidung aus. Mehrdeutige oder nicht normalisierbare Rufnummern gelten nicht als ausreichender Dublettenbeleg.
+
+Dubletten werden standardmäßig übersprungen. In der Vorschau kann für jede betroffene Zeile ausdrücklich `Trotzdem importieren` gewählt werden. Bei der Bestätigung wird die Dublettenlage erneut gegen den aktuellen Stand des Adressbuchs berechnet. Wird ein Kontakt erst nach der Vorschau zur Dublette, wird er daher automatisch übersprungen, sofern diese Zeile nicht ausdrücklich erzwungen wurde.
+
+Das Importergebnis zeigt sowohl die Zahl der importierten als auch der übersprungenen Dubletten an.
+
 ## Sicherheit
 
 Uploads gelten grundsätzlich als nicht vertrauenswürdig.
@@ -64,7 +74,6 @@ Jede Vorschau per POST benötigt eine gültige Sitzung, Schreibzugriff auf das Z
 ## Noch geplant
 
 - vCard-Parser und Vorschau
-- Dublettenerkennung
-- Zusammenführen-/Überspringen-Entscheidungen
-- ausdrückliche Behandlung doppelter Importzeilen vor der Speicherung
+- Zusammenführen bestehender Kontakte
+- Feldregeln für spätere Merge-Entscheidungen
 - Source-Record-Zuordnung für synchronisierte Quellen

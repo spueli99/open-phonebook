@@ -53,6 +53,16 @@ Confirmation is a separate CSRF-protected POST. The draft must still belong to t
 
 All contacts are then inserted inside one outer database transaction. The contact repository participates in that outer transaction rather than committing each contact independently. The draft is discarded only after successful commit.
 
+## Duplicate detection
+
+Before confirmation, import candidates are compared by valid normalized E.164 phone numbers. A candidate is marked as a duplicate when at least one of its normalized phone numbers already exists in the target address book, or when the same normalized number appeared in an earlier import candidate.
+
+Names alone never trigger automatic duplicate handling. Ambiguous or non-normalizable phone numbers are not treated as duplicate evidence.
+
+Duplicate candidates are skipped by default. The preview offers an explicit `Import anyway` choice per duplicate row. At confirmation time duplicate detection runs again against the current address-book state. This means a contact that became a duplicate after preview is skipped automatically unless that same row was explicitly forced by the user.
+
+The confirmation result reports both imported contacts and duplicates skipped.
+
 ## Security
 
 Uploads are treated as untrusted input.
@@ -64,7 +74,6 @@ All preview POST requests require a valid authenticated session, write access to
 ## Still planned
 
 - vCard parser and preview
-- duplicate detection
-- merge/skip decisions
-- explicit handling of duplicate rows before persistence
+- merge decisions for existing contacts
+- field-level merge policies
 - source-record tracking for synchronized providers

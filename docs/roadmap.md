@@ -56,12 +56,13 @@ Completed or in active work:
 - writable-address-book authorization for previews
 - explicit CSV confirmation with short-lived session drafts
 - transaction-safe CSV persistence
+- E.164-based duplicate detection with default skip and explicit force-import
 
 Still planned:
 
 - Google Contacts read-only synchronization
 - vCard import and preview
-- duplicate detection and merge decisions
+- merge decisions for existing contacts
 - future CardDAV client/synchronization
 - future Microsoft 365 source
 

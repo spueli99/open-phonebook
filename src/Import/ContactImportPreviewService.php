@@ -12,6 +12,7 @@ final class ContactImportPreviewService
     public function __construct(
         private readonly AddressBookAccessService $addressBookAccess,
         private readonly ContactImportParserInterface $parser,
+        private readonly ImportDuplicateDetector $duplicates,
     ) {
     }
 
@@ -19,7 +20,7 @@ final class ContactImportPreviewService
         int $addressBookId,
         int $userId,
         string $contents
-    ): ImportPreviewResult {
+    ): ImportReviewResult {
         $this->addressBookAccess->requireWritable(
             $addressBookId,
             $userId
@@ -33,6 +34,12 @@ final class ContactImportPreviewService
             );
         }
 
-        return $preview;
+        return new ImportReviewResult(
+            $this->duplicates->detect(
+                $addressBookId,
+                $preview->contacts
+            ),
+            $preview->warnings,
+        );
     }
 }
