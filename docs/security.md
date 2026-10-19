@@ -98,7 +98,7 @@ The contact import flow implements successful PHP upload verification, a 2,000,0
 
 Google Contacts uses only the `contacts.readonly` OAuth scope. The flow validates a single-use, 10-minute `state` value bound to the signed-in user and target address book and also uses PKCE SHA-256. Only address-book owners may connect, reconnect, or synchronize Google Contacts.
 
-Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. The first synchronization implementation uses a complete paginated People API snapshot and applies local create/update/delete decisions inside one database transaction. Only contacts mapped to that source are eligible for source-driven deletion.
+Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. Google synchronization performs an initial complete paginated snapshot and then uses encrypted People API sync tokens for incremental updates. Delta responses only delete local source contacts when Google explicitly reports `metadata.deleted=true`; absence from a delta is never interpreted as deletion. Expired sync tokens trigger a fresh full snapshot. Each batch and its replacement sync token are committed transactionally. Only contacts mapped to that source are eligible for source-driven deletion.
 
 ## Privacy
 
