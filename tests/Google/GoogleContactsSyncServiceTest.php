@@ -384,6 +384,59 @@ final class GoogleContactsSyncServiceTest extends TestCase
         );
     }
 
+    public function testReconnectClearsPreviousSyncToken(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(
+            10,
+            'Google'
+        );
+        $access = new AddressBookAccessService(
+            new InMemoryAddressBookAccessRepository($addressBooks)
+        );
+        $sources = new InMemoryContactSourceRepository();
+        $cipher = new SecretCipher(str_repeat('a', 64));
+        $connection = new GoogleContactsConnectionService(
+            $access,
+            $sources,
+            $cipher
+        );
+
+        $connection->connect(
+            10,
+            $addressBookId,
+            'refresh-secret'
+        );
+        $sources->markSynced(
+            1,
+            $cipher->encrypt('sync-1')
+        );
+
+        $before = $sources->findGoogleForAddressBook(
+            10,
+            $addressBookId
+        );
+        self::assertNotNull($before);
+        self::assertNotNull($before->encryptedSyncToken);
+
+        $connection->connect(
+            10,
+            $addressBookId,
+            'new-refresh-secret'
+        );
+
+        $after = $sources->findGoogleForAddressBook(
+            10,
+            $addressBookId
+        );
+        self::assertNotNull($after);
+        self::assertNull($after->encryptedSyncToken);
+        self::assertSame(
+            'new-refresh-secret',
+            $cipher->decrypt($after->encryptedRefreshToken)
+        );
+    }
+
     public function testNonOwnerCannotSyncSharedAddressBook(): void
     {
         $addressBooks = new InMemoryAddressBookRepository();
