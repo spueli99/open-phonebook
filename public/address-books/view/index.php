@@ -52,7 +52,8 @@ try {
 
 $service = new ContactService(
     $addressBooks,
-    new ContactRepository($runtime->database)
+    new ContactRepository($runtime->database),
+    $runtime->phoneNumberNormalizer()
 );
 $searchQuery = isset($_GET['q']) && is_string($_GET['q'])
     ? trim($_GET['q'])
