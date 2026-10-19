@@ -137,6 +137,27 @@ final class DeviceManagementView
                 . '</dt><dd>'
                 . Html::escape($translator->get($credentialKey))
                 . '</dd></dl>'
+                . '<form method="post" action="/devices/update/" '
+                . 'class="identity">'
+                . '<input type="hidden" name="_csrf" value="'
+                . Html::escape($csrfToken) . '">'
+                . '<input type="hidden" name="device_id" value="'
+                . $device->id . '">'
+                . '<label>'
+                . Html::escape($translator->get('devices.name'))
+                . '<br><input name="name" maxlength="120" required value="'
+                . Html::escape($device->name) . '"></label>'
+                . '<label>'
+                . Html::escape($translator->get('devices.vendor'))
+                . '<br><input name="vendor" maxlength="120" value="'
+                . Html::escape($device->vendor ?? '') . '"></label>'
+                . '<label>'
+                . Html::escape($translator->get('devices.model'))
+                . '<br><input name="model" maxlength="120" value="'
+                . Html::escape($device->model ?? '') . '"></label>'
+                . '<button type="submit">'
+                . Html::escape($translator->get('devices.save'))
+                . '</button></form>'
                 . '<div class="actions">'
                 . self::actionForm(
                     '/devices/status/',
@@ -210,6 +231,8 @@ final class DeviceManagementView
             . 'dl{display:grid;grid-template-columns:160px 1fr;gap:6px}'
             . 'dt{font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap}'
             . '.actions form{margin:0}.books{margin-top:16px}'
+            . '.identity{display:grid;grid-template-columns:1fr 1fr 1fr auto;'
+            . 'gap:8px;align-items:end;margin:16px 0}'
             . '.book{display:block;margin:6px 0}'
             . '.notice,.error{padding:10px;border:1px solid currentColor}'
             . 'input,button{padding:8px}'
