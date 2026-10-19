@@ -64,6 +64,27 @@ final class DeviceAdministrationServiceTest extends TestCase
         self::assertSame(10, $authenticated->ownerUserId);
     }
 
+    public function testOwnerCanUpdateDeviceMetadata(): void
+    {
+        [$service, $credentials] = $this->service();
+        $credentials->setOwner(1, 10);
+        $service->create(10, 'Old', null, null);
+
+        $service->updateIdentity(
+            10,
+            1,
+            'Desk phone',
+            'Yealink',
+            'T54W'
+        );
+
+        $devices = $service->allOwnedBy(10);
+
+        self::assertSame('Desk phone', $devices[0]->name);
+        self::assertSame('Yealink', $devices[0]->vendor);
+        self::assertSame('T54W', $devices[0]->model);
+    }
+
     public function testRotationInvalidatesPreviousToken(): void
     {
         [$service, $credentials] = $this->service();
