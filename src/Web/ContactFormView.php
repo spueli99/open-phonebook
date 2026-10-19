@@ -40,7 +40,8 @@ final class ContactFormView
         }
 
         return '<!doctype html><html lang="' . Html::escape($translator->locale) . '">'
-            . '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
             . '<title>' . Html::escape($title) . ' · Open Phonebook</title>'
             . '<style>body{font-family:system-ui,sans-serif;max-width:800px;margin:5vh auto;padding:20px}'
             . 'form{display:grid;gap:12px}label{display:grid;gap:4px}input,textarea,button{padding:8px}'
@@ -51,11 +52,41 @@ final class ContactFormView
             . '<form method="post" action="' . $action . '">'
             . '<input type="hidden" name="_csrf" value="' . Html::escape($csrfToken) . '">'
             . '<input type="hidden" name="address_book_id" value="' . $addressBookId . '">'
-            . ($contact === null ? '' : '<input type="hidden" name="contact_id" value="' . $contact->id . '">')
-            . self::field($translator, 'contacts.display_name', 'display_name', $contact?->displayName ?? '', 255, true)
-            . self::field($translator, 'contacts.given_name', 'given_name', $contact?->givenName ?? '', 120)
-            . self::field($translator, 'contacts.family_name', 'family_name', $contact?->familyName ?? '', 120)
-            . self::field($translator, 'contacts.organization', 'organization_name', $contact?->organizationName ?? '', 255)
+            . (
+                $contact === null
+                    ? ''
+                    : '<input type="hidden" name="contact_id" value="'
+                        . $contact->id . '">'
+            )
+            . self::field(
+                $translator,
+                'contacts.display_name',
+                'display_name',
+                $contact?->displayName ?? '',
+                255,
+                true
+            )
+            . self::field(
+                $translator,
+                'contacts.given_name',
+                'given_name',
+                $contact?->givenName ?? '',
+                120
+            )
+            . self::field(
+                $translator,
+                'contacts.family_name',
+                'family_name',
+                $contact?->familyName ?? '',
+                120
+            )
+            . self::field(
+                $translator,
+                'contacts.organization',
+                'organization_name',
+                $contact?->organizationName ?? '',
+                255
+            )
             . '<label>' . Html::escape($translator->get('contacts.notes'))
             . '<textarea name="notes" rows="5">' . Html::escape($contact?->notes ?? '') . '</textarea></label>'
             . '<fieldset><legend>' . Html::escape($translator->get('contacts.phone_numbers')) . '</legend>'
