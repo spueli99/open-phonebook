@@ -9,6 +9,7 @@ final class SecurityHeaders
     public static function sendHtml(): void
     {
         header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-store');
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
         header('Referrer-Policy: no-referrer');
