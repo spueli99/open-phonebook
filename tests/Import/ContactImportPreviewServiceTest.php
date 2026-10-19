@@ -7,6 +7,8 @@ namespace OpenPhonebook\Tests\Import;
 use OpenPhonebook\Contacts\AddressBookAccessLevel;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Import\ContactImportFormat;
+use OpenPhonebook\Import\ContactImportParserRegistry;
 use OpenPhonebook\Import\ContactImportPreviewService;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\ImportDuplicateStatus;
@@ -27,6 +29,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
@@ -46,6 +49,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
 
@@ -67,6 +71,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $service->preview(
             $addressBookId,
             11,
+            ContactImportFormat::Csv,
             "display_name\nAlice"
         );
     }
@@ -93,6 +98,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,+49 170 1234567"
         );
 
@@ -132,6 +138,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nIncoming,+49 170 1234567"
         );
 
@@ -164,6 +171,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name,phone_1\nAlice,0211 123456"
         );
 
@@ -180,6 +188,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $preview = $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             implode("\n", [
                 'display_name,phone_1',
                 'Alice,+49 170 1234567',
@@ -206,6 +215,7 @@ final class ContactImportPreviewServiceTest extends TestCase
         $service->preview(
             $addressBookId,
             10,
+            ContactImportFormat::Csv,
             "display_name\n"
         );
     }
@@ -235,7 +245,10 @@ final class ContactImportPreviewServiceTest extends TestCase
         return [
             new ContactImportPreviewService(
                 new AddressBookAccessService($accessRepository),
-                new CsvContactImportParser(),
+                new ContactImportParserRegistry([
+                    ContactImportFormat::Csv->value
+                        => new CsvContactImportParser(),
+                ]),
                 new ImportDuplicateDetector(
                     $contacts,
                     $normalizer
