@@ -78,6 +78,19 @@ final class ContactImportService
                         $action = $duplicateActions[$candidate->sourceRow]
                             ?? ImportDuplicateAction::Skip;
 
+                        if (
+                            $action === ImportDuplicateAction::Merge
+                            && (
+                                $candidate->duplicateStatus
+                                    !== ImportDuplicateStatus::ExistingContact
+                                || $candidate->mergeTarget === null
+                            )
+                        ) {
+                            throw new RuntimeException(
+                                'Import merge target is no longer unambiguous.'
+                            );
+                        }
+
                         if (!$candidate->duplicateStatus->isDuplicate()) {
                             $action = ImportDuplicateAction::Import;
                         }
@@ -88,16 +101,6 @@ final class ContactImportService
                         }
 
                         if ($action === ImportDuplicateAction::Merge) {
-                            if (
-                                $candidate->duplicateStatus
-                                    !== ImportDuplicateStatus::ExistingContact
-                                || $candidate->mergeTarget === null
-                            ) {
-                                throw new RuntimeException(
-                                    'Import merge target is no longer unambiguous.'
-                                );
-                            }
-
                             $mergedValues = $this->merger->merge(
                                 $candidate->mergeTarget,
                                 $candidate->contact
