@@ -21,4 +21,9 @@ interface DeviceCredentialRepositoryInterface
         int $deviceId,
         DeviceCredentialScope $scope
     ): bool;
+
+    public function findActiveByTokenHash(
+        string $tokenHash,
+        DeviceCredentialScope $scope
+    ): ?AuthenticatedDevice;
 }
