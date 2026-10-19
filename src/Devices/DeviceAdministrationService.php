@@ -29,6 +29,14 @@ final class DeviceAdministrationService
     }
 
     /**
+     * @return list<\OpenPhonebook\Contacts\AddressBookAccess>
+     */
+    public function accessibleAddressBooks(int $ownerUserId): array
+    {
+        return $this->addressBookAccess->allAccessibleBy($ownerUserId);
+    }
+
+    /**
      * @return list<int>
      */
     public function addressBookIds(
