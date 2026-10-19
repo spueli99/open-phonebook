@@ -9,7 +9,7 @@ use DateTimeZone;
 use PDO;
 use RuntimeException;
 
-final class InvitationRepository
+final class InvitationRepository implements InvitationRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
