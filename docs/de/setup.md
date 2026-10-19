@@ -14,6 +14,9 @@ Benötigt werden mindestens:
 - cURL
 - mbstring
 - OpenSSL
+- DOM
+- XMLReader
+- XMLWriter
 - PHP-Sessions
 - HTTPS
 - Schreibrechte für `storage/`
