@@ -136,6 +136,33 @@ final class DeviceRepository implements DeviceRepositoryInterface
         return (int) $this->database->lastInsertId();
     }
 
+    public function updateIdentity(
+        int $deviceId,
+        int $ownerUserId,
+        string $name,
+        ?string $vendor,
+        ?string $model
+    ): bool {
+        $statement = $this->database->prepare(
+            'UPDATE devices
+             SET name = :name,
+                 vendor = :vendor,
+                 model = :model,
+                 updated_at = UTC_TIMESTAMP()
+             WHERE id = :id
+               AND owner_user_id = :owner_user_id'
+        );
+        $statement->execute([
+            'name' => $name,
+            'vendor' => $vendor,
+            'model' => $model,
+            'id' => $deviceId,
+            'owner_user_id' => $ownerUserId,
+        ]);
+
+        return $statement->rowCount() === 1;
+    }
+
     public function setActive(
         int $deviceId,
         int $ownerUserId,
