@@ -23,7 +23,6 @@ Not included yet:
 - external contact sources
 - imports
 - duplicate handling
-- international phone-number normalization
 
 ## Web UI
 
@@ -31,7 +30,7 @@ Authenticated users can manage their own address books from `/address-books/`. T
 
 Contact forms expose multiple phone-number slots without introducing a JavaScript dependency. Empty phone-number fields are ignored server-side.
 
-Address-book views provide a GET-based search across display name, given name, family name, organization name, phone labels, and raw phone-number values. Search remains scoped to the already authorized address book. SQL LIKE wildcards from user input are escaped before matching.
+Address-book views provide a GET-based search across display name, given name, family name, organization name, phone labels, raw phone-number values, and normalized E.164 values. Search remains scoped to the already authorized address book. SQL LIKE wildcards from user input are escaped before matching.
 
 All state-changing operations use POST and require a valid CSRF token. Detail and edit reads are resolved through owner-scoped application services before data is rendered.
 
@@ -65,9 +64,11 @@ Each phone-number record stores:
 - nullable normalized E.164 representation
 - stable sort order
 
-The first milestone deliberately stores only the validated raw representation. `normalized_e164` remains `NULL` until a real normalization component with explicit region/country context is introduced.
+Phone numbers are normalized with libphonenumber when they can be validated safely. The raw representation remains stored alongside the normalized value.
 
-This avoids guessing international numbers from ambiguous local formats.
+International numbers beginning with `+` can be normalized without a default region. Local/national numbers are interpreted only when `contacts.default_region` contains an explicit supported ISO 3166-1 alpha-2 country code such as `DE`. When no region is configured, ambiguous local numbers remain with `normalized_e164 = NULL` rather than being guessed.
+
+The default region may also be supplied through `OPENPHONEBOOK_DEFAULT_PHONE_REGION`. New installations can set it in the web installer. Existing stored phone numbers are not rewritten automatically; they receive normalization when the contact is subsequently saved, or through a future explicit maintenance/import operation.
 
 ## Deletion
 
