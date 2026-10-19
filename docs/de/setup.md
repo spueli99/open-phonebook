@@ -24,14 +24,14 @@ Der Installer wird über `/setup/` aufgerufen und führt durch:
 
 1. Systemprüfung
 2. Datenbankverbindung
-3. Grundeinstellungen
+3. Grundeinstellungen einschließlich optionaler Standardregion für Rufnummern
 4. Anlage des ersten Administrators
 5. Datenbankmigrationen
 6. Abschluss und Sperre des Installers
 
 Die Datenbank-Zugangsdaten werden beim mehrstufigen Setup nur vorübergehend in der serverseitigen PHP-Session gehalten. Sie werden nicht über URL-Parameter weitergegeben.
 
-Nach erfolgreicher Installation wird die lokale Laufzeitkonfiguration in `config/local.php` abgelegt. Diese Datei ist von Git ausgeschlossen.\n\nDer Installer erzeugt außerdem einen zufälligen Anwendungsschlüssel. Er wird außerhalb der Datenbank in der lokalen Konfiguration gespeichert und unter anderem für datenschutzfreundliche, HMAC-basierte Sicherheitskennungen verwendet. Alternativ kann `OPENPHONEBOOK_APP_KEY` genutzt werden.
+Nach erfolgreicher Installation wird die lokale Laufzeitkonfiguration in `config/local.php` abgelegt. Diese Datei ist von Git ausgeschlossen.\n\nOptional kann ein ISO-3166-1-Alpha-2-Ländercode wie `DE` als Standardregion für lokale Rufnummern angegeben werden. Bleibt das Feld leer, werden lokale/nationale Nummern bewusst nicht anhand eines geratenen Landes interpretiert. Die Einstellung wird als `contacts.default_region` gespeichert und kann über `OPENPHONEBOOK_DEFAULT_PHONE_REGION` überschrieben werden.\n\nDer Installer erzeugt außerdem einen zufälligen Anwendungsschlüssel. Er wird außerhalb der Datenbank in der lokalen Konfiguration gespeichert und unter anderem für datenschutzfreundliche, HMAC-basierte Sicherheitskennungen verwendet. Alternativ kann `OPENPHONEBOOK_APP_KEY` genutzt werden.
 
 ## Sicherheit
 
