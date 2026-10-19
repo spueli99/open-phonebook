@@ -74,6 +74,7 @@ final class ContactImportPreviewView
             $action = '';
 
             if ($candidate->duplicateStatus->isDuplicate()) {
+                $mergeTargetInput = '';
                 $action = '<select name="duplicate_actions['
                     . $candidate->sourceRow . ']">'
                     . '<option value="skip">'
@@ -83,11 +84,11 @@ final class ContactImportPreviewView
                     . '</option>';
 
                 if ($candidate->mergeTarget !== null) {
-                    $action .= '<input type="hidden" '
+                    $mergeTargetInput = '<input type="hidden" '
                         . 'name="merge_target_ids['
                         . $candidate->sourceRow . ']" value="'
-                        . $candidate->mergeTarget->id . '">'
-                        . '<option value="merge">'
+                        . $candidate->mergeTarget->id . '">';
+                    $action .= '<option value="merge">'
                         . Html::escape(
                             $translator->get('imports.duplicate.merge')
                         )
@@ -103,6 +104,7 @@ final class ContactImportPreviewView
                         $translator->get('imports.duplicate.force')
                     )
                     . '</option></select>';
+                $action = $mergeTargetInput . $action;
             }
 
             $rows .= '<tr><td>'
