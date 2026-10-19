@@ -6,7 +6,10 @@ namespace OpenPhonebook\Auth;
 
 final class AuthenticationService
 {
-    public function __construct(private readonly UserRepository $users)
+    private const DUMMY_PASSWORD_HASH =
+        '$2y$12$YVBRlEZfC6KRsST5BgOGOe8r0dm2r8NDbClMinIOAvbnZXnNGJgwi';
+
+    public function __construct(private readonly UserRepositoryInterface $users)
     {
     }
 
@@ -14,9 +17,14 @@ final class AuthenticationService
     {
         $user = $this->users->findByEmail($email);
 
+        if ($user === null) {
+            password_verify($password, self::DUMMY_PASSWORD_HASH);
+
+            return AuthenticationResult::failure();
+        }
+
         if (
-            $user === null
-            || !$user->isActive
+            !$user->isActive
             || $user->isDeleted
             || !password_verify($password, $user->passwordHash)
         ) {
