@@ -51,7 +51,8 @@ $addressBookId = (int) Request::postString('address_book_id');
 try {
     $service = new ContactService(
         new AddressBookRepository($runtime->database),
-        new ContactRepository($runtime->database)
+        new ContactRepository($runtime->database),
+        $runtime->phoneNumberNormalizer()
     );
     $service->update(
         (int) Request::postString('contact_id'),
