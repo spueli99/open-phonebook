@@ -15,15 +15,18 @@ Completed or in active foundation work:
 - secure browser sessions
 - login throttling
 - English/German localization foundation
+- system-level user administration
+- invitation creation and acceptance
+- initial explicit permission model
 
 Still planned in the foundation area:
 
-- user administration
-- invitation workflow
+- invitation list/revocation UI
+- email delivery for invitations
 - password reset/recovery
 - optional organizations
-- authorization policies
-- audit foundation
+- organization-scoped authorization policies
+- audit-event persistence
 
 ## Contacts
 
