@@ -123,6 +123,55 @@ final class ContactRepository implements ContactRepositoryInterface
         return $numbers;
     }
 
+    public function findByNormalizedPhoneNumbers(
+        int $addressBookId,
+        array $normalizedE164
+    ): array {
+        $normalizedE164 = array_values(array_unique($normalizedE164));
+
+        if ($normalizedE164 === []) {
+            return [];
+        }
+
+        $placeholders = [];
+        $parameters = [
+            'address_book_id' => $addressBookId,
+        ];
+
+        foreach ($normalizedE164 as $index => $number) {
+            $name = 'phone_' . $index;
+            $placeholders[] = ':' . $name;
+            $parameters[$name] = $number;
+        }
+
+        $statement = $this->database->prepare(
+            'SELECT DISTINCT c.id, c.address_book_id, c.display_name,
+                    c.given_name, c.family_name, c.organization_name, c.notes
+             FROM contacts c
+             INNER JOIN contact_phone_numbers p ON p.contact_id = c.id
+             WHERE c.address_book_id = :address_book_id
+               AND c.deleted_at IS NULL
+               AND p.normalized_e164 IN (' . implode(', ', $placeholders) . ')
+             ORDER BY c.id ASC'
+        );
+        $statement->execute($parameters);
+
+        $contacts = [];
+
+        while (($row = $statement->fetch()) !== false) {
+            if (!is_array($row)) {
+                throw new RuntimeException('Unexpected contact query result.');
+            }
+
+            $contacts[] = $this->hydrate(
+                $row,
+                $this->phoneNumbersFor((int) $row['id'])
+            );
+        }
+
+        return $contacts;
+    }
+
     public function findInAddressBook(
         int $contactId,
         int $addressBookId
