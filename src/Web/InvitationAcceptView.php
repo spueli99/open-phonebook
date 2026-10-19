@@ -9,6 +9,31 @@ use OpenPhonebook\UserManagement\Invitation;
 
 final class InvitationAcceptView
 {
+    public static function capture(
+        Translator $translator,
+        string $csrfToken
+    ): string {
+        return '<!doctype html>'
+            . '<html lang="' . Html::escape($translator->locale) . '">'
+            . '<head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<meta name="robots" content="noindex,nofollow">'
+            . '<title>' . Html::escape($translator->get('invite.accept.title'))
+            . ' · Open Phonebook</title>'
+            . '<script src="/assets/invite-capture.js" defer></script>'
+            . '</head><body><main>'
+            . '<h1>' . Html::escape($translator->get('invite.accept.title')) . '</h1>'
+            . '<p id="invite-status">'
+            . Html::escape($translator->get('invite.capture.wait'))
+            . '</p>'
+            . '<form id="invite-capture" method="post">'
+            . '<input type="hidden" name="_csrf" value="'
+            . Html::escape($csrfToken) . '">'
+            . '<input type="hidden" name="action" value="capture">'
+            . '<input type="hidden" name="token" id="invite-token" value="">'
+            . '</form></main></body></html>';
+    }
+
     public static function render(
         Translator $translator,
         Invitation $invitation,
@@ -40,6 +65,7 @@ final class InvitationAcceptView
             . '<form method="post">'
             . '<input type="hidden" name="_csrf" value="'
             . Html::escape($csrfToken) . '">'
+            . '<input type="hidden" name="action" value="accept">'
             . '<label>' . Html::escape($translator->get('users.name'))
             . '<input name="display_name" required autocomplete="name"></label>'
             . '<label>' . Html::escape($translator->get('auth.login.password'))
