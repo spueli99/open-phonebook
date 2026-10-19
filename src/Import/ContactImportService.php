@@ -112,16 +112,18 @@ final class ContactImportService
                                 $candidate->contact
                             );
 
-                            if (!$this->contacts->update(
-                                $candidate->mergeTarget->id,
-                                $addressBookId,
-                                $mergedValues['display_name'],
-                                $mergedValues['given_name'],
-                                $mergedValues['family_name'],
-                                $mergedValues['organization_name'],
-                                $mergedValues['notes'],
-                                $mergedValues['phone_numbers'],
-                            )) {
+                            if (
+                                !$this->contacts->update(
+                                    $candidate->mergeTarget->id,
+                                    $addressBookId,
+                                    $mergedValues['display_name'],
+                                    $mergedValues['given_name'],
+                                    $mergedValues['family_name'],
+                                    $mergedValues['organization_name'],
+                                    $mergedValues['notes'],
+                                    $mergedValues['phone_numbers'],
+                                )
+                            ) {
                                 throw new RuntimeException(
                                     'Import merge target could not be updated.'
                                 );
