@@ -16,6 +16,8 @@ interface InvitationRepositoryInterface
         int $createdByUserId
     ): int;
 
+    public function hasUsableForEmail(string $email, DateTimeImmutable $now): bool;
+
     public function findUsableByTokenHash(
         string $tokenHash,
         DateTimeImmutable $now
