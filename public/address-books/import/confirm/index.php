@@ -8,6 +8,7 @@ use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Database\PdoTransactionManager;
 use OpenPhonebook\Import\ContactImportService;
+use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\CsvContactImportParser;
 use OpenPhonebook\Import\SessionContactImportDraftStore;
 use OpenPhonebook\Security\CsrfToken;
@@ -62,6 +63,8 @@ try {
         $addressBookId,
         $user->id
     )->addressBook;
+    $contactRepository = new ContactRepository($runtime->database);
+    $normalizer = $runtime->phoneNumberNormalizer();
     $result = (new ContactImportService(
         $access,
         new CsvContactImportParser(),
@@ -69,13 +72,18 @@ try {
             new SystemClock(),
             $runtime->applicationKey
         ),
-        new ContactRepository($runtime->database),
-        $runtime->phoneNumberNormalizer(),
+        $contactRepository,
+        $normalizer,
+        new ImportDuplicateDetector(
+            $contactRepository,
+            $normalizer
+        ),
         new PdoTransactionManager($runtime->database)
     ))->import(
         Request::postString('draft_token'),
         $addressBookId,
-        $user->id
+        $user->id,
+        Request::postIntList('force_duplicate_rows')
     );
 } catch (Throwable) {
     http_response_code(400);
@@ -107,5 +115,6 @@ SecurityHeaders::sendHtml();
 echo ContactImportPreviewView::renderComplete(
     $runtime->translator($user->locale),
     $addressBook,
-    $result->importedContacts
+    $result->importedContacts,
+    $result->skippedDuplicates
 );
