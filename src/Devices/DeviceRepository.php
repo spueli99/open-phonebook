@@ -69,6 +69,38 @@ final class DeviceRepository implements DeviceRepositoryInterface
         return $this->hydrate($row);
     }
 
+    public function findOwnedByForUpdate(
+        int $deviceId,
+        int $ownerUserId
+    ): ?Device {
+        $statement = $this->database->prepare(
+            'SELECT id, owner_user_id, name, vendor, model, is_active
+             FROM devices
+             WHERE id = :id
+               AND owner_user_id = :owner_user_id
+             LIMIT 1
+             FOR UPDATE'
+        );
+        $statement->execute([
+            'id' => $deviceId,
+            'owner_user_id' => $ownerUserId,
+        ]);
+
+        $row = $statement->fetch();
+
+        if ($row === false) {
+            return null;
+        }
+
+        if (!is_array($row)) {
+            throw new RuntimeException(
+                'Unexpected device query result.'
+            );
+        }
+
+        return $this->hydrate($row);
+    }
+
     public function create(
         int $ownerUserId,
         string $name,
