@@ -83,6 +83,53 @@ final class ContactServiceTest extends TestCase
         $service->allInOwnedAddressBook($addressBookId, 11);
     }
 
+    public function testOwnerCanGetContactFromOwnedAddressBook(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $contacts = new InMemoryContactRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
+        $service = new ContactService($addressBooks, $contacts);
+        $contactId = $service->create(
+            $addressBookId,
+            10,
+            'Alice',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+
+        $contact = $service->getInOwnedAddressBook(
+            $contactId,
+            $addressBookId,
+            10
+        );
+
+        self::assertSame('Alice', $contact->displayName);
+    }
+
+    public function testOtherUserCannotGetContactFromForeignAddressBook(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $contacts = new InMemoryContactRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
+        $service = new ContactService($addressBooks, $contacts);
+        $contactId = $service->create(
+            $addressBookId,
+            10,
+            'Alice',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->getInOwnedAddressBook($contactId, $addressBookId, 11);
+    }
+
     public function testOwnerCanUpdateContact(): void
     {
         $addressBooks = new InMemoryAddressBookRepository();
