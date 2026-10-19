@@ -36,6 +36,12 @@ final class AddressBookListView
                         $translator->get('contacts.address_books.rename')
                     )
                     . '</button></form>'
+                    . '<a class="button" href="/sources/google/?address_book_id='
+                    . $addressBook->id . '">'
+                    . Html::escape(
+                        $translator->get('sources.google.short')
+                    )
+                    . '</a>'
                     . '<a class="button" href="/address-books/sharing/?id='
                     . $addressBook->id . '">'
                     . Html::escape(

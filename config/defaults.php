@@ -16,6 +16,12 @@ return [
     'contacts' => [
         'default_region' => null,
     ],
+    'providers' => [
+        'google' => [
+            'client_id' => null,
+            'client_secret' => null,
+        ],
+    ],
     'database' => [
         'driver' => 'mysql',
         'host' => '127.0.0.1',

@@ -13,6 +13,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Benutzerverwaltung](user-management.md)
 - [Adressbücher und Kontakte](contacts.md)
 - [Kontaktimporte](imports.md)
+- [Google Kontakte](google-contacts.md)
 
 ## Grundprinzipien
 
