@@ -14,6 +14,23 @@ final class InMemoryAddressBookRepository implements AddressBookRepositoryInterf
 
     private int $nextId = 1;
 
+    /**
+     * @return list<int>
+     */
+    public function ownerUserIds(): array
+    {
+        $owners = [];
+
+        foreach ($this->addressBooks as $addressBook) {
+            $owners[$addressBook->ownerUserId] = true;
+        }
+
+        return array_map(
+            'intval',
+            array_keys($owners)
+        );
+    }
+
     public function allOwnedBy(int $ownerUserId): array
     {
         $result = [];

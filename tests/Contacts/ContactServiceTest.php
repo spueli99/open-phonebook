@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Tests\Contacts;
 
+use OpenPhonebook\Contacts\AddressBookAccessLevel;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\AddressBookService;
 use OpenPhonebook\Contacts\ContactPhoneNumberInput;
 use OpenPhonebook\Contacts\ContactService;
+use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryContactRepository;
 use OpenPhonebook\Tests\Support\Contacts\TestPhoneNumberNormalizer;
@@ -20,11 +23,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
 
         $contactId = $service->create(
             $addressBookId,
@@ -59,10 +58,9 @@ final class ContactServiceTest extends TestCase
     {
         $addressBooks = new InMemoryAddressBookRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
+        $service = $this->service(
             $addressBooks,
-            new InMemoryContactRepository(),
-            new TestPhoneNumberNormalizer()
+            new InMemoryContactRepository()
         );
 
         $this->expectException(RuntimeException::class);
@@ -83,14 +81,13 @@ final class ContactServiceTest extends TestCase
     {
         $addressBooks = new InMemoryAddressBookRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
+        $service = $this->service(
             $addressBooks,
-            new InMemoryContactRepository(),
-            new TestPhoneNumberNormalizer()
+            new InMemoryContactRepository()
         );
 
         $this->expectException(RuntimeException::class);
-        $service->allInOwnedAddressBook($addressBookId, 11);
+        $service->allInAccessibleAddressBook($addressBookId, 11);
     }
 
     public function testOwnerCanGetContactFromOwnedAddressBook(): void
@@ -98,11 +95,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -114,7 +107,7 @@ final class ContactServiceTest extends TestCase
             []
         );
 
-        $contact = $service->getInOwnedAddressBook(
+        $contact = $service->getInAccessibleAddressBook(
             $contactId,
             $addressBookId,
             10
@@ -128,11 +121,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -145,7 +134,7 @@ final class ContactServiceTest extends TestCase
         );
 
         $this->expectException(RuntimeException::class);
-        $service->getInOwnedAddressBook($contactId, $addressBookId, 11);
+        $service->getInAccessibleAddressBook($contactId, $addressBookId, 11);
     }
 
     public function testOwnerCanSearchContactsByNameAndPhoneNumber(): void
@@ -153,11 +142,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
 
         $service->create(
             $addressBookId,
@@ -182,7 +167,7 @@ final class ContactServiceTest extends TestCase
 
         self::assertCount(
             1,
-            $service->searchInOwnedAddressBook(
+            $service->searchInAccessibleAddressBook(
                 $addressBookId,
                 10,
                 'alice'
@@ -190,7 +175,7 @@ final class ContactServiceTest extends TestCase
         );
         self::assertCount(
             1,
-            $service->searchInOwnedAddressBook(
+            $service->searchInAccessibleAddressBook(
                 $addressBookId,
                 10,
                 '170 123'
@@ -198,7 +183,7 @@ final class ContactServiceTest extends TestCase
         );
         self::assertCount(
             1,
-            $service->searchInOwnedAddressBook(
+            $service->searchInAccessibleAddressBook(
                 $addressBookId,
                 10,
                 '+491701234567'
@@ -206,7 +191,7 @@ final class ContactServiceTest extends TestCase
         );
         self::assertCount(
             2,
-            $service->searchInOwnedAddressBook(
+            $service->searchInAccessibleAddressBook(
                 $addressBookId,
                 10,
                 ''
@@ -218,28 +203,26 @@ final class ContactServiceTest extends TestCase
     {
         $addressBooks = new InMemoryAddressBookRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
+        $service = $this->service(
             $addressBooks,
-            new InMemoryContactRepository(),
-            new TestPhoneNumberNormalizer()
+            new InMemoryContactRepository()
         );
 
         $this->expectException(RuntimeException::class);
-        $service->searchInOwnedAddressBook($addressBookId, 11, 'Alice');
+        $service->searchInAccessibleAddressBook($addressBookId, 11, 'Alice');
     }
 
     public function testRejectsOverlongSearchQuery(): void
     {
         $addressBooks = new InMemoryAddressBookRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
+        $service = $this->service(
             $addressBooks,
-            new InMemoryContactRepository(),
-            new TestPhoneNumberNormalizer()
+            new InMemoryContactRepository()
         );
 
         $this->expectException(RuntimeException::class);
-        $service->searchInOwnedAddressBook(
+        $service->searchInAccessibleAddressBook(
             $addressBookId,
             10,
             str_repeat('a', 121)
@@ -251,11 +234,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -291,11 +270,7 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
-            $addressBooks,
-            $contacts,
-            new TestPhoneNumberNormalizer()
-        );
+        $service = $this->service($addressBooks, $contacts);
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -311,14 +286,124 @@ final class ContactServiceTest extends TestCase
         $service->delete($contactId, $addressBookId, 11);
     }
 
+    public function testReadShareCanReadButCannotCreate(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $contacts = new InMemoryContactRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(
+            10,
+            'Family'
+        );
+        $accessRepository = new InMemoryAddressBookAccessRepository(
+            $addressBooks
+        );
+        $accessRepository->grant(
+            $addressBookId,
+            10,
+            11,
+            AddressBookAccessLevel::Read
+        );
+        $service = $this->service(
+            $addressBooks,
+            $contacts,
+            $accessRepository
+        );
+        $service->create(
+            $addressBookId,
+            10,
+            'Alice',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+
+        self::assertCount(
+            1,
+            $service->allInAccessibleAddressBook($addressBookId, 11)
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->create(
+            $addressBookId,
+            11,
+            'Bob',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+    }
+
+    public function testWriteShareCanCreateUpdateAndDelete(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $contacts = new InMemoryContactRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(
+            10,
+            'Family'
+        );
+        $accessRepository = new InMemoryAddressBookAccessRepository(
+            $addressBooks
+        );
+        $accessRepository->grant(
+            $addressBookId,
+            10,
+            11,
+            AddressBookAccessLevel::Write
+        );
+        $service = $this->service(
+            $addressBooks,
+            $contacts,
+            $accessRepository
+        );
+
+        $contactId = $service->create(
+            $addressBookId,
+            11,
+            'Alice',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+        $service->update(
+            $contactId,
+            $addressBookId,
+            11,
+            'Alice Example',
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+
+        self::assertSame(
+            'Alice Example',
+            $contacts->findInAddressBook(
+                $contactId,
+                $addressBookId
+            )?->displayName
+        );
+
+        $service->delete($contactId, $addressBookId, 11);
+
+        self::assertNull(
+            $contacts->findInAddressBook($contactId, $addressBookId)
+        );
+    }
+
     public function testRejectsBlankPhoneNumber(): void
     {
         $addressBooks = new InMemoryAddressBookRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService(
+        $service = $this->service(
             $addressBooks,
-            new InMemoryContactRepository(),
-            new TestPhoneNumberNormalizer()
+            new InMemoryContactRepository()
         );
 
         $this->expectException(RuntimeException::class);
@@ -332,6 +417,22 @@ final class ContactServiceTest extends TestCase
             null,
             null,
             [new ContactPhoneNumberInput('Mobile', '   ')],
+        );
+    }
+
+    private function service(
+        InMemoryAddressBookRepository $addressBooks,
+        InMemoryContactRepository $contacts,
+        ?InMemoryAddressBookAccessRepository $accessRepository = null
+    ): ContactService {
+        $accessRepository ??= new InMemoryAddressBookAccessRepository(
+            $addressBooks
+        );
+
+        return new ContactService(
+            new AddressBookAccessService($accessRepository),
+            $contacts,
+            new TestPhoneNumberNormalizer()
         );
     }
 }

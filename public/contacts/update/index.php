@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use OpenPhonebook\Contacts\AddressBookRepository;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Security\CsrfToken;
@@ -50,7 +51,9 @@ $addressBookId = (int) Request::postString('address_book_id');
 
 try {
     $service = new ContactService(
-        new AddressBookRepository($runtime->database),
+        new AddressBookAccessService(
+            new AddressBookAccessRepository($runtime->database)
+        ),
         new ContactRepository($runtime->database),
         $runtime->phoneNumberNormalizer()
     );

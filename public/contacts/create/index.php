@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use OpenPhonebook\Contacts\AddressBookRepository;
-use OpenPhonebook\Contacts\AddressBookService;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Security\CsrfToken;
@@ -38,10 +38,12 @@ if ($user === null) {
     exit;
 }
 
-$addressBooks = new AddressBookRepository($runtime->database);
+$accessService = new AddressBookAccessService(
+    new AddressBookAccessRepository($runtime->database)
+);
 $contacts = new ContactRepository($runtime->database);
 $service = new ContactService(
-    $addressBooks,
+    $accessService,
     $contacts,
     $runtime->phoneNumberNormalizer()
 );
@@ -87,7 +89,7 @@ $addressBookId = isset($_GET['address_book_id']) && is_string($_GET['address_boo
     : 0;
 
 try {
-    (new AddressBookService($addressBooks))->getOwned(
+    $accessService->requireWritable(
         $addressBookId,
         $user->id
     );

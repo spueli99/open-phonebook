@@ -15,10 +15,10 @@ Enthalten sind:
 - Weboberfläche für persönliche Adressbücher und Kontakte
 - CSRF-geschützte Anlage-, Änderungs-, Umbenennungs- und Löschaktionen
 - eigentümergebundene Suche nach Namen, Organisation, Rufnummernbezeichnung und Roh-Rufnummer
+- ausdrückliche Freigaben persönlicher Adressbücher mit Lese- oder Schreibrecht
 
 Noch nicht enthalten:
 
-- Freigaben
 - organisationsbezogene Adressbücher
 - externe Kontaktquellen
 - Importe
@@ -34,11 +34,24 @@ Adressbuchansichten bieten eine GET-basierte Suche über Anzeigename, Vorname, N
 
 Alle zustandsändernden Aktionen verwenden POST und benötigen einen gültigen CSRF-Token. Auch Detail- und Bearbeitungsansichten werden vor der Ausgabe über die eigentümergebundenen Anwendungsservices aufgelöst.
 
+## Freigaben
+
+Der Eigentümer eines Adressbuchs kann dieses über die E-Mail-Adresse für einen anderen aktiven, nicht gelöschten Benutzer freigeben.
+
+Es gibt zwei Zugriffsstufen:
+
+- `read`: Kontakte anzeigen, öffnen und durchsuchen
+- `write`: zusätzlich Kontakte anlegen, bearbeiten und logisch löschen
+
+Nur der Eigentümer darf das Adressbuch selbst umbenennen oder löschen sowie Freigaben vergeben, ändern oder widerrufen. Auch ein `system_admin` erhält dadurch keinen automatischen Zugriff auf private Adressbücher.
+
+Eine Freigabe an den Eigentümer selbst wird abgelehnt. Wird derselbe Benutzer erneut freigegeben, wird die vorhandene Zugriffsstufe aktualisiert statt eine Dublette anzulegen.
+
 ## Eigentum und Berechtigungen
 
 Jedes Adressbuch besitzt derzeit genau eine `owner_user_id`.
 
-Die Anwendungsservices prüfen vor jeder Kontaktoperation, ob das angegebene Adressbuch tatsächlich dem angemeldeten Benutzer gehört.
+Die Anwendungsservices prüfen vor jeder Kontaktoperation die aufgelösten Zugriffsrechte. Lesen benötigt mindestens `read`, Änderungen an Kontakten benötigen `write`. Änderungen am Adressbuch selbst und die Freigabeverwaltung bleiben ausschließlich dem Eigentümer vorbehalten.
 
 Auch ein Systemadministrator erhält dadurch nicht automatisch Zugriff auf private Kontakte. Plattformverwaltung und private Kontaktdaten bleiben getrennt.
 

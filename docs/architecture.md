@@ -55,6 +55,8 @@ The web UI and REST API use the same application services. Business logic must n
 
 The initial web runtime centralizes configuration loading, database creation, secure session startup, application-key validation, and localization access.
 
+Address-book authorization is resolved through a dedicated access boundary. Ownership and explicit personal shares are combined into a read/write access result before contact services operate. Ownership-sensitive operations such as renaming, deleting, or managing shares remain separate and owner-only.
+
 ## Authentication and authorization boundary
 
 Human users authenticate through secure browser sessions.
