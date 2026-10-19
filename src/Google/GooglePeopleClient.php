@@ -14,32 +14,80 @@ final class GooglePeopleClient
     private const ENDPOINT =
         'https://people.googleapis.com/v1/people/me/connections';
 
+    /**
+     * @var list<string>
+     */
+    private const PERSON_FIELDS = [
+        'names',
+        'organizations',
+        'biographies',
+        'phoneNumbers',
+        'metadata',
+    ];
+
     public function __construct(private readonly HttpClientInterface $http)
     {
     }
 
     /**
+     * Backward-compatible full contact list without exposing sync metadata.
+     *
      * @return list<GooglePersonSnapshot>
      */
     public function allConnections(string $accessToken): array
     {
+        return $this->fullSnapshot($accessToken)->people;
+    }
+
+    public function fullSnapshot(
+        string $accessToken
+    ): GooglePeopleSyncBatch {
+        return $this->listConnections(
+            $accessToken,
+            null,
+            true
+        );
+    }
+
+    public function changesSince(
+        string $accessToken,
+        string $syncToken
+    ): GooglePeopleSyncBatch {
+        if ($syncToken === '') {
+            throw new RuntimeException('Google sync token is missing.');
+        }
+
+        return $this->listConnections(
+            $accessToken,
+            $syncToken,
+            false
+        );
+    }
+
+    private function listConnections(
+        string $accessToken,
+        ?string $syncToken,
+        bool $requestSyncToken
+    ): GooglePeopleSyncBatch {
         if ($accessToken === '') {
             throw new RuntimeException('Google access token is missing.');
         }
 
         $result = [];
         $pageToken = null;
+        $nextSyncToken = null;
 
         do {
             $query = [
-                'personFields' => implode(',', [
-                    'names',
-                    'organizations',
-                    'biographies',
-                    'phoneNumbers',
-                ]),
+                'personFields' => implode(',', self::PERSON_FIELDS),
                 'pageSize' => '1000',
             ];
+
+            if ($syncToken !== null) {
+                $query['syncToken'] = $syncToken;
+            } elseif ($requestSyncToken) {
+                $query['requestSyncToken'] = 'true';
+            }
 
             if ($pageToken !== null) {
                 $query['pageToken'] = $pageToken;
@@ -58,6 +106,12 @@ final class GooglePeopleClient
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]
             );
+
+            if ($response->statusCode === 410 && $syncToken !== null) {
+                throw new GoogleSyncTokenExpired(
+                    'Google sync token has expired.'
+                );
+            }
 
             if ($response->statusCode !== 200) {
                 throw new RuntimeException(
@@ -91,20 +145,11 @@ final class GooglePeopleClient
                     continue;
                 }
 
-                $externalId = $person['resourceName'] ?? null;
+                $snapshot = $this->mapSnapshot($person);
 
-                if (
-                    !is_string($externalId)
-                    || $externalId === ''
-                    || mb_strlen($externalId) > 255
-                ) {
-                    continue;
+                if ($snapshot !== null) {
+                    $result[] = $snapshot;
                 }
-
-                $result[] = new GooglePersonSnapshot(
-                    $externalId,
-                    $this->mapContact($person)
-                );
             }
 
             $nextPageToken = $payload['nextPageToken'] ?? null;
@@ -119,9 +164,73 @@ final class GooglePeopleClient
             }
 
             $pageToken = $nextPageToken === '' ? null : $nextPageToken;
+
+            if ($pageToken === null) {
+                $candidateSyncToken = $payload['nextSyncToken'] ?? null;
+
+                if (
+                    !is_string($candidateSyncToken)
+                    || $candidateSyncToken === ''
+                ) {
+                    throw new RuntimeException(
+                        'Google People API did not return a sync token.'
+                    );
+                }
+
+                $nextSyncToken = $candidateSyncToken;
+            }
         } while ($pageToken !== null);
 
-        return $result;
+        return new GooglePeopleSyncBatch(
+            $result,
+            $nextSyncToken,
+            $syncToken === null
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $person
+     */
+    private function mapSnapshot(
+        array $person
+    ): ?GooglePersonSnapshot {
+        $externalId = $person['resourceName'] ?? null;
+
+        if (
+            !is_string($externalId)
+            || $externalId === ''
+            || mb_strlen($externalId) > 255
+        ) {
+            return null;
+        }
+
+        $metadata = $person['metadata'] ?? [];
+        $deleted = false;
+        $previousExternalIds = [];
+
+        if (is_array($metadata)) {
+            $deleted = ($metadata['deleted'] ?? false) === true;
+            $previous = $metadata['previousResourceNames'] ?? [];
+
+            if (is_array($previous)) {
+                foreach ($previous as $previousExternalId) {
+                    if (
+                        is_string($previousExternalId)
+                        && $previousExternalId !== ''
+                        && mb_strlen($previousExternalId) <= 255
+                    ) {
+                        $previousExternalIds[] = $previousExternalId;
+                    }
+                }
+            }
+        }
+
+        return new GooglePersonSnapshot(
+            $externalId,
+            $deleted ? null : $this->mapContact($person),
+            $deleted,
+            array_values(array_unique($previousExternalIds)),
+        );
     }
 
     /**

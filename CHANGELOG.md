@@ -30,7 +30,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - E.164-based import duplicate detection with default skip and explicit force-import
 - Conservative merge decisions for one unambiguous existing contact
 - vCard 2.1/3.0/4.0 preview and confirmed imports through the shared import pipeline
-- Google Contacts read-only OAuth source with manual transactional full-snapshot synchronization
+- Google Contacts read-only OAuth source with transactional full-snapshot synchronization
+- Incremental Google People API synchronization with encrypted sync tokens and automatic full fallback
+- Cron-compatible Google Contacts scheduler without a continuously running worker
 
 ### Security
 
@@ -42,7 +44,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Duplicate status is recalculated at confirmation so newly appearing duplicates are skipped unless explicitly forced
 - Import merges never overwrite existing non-empty fields and are rejected when the merge target becomes ambiguous
 - Import drafts bind the selected parser format so confirmation cannot switch CSV and vCard interpretation
-- Google refresh tokens are AES-256-GCM encrypted at rest; OAuth uses single-use state plus PKCE and the contacts.readonly scope only
+- Google refresh and incremental sync tokens are AES-256-GCM encrypted at rest; OAuth uses single-use state plus PKCE and the contacts.readonly scope only
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance

@@ -44,11 +44,16 @@ final class GooglePeopleClientTest extends TestCase
                         'familyName' => 'Example',
                     ]],
                 ]],
+                'nextSyncToken' => 'sync-1',
             ], JSON_THROW_ON_ERROR)
         ));
 
-        $people = (new GooglePeopleClient($http))
-            ->allConnections('access');
+        $batch = (new GooglePeopleClient($http))
+            ->fullSnapshot('access');
+        $people = $batch->people;
+
+        self::assertTrue($batch->fullSnapshot);
+        self::assertSame('sync-1', $batch->nextSyncToken);
 
         self::assertCount(2, $people);
         self::assertSame('people/1', $people[0]->externalId);
@@ -73,10 +78,77 @@ final class GooglePeopleClientTest extends TestCase
             'pageToken=next',
             $http->requests[1]['url']
         );
+        self::assertStringContainsString(
+            'requestSyncToken=true',
+            $http->requests[0]['url']
+        );
+        self::assertStringContainsString(
+            'requestSyncToken=true',
+            $http->requests[1]['url']
+        );
         self::assertSame(
             'Bearer access',
             $http->requests[0]['headers']['Authorization']
         );
+    }
+
+    public function testReadsIncrementalDeletionAndPreviousResourceName(): void
+    {
+        $http = new FakeHttpClient();
+        $http->queue(new HttpResponse(
+            200,
+            json_encode([
+                'connections' => [[
+                    'resourceName' => 'people/new',
+                    'metadata' => [
+                        'previousResourceNames' => ['people/old'],
+                    ],
+                    'names' => [[
+                        'displayName' => 'Alice Example',
+                    ]],
+                ], [
+                    'resourceName' => 'people/deleted',
+                    'metadata' => [
+                        'deleted' => true,
+                    ],
+                ]],
+                'nextSyncToken' => 'sync-2',
+            ], JSON_THROW_ON_ERROR)
+        ));
+
+        $batch = (new GooglePeopleClient($http))
+            ->changesSince('access', 'sync-1');
+
+        self::assertFalse($batch->fullSnapshot);
+        self::assertSame('sync-2', $batch->nextSyncToken);
+        self::assertCount(2, $batch->people);
+        self::assertSame(
+            ['people/old'],
+            $batch->people[0]->previousExternalIds
+        );
+        self::assertTrue($batch->people[1]->deleted);
+        self::assertNull($batch->people[1]->contact);
+        self::assertStringContainsString(
+            'syncToken=sync-1',
+            $http->requests[0]['url']
+        );
+        self::assertStringContainsString(
+            'metadata',
+            $http->requests[0]['url']
+        );
+    }
+
+    public function testExpiredIncrementalTokenRaisesDedicatedException(): void
+    {
+        $http = new FakeHttpClient();
+        $http->queue(new HttpResponse(410, '{}'));
+
+        $this->expectException(
+            \OpenPhonebook\Google\GoogleSyncTokenExpired::class
+        );
+
+        (new GooglePeopleClient($http))
+            ->changesSince('access', 'expired');
     }
 
     public function testKeepsUnmappableResourceAsSeenSnapshot(): void
@@ -84,11 +156,13 @@ final class GooglePeopleClientTest extends TestCase
         $http = new FakeHttpClient();
         $http->queue(new HttpResponse(
             200,
-            '{"connections":[{"resourceName":"people/1"}]}'
+            '{"connections":[{"resourceName":"people/1"}],'
+                . '"nextSyncToken":"sync-1"}'
         ));
 
         $people = (new GooglePeopleClient($http))
-            ->allConnections('access');
+            ->fullSnapshot('access')
+            ->people;
 
         self::assertSame('people/1', $people[0]->externalId);
         self::assertNull($people[0]->contact);
