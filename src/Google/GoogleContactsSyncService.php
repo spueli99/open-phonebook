@@ -10,6 +10,7 @@ use OpenPhonebook\Contacts\ContactRepositoryInterface;
 use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
 use OpenPhonebook\Database\TransactionManagerInterface;
 use OpenPhonebook\Security\SecretCipher;
+use OpenPhonebook\Sources\ContactSource;
 use OpenPhonebook\Sources\ContactSourceRepositoryInterface;
 use RuntimeException;
 
@@ -44,19 +45,25 @@ final class GoogleContactsSyncService
             );
         }
 
+        return $this->syncSource($source);
+    }
+
+    public function syncSource(
+        ContactSource $source
+    ): GoogleContactsSyncResult {
         $refreshToken = $this->cipher->decrypt(
             $source->encryptedRefreshToken
         );
         $tokenSet = $this->oauth->refresh($refreshToken);
-        $snapshot = $this->people->allConnections(
+        $batch = $this->loadBatch(
+            $source,
             $tokenSet->accessToken
         );
 
         return $this->transactions->transactional(
             function () use (
                 $source,
-                $snapshot,
-                $addressBookId
+                $batch
             ): GoogleContactsSyncResult {
                 $records = [];
 
@@ -72,14 +79,46 @@ final class GoogleContactsSyncService
                 $deleted = 0;
                 $skipped = 0;
 
-                foreach ($snapshot as $person) {
+                foreach ($batch->people as $person) {
                     if (isset($seen[$person->externalId])) {
                         throw new RuntimeException(
-                            'Google snapshot contains duplicate resource IDs.'
+                            'Google sync contains duplicate resource IDs.'
                         );
                     }
 
                     $seen[$person->externalId] = true;
+                    $contactId = $records[$person->externalId] ?? null;
+                    $previousRecordId = null;
+
+                    if ($contactId === null) {
+                        foreach (
+                            $person->previousExternalIds
+                            as $previousExternalId
+                        ) {
+                            if (isset($records[$previousExternalId])) {
+                                $contactId = $records[$previousExternalId];
+                                $previousRecordId = $previousExternalId;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($person->deleted) {
+                        if ($contactId !== null) {
+                            $this->contacts->softDelete(
+                                $contactId,
+                                $source->addressBookId
+                            );
+                            $this->deleteSourceMappings(
+                                $source->id,
+                                $person->externalId,
+                                $person->previousExternalIds
+                            );
+                            $deleted++;
+                        }
+
+                        continue;
+                    }
 
                     if ($person->contact === null) {
                         $skipped++;
@@ -100,12 +139,10 @@ final class GoogleContactsSyncService
                         );
                     }
 
-                    $contactId = $records[$person->externalId] ?? null;
-
                     if ($contactId !== null) {
                         $didUpdate = $this->contacts->update(
                             $contactId,
-                            $addressBookId,
+                            $source->addressBookId,
                             $person->contact->displayName,
                             $person->contact->givenName,
                             $person->contact->familyName,
@@ -115,13 +152,29 @@ final class GoogleContactsSyncService
                         );
 
                         if ($didUpdate) {
+                            if (
+                                $previousRecordId !== null
+                                && $previousRecordId
+                                    !== $person->externalId
+                            ) {
+                                $this->sources->deleteRecord(
+                                    $source->id,
+                                    $previousRecordId
+                                );
+                            }
+
+                            $this->sources->upsertRecord(
+                                $source->id,
+                                $person->externalId,
+                                $contactId
+                            );
                             $updated++;
                             continue;
                         }
                     }
 
                     $contactId = $this->contacts->create(
-                        $addressBookId,
+                        $source->addressBookId,
                         $person->contact->displayName,
                         $person->contact->givenName,
                         $person->contact->familyName,
@@ -137,23 +190,28 @@ final class GoogleContactsSyncService
                     $created++;
                 }
 
-                foreach ($records as $externalId => $contactId) {
-                    if (isset($seen[$externalId])) {
-                        continue;
-                    }
+                if ($batch->fullSnapshot) {
+                    foreach ($records as $externalId => $contactId) {
+                        if (isset($seen[$externalId])) {
+                            continue;
+                        }
 
-                    $this->contacts->softDelete(
-                        $contactId,
-                        $addressBookId
-                    );
-                    $this->sources->deleteRecord(
-                        $source->id,
-                        $externalId
-                    );
-                    $deleted++;
+                        $this->contacts->softDelete(
+                            $contactId,
+                            $source->addressBookId
+                        );
+                        $this->sources->deleteRecord(
+                            $source->id,
+                            $externalId
+                        );
+                        $deleted++;
+                    }
                 }
 
-                $this->sources->markSynced($source->id);
+                $this->sources->markSynced(
+                    $source->id,
+                    $this->cipher->encrypt($batch->nextSyncToken)
+                );
 
                 return new GoogleContactsSyncResult(
                     $created,
@@ -163,5 +221,47 @@ final class GoogleContactsSyncService
                 );
             }
         );
+    }
+
+    private function loadBatch(
+        ContactSource $source,
+        string $accessToken
+    ): GooglePeopleSyncBatch {
+        if ($source->encryptedSyncToken === null) {
+            return $this->people->fullSnapshot($accessToken);
+        }
+
+        $syncToken = $this->cipher->decrypt(
+            $source->encryptedSyncToken
+        );
+
+        try {
+            return $this->people->changesSince(
+                $accessToken,
+                $syncToken
+            );
+        } catch (GoogleSyncTokenExpired) {
+            return $this->people->fullSnapshot($accessToken);
+        }
+    }
+
+    /**
+     * @param list<string> $previousExternalIds
+     */
+    private function deleteSourceMappings(
+        int $sourceId,
+        string $externalId,
+        array $previousExternalIds
+    ): void {
+        $this->sources->deleteRecord($sourceId, $externalId);
+
+        foreach ($previousExternalIds as $previousExternalId) {
+            if ($previousExternalId !== $externalId) {
+                $this->sources->deleteRecord(
+                    $sourceId,
+                    $previousExternalId
+                );
+            }
+        }
     }
 }
