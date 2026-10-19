@@ -40,8 +40,14 @@ final class InvitationService
             throw new RuntimeException('A user with this email address already exists.');
         }
 
+        $now = $this->clock->now();
+
+        if ($this->invitations->hasUsableForEmail($email, $now)) {
+            throw new RuntimeException('An active invitation already exists for this email address.');
+        }
+
         $token = InvitationToken::generate($this->applicationKey);
-        $expiresAt = $this->clock->now()->add(new DateInterval('P3D'));
+        $expiresAt = $now->add(new DateInterval('P3D'));
 
         $id = $this->invitations->create(
             $email,
