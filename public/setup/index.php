@@ -13,6 +13,7 @@ use OpenPhonebook\Setup\LocalConfigWriter;
 use OpenPhonebook\Setup\SetupRequest;
 use OpenPhonebook\Setup\SetupSession;
 use OpenPhonebook\Setup\SetupView;
+use RuntimeException;
 use Throwable;
 
 $projectRoot = dirname(__DIR__, 2);
@@ -34,7 +35,13 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: no-referrer');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+
+$contentSecurityPolicy = "default-src 'none'; "
+    . "style-src 'unsafe-inline'; "
+    . "form-action 'self'; "
+    . "base-uri 'none'; "
+    . "frame-ancestors 'none'";
+header('Content-Security-Policy: ' . $contentSecurityPolicy);
 
 $installation = new InstallationState($projectRoot . '/storage/installed.lock');
 
@@ -55,7 +62,8 @@ $setupSession = new SetupSession();
 if ($step === 'environment') {
     $checker = new EnvironmentChecker();
     $checks = $checker->check($projectRoot, $https);
-    $body = '<p>Before installation, Open Phonebook verifies the minimum runtime and security requirements.</p>';
+    $body = '<p>Before installation, Open Phonebook verifies the minimum '
+        . 'runtime and security requirements.</p>';
 
     foreach ($checks as $check) {
         $class = $check->passed ? 'ok' : 'fail';
@@ -68,10 +76,14 @@ if ($step === 'environment') {
     }
 
     if ($checker->allPassed($checks)) {
-        $body .= '<form method="get"><input type="hidden" name="step" value="database">'
-            . '<button type="submit">Continue</button></form>';
+        $body .= '<form method="get">'
+            . '<input type="hidden" name="step" value="database">'
+            . '<button type="submit">Continue</button>'
+            . '</form>';
     } else {
-        $body .= '<p class="fail"><strong>Resolve the failed checks before continuing.</strong></p>';
+        $body .= '<p class="fail"><strong>'
+            . 'Resolve the failed checks before continuing.'
+            . '</strong></p>';
     }
 
     echo SetupView::page('System check', $body);
@@ -100,6 +112,7 @@ if ($step === 'database') {
 
         if ($errors === []) {
             $connectionError = (new DatabaseTester())->test($database);
+
             if ($connectionError !== null) {
                 $errors[] = $connectionError;
             } else {
@@ -111,15 +124,31 @@ if ($step === 'database') {
         }
     }
 
-    $body = '<p>Enter the MariaDB/MySQL database credentials. The password is kept only in the temporary server-side setup session until installation completes.</p>'
+    $body = '<p>Enter the MariaDB/MySQL database credentials. '
+        . 'The password is kept only in the temporary server-side setup '
+        . 'session until installation completes.</p>'
         . '<form method="post" autocomplete="off">'
-        . '<input type="hidden" name="_csrf" value="' . SetupView::escape(CsrfToken::issue()) . '">'
-        . '<label>Database host<input name="db_host" required value="127.0.0.1" autocomplete="off"></label>'
-        . '<label>Database port<input name="db_port" required inputmode="numeric" value="3306" autocomplete="off"></label>'
-        . '<label>Database name<input name="db_name" required autocomplete="off"></label>'
-        . '<label>Database user<input name="db_user" required autocomplete="off"></label>'
-        . '<label>Database password<input type="password" name="db_password" autocomplete="new-password"></label>'
-        . '<button type="submit">Test and continue</button></form>';
+        . '<input type="hidden" name="_csrf" value="'
+        . SetupView::escape(CsrfToken::issue())
+        . '">'
+        . '<label>Database host'
+        . '<input name="db_host" required value="127.0.0.1" autocomplete="off">'
+        . '</label>'
+        . '<label>Database port'
+        . '<input name="db_port" required inputmode="numeric" '
+        . 'value="3306" autocomplete="off">'
+        . '</label>'
+        . '<label>Database name'
+        . '<input name="db_name" required autocomplete="off">'
+        . '</label>'
+        . '<label>Database user'
+        . '<input name="db_user" required autocomplete="off">'
+        . '</label>'
+        . '<label>Database password'
+        . '<input type="password" name="db_password" autocomplete="new-password">'
+        . '</label>'
+        . '<button type="submit">Test and continue</button>'
+        . '</form>';
 
     echo SetupView::page('Database', $body, $errors);
     exit;
@@ -142,9 +171,14 @@ if ($step === 'application') {
         $adminEmail = SetupRequest::postString('admin_email');
         $adminName = SetupRequest::postString('admin_name');
         $adminPassword = SetupRequest::postPassword('admin_password');
-        $adminPasswordConfirm = SetupRequest::postPassword('admin_password_confirm');
+        $adminPasswordConfirm = SetupRequest::postPassword(
+            'admin_password_confirm'
+        );
 
-        if (!filter_var($baseUrl, FILTER_VALIDATE_URL) || !str_starts_with($baseUrl, 'https://')) {
+        if (
+            !filter_var($baseUrl, FILTER_VALIDATE_URL)
+            || !str_starts_with($baseUrl, 'https://')
+        ) {
             $errors[] = 'Base URL must be a valid HTTPS URL.';
         }
 
@@ -165,11 +199,15 @@ if ($step === 'application') {
                 $database = $setupSession->database();
 
                 if ($database === null) {
-                    throw new RuntimeException('Database setup data is missing.');
+                    throw new RuntimeException(
+                        'Database setup data is missing.'
+                    );
                 }
 
                 $installer = new Installer(
-                    new LocalConfigWriter($projectRoot . '/config/local.php'),
+                    new LocalConfigWriter(
+                        $projectRoot . '/config/local.php'
+                    ),
                     $installation
                 );
 
@@ -190,38 +228,81 @@ if ($step === 'application') {
                 header('Location: ?step=complete', true, 303);
                 exit;
             } catch (Throwable $exception) {
-                error_log('Open Phonebook setup failed: ' . $exception::class);
-                $errors[] = 'Installation failed. Check the server log for technical details.';
+                error_log(
+                    'Open Phonebook setup failed: '
+                    . $exception::class
+                );
+                $errors[] = 'Installation failed. '
+                    . 'Check the server log for technical details.';
             }
         }
     }
 
     $config = Config::load($projectRoot);
-    $suggestedBaseUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? '');
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    $host = is_string($host) ? $host : '';
+    $suggestedBaseUrl = 'https://' . $host;
     $defaultTimezone = (string) $config->get('app.timezone', 'UTC');
 
     $timezoneOptions = '';
-    foreach (['Europe/Berlin', 'UTC', 'Europe/London', 'America/New_York'] as $timezoneOption) {
+    $timezoneChoices = [
+        'Europe/Berlin',
+        'UTC',
+        'Europe/London',
+        'America/New_York',
+    ];
+
+    foreach ($timezoneChoices as $timezoneOption) {
         $selected = $timezoneOption === $defaultTimezone ? ' selected' : '';
-        $timezoneOptions .= '<option value="' . SetupView::escape($timezoneOption) . '"' . $selected . '>'
+        $timezoneOptions .= '<option value="'
+            . SetupView::escape($timezoneOption)
+            . '"' . $selected . '>'
             . SetupView::escape($timezoneOption)
             . '</option>';
     }
 
-    $body = '<p>Configure the application and create the first system administrator.</p>'
+    $body = '<p>Configure the application and create the first '
+        . 'system administrator.</p>'
         . '<form method="post" autocomplete="off">'
-        . '<input type="hidden" name="_csrf" value="' . SetupView::escape(CsrfToken::issue()) . '">'
-        . '<label>Base URL<input name="base_url" required value="' . SetupView::escape($suggestedBaseUrl) . '"></label>'
-        . '<label>Timezone<select name="timezone">' . $timezoneOptions . '</select></label>'
-        . '<label>Language<select name="locale"><option value="en">English</option><option value="de">Deutsch</option></select></label>'
-        . '<label>Administrator name<input name="admin_name" required autocomplete="name"></label>'
-        . '<label>Administrator email<input type="email" name="admin_email" required autocomplete="email"></label>'
-        . '<label>Administrator password<input type="password" name="admin_password" required minlength="12" autocomplete="new-password"></label>'
-        . '<label>Repeat password<input type="password" name="admin_password_confirm" required minlength="12" autocomplete="new-password"></label>'
-        . '<p class="muted">Use at least 12 characters. A password manager is recommended.</p>'
-        . '<button type="submit">Install Open Phonebook</button></form>';
+        . '<input type="hidden" name="_csrf" value="'
+        . SetupView::escape(CsrfToken::issue())
+        . '">'
+        . '<label>Base URL'
+        . '<input name="base_url" required value="'
+        . SetupView::escape($suggestedBaseUrl)
+        . '"></label>'
+        . '<label>Timezone<select name="timezone">'
+        . $timezoneOptions
+        . '</select></label>'
+        . '<label>Language<select name="locale">'
+        . '<option value="en">English</option>'
+        . '<option value="de">Deutsch</option>'
+        . '</select></label>'
+        . '<label>Administrator name'
+        . '<input name="admin_name" required autocomplete="name">'
+        . '</label>'
+        . '<label>Administrator email'
+        . '<input type="email" name="admin_email" required '
+        . 'autocomplete="email">'
+        . '</label>'
+        . '<label>Administrator password'
+        . '<input type="password" name="admin_password" required '
+        . 'minlength="12" autocomplete="new-password">'
+        . '</label>'
+        . '<label>Repeat password'
+        . '<input type="password" name="admin_password_confirm" required '
+        . 'minlength="12" autocomplete="new-password">'
+        . '</label>'
+        . '<p class="muted">Use at least 12 characters. '
+        . 'A password manager is recommended.</p>'
+        . '<button type="submit">Install Open Phonebook</button>'
+        . '</form>';
 
-    echo SetupView::page('Application and administrator', $body, $errors);
+    echo SetupView::page(
+        'Application and administrator',
+        $body,
+        $errors
+    );
     exit;
 }
 
@@ -233,12 +314,18 @@ if ($step === 'complete') {
 
     echo SetupView::page(
         'Installation complete',
-        '<p class="ok"><strong>Open Phonebook has been installed successfully.</strong></p>'
-        . '<p>The setup endpoint is now locked. Continue to the application.</p>'
+        '<p class="ok"><strong>'
+        . 'Open Phonebook has been installed successfully.'
+        . '</strong></p>'
+        . '<p>The setup endpoint is now locked. '
+        . 'Continue to the application.</p>'
         . '<p><a href="../">Open Open Phonebook</a></p>'
     );
     exit;
 }
 
 http_response_code(404);
-echo SetupView::page('Not found', '<p>The requested setup step does not exist.</p>');
+echo SetupView::page(
+    'Not found',
+    '<p>The requested setup step does not exist.</p>'
+);
