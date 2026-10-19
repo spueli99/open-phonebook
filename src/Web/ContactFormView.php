@@ -31,10 +31,12 @@ final class ContactFormView
             }
         }
 
-        if ($phoneRows === '') {
-            for ($index = 0; $index < 3; $index++) {
-                $phoneRows .= self::phoneRow($translator, '', '');
-            }
+        $existingPhoneCount = $contact === null
+            ? 0
+            : count($contact->phoneNumbers);
+
+        for ($index = $existingPhoneCount; $index < 3; $index++) {
+            $phoneRows .= self::phoneRow($translator, '', '');
         }
 
         return '<!doctype html><html lang="' . Html::escape($translator->locale) . '">'
