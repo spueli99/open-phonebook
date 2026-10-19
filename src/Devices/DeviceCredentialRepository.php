@@ -82,10 +82,13 @@ final class DeviceCredentialRepository implements DeviceCredentialRepositoryInte
             'SELECT d.id AS device_id, d.owner_user_id
              FROM device_credentials c
              INNER JOIN devices d ON d.id = c.device_id
+             INNER JOIN users u ON u.id = d.owner_user_id
              WHERE c.token_hash = :token_hash
                AND c.scope = :scope
                AND c.revoked_at IS NULL
                AND d.is_active = 1
+               AND u.is_active = 1
+               AND u.deleted_at IS NULL
              LIMIT 1'
         );
         $statement->execute([
