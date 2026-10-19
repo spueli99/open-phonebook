@@ -197,6 +197,14 @@ final class ContactServiceTest extends TestCase
             )
         );
         self::assertCount(
+            1,
+            $service->searchInOwnedAddressBook(
+                $addressBookId,
+                10,
+                '+491701234567'
+            )
+        );
+        self::assertCount(
             2,
             $service->searchInOwnedAddressBook(
                 $addressBookId,
