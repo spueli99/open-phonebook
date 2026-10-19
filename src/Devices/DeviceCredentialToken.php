@@ -32,6 +32,10 @@ final readonly class DeviceCredentialToken
         string $plainText,
         string $applicationKey
     ): string {
+        if (strlen($applicationKey) < 32) {
+            throw new RuntimeException('Application key is too short.');
+        }
+
         return hash_hmac(
             'sha256',
             "open-phonebook/device-credential/v1\0" . $plainText,
