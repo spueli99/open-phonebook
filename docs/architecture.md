@@ -11,6 +11,7 @@ The product must stay universal. Initial development is driven by real-world req
 The core understands:
 
 - users
+- authentication and sessions
 - organizations
 - memberships
 - address books
@@ -28,7 +29,13 @@ It does not understand vendor-specific concepts directly.
 
 ### Core
 
-Business rules, permissions, contact model, device model, call state model, notification rules.
+Business rules, permissions, contact model, device model, call state model, notification rules, and authentication policy.
+
+### Persistence
+
+Repository interfaces separate application/authentication behavior from PDO-backed storage implementations.
+
+Database schema changes are versioned migrations.
 
 ### Adapters
 
@@ -43,6 +50,16 @@ Examples:
 ### Application/UI/API
 
 The web UI and REST API use the same application services. Business logic must not live inside templates or installer forms.
+
+The initial web runtime centralizes configuration loading, database creation, secure session startup, application-key validation, and localization access.
+
+## Authentication boundary
+
+Human users authenticate through secure browser sessions.
+
+Devices must never reuse human sessions or human passwords. They receive separately scoped and revocable device credentials in a later device layer.
+
+See [Authentication](authentication.md).
 
 ## Deployment
 
