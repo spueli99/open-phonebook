@@ -7,7 +7,7 @@ namespace OpenPhonebook\Auth;
 use PDO;
 use RuntimeException;
 
-final class UserRepository
+final class UserRepository implements UserRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
