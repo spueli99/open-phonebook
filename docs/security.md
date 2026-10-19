@@ -100,6 +100,12 @@ Google Contacts uses only the `contacts.readonly` OAuth scope. The flow validate
 
 Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. Google synchronization performs an initial complete paginated snapshot and then uses encrypted People API sync tokens for incremental updates. Delta responses only delete local source contacts when Google explicitly reports `metadata.deleted=true`; absence from a delta is never interpreted as deletion. Expired sync tokens trigger a fresh full snapshot. Each batch and its replacement sync token are committed transactionally. Only contacts mapped to that source are eligible for source-driven deletion.
 
+## Device credentials
+
+Device credentials are independent from human authentication. The initial device scope is `phonebook:read`. Tokens are 256-bit random values displayed only once; the database stores only a domain-separated HMAC-SHA-256 hash keyed by the application key. Rotation revokes previous active credentials for the same device/scope. Device authentication additionally requires an active device and an active, non-deleted owner account.
+
+Device address-book assignments may only be created for books the owner can currently read. Future device-facing export endpoints must re-check current owner access as well as stored assignment before returning contacts.
+
 ## Privacy
 
 Call-history retention is configurable and may be disabled.
