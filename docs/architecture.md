@@ -43,7 +43,7 @@ Database schema changes are versioned migrations.
 
 Contact imports use a parser interface and registry that convert untrusted provider/file input into a provider-neutral preview model before persistence. CSV and vCard share the same preview/confirmation boundary. The short-lived session draft stores the selected format so confirmation reparses the original contents with the same adapter before one application transaction writes all contacts. Later external-source adapters should feed the same boundary.
 
-External contact sources use explicit provider adapters and source-record mappings. Google Contacts uses OAuth outside the database for client credentials, encrypted refresh-token persistence, and `source_records` to map provider IDs to canonical local contacts. The initial Google implementation applies complete read-only snapshots transactionally; future incremental providers should preserve the same boundary.
+External contact sources use explicit provider adapters and source-record mappings. Google Contacts uses OAuth outside the database for client credentials, encrypted refresh-token persistence, and `source_records` to map provider IDs to canonical local contacts. Google applies the initial read-only snapshot and later incremental sync-token batches through the same transactional boundary. Cron invokes the same application service without requiring a continuously running worker.
 
 Examples:
 
