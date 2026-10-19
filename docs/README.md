@@ -3,6 +3,7 @@
 - [Architecture](architecture.md)
 - [Authentication](authentication.md)
 - [User management](user-management.md)
+- [Address books and contacts](contacts.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Setup installer](setup-installer.md)
