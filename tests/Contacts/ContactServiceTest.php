@@ -9,6 +9,7 @@ use OpenPhonebook\Contacts\ContactPhoneNumberInput;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryContactRepository;
+use OpenPhonebook\Tests\Support\Contacts\TestPhoneNumberNormalizer;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -19,7 +20,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
 
         $contactId = $service->create(
             $addressBookId,
@@ -44,7 +49,10 @@ final class ContactServiceTest extends TestCase
         self::assertCount(2, $contact->phoneNumbers);
         self::assertSame('Mobile', $contact->phoneNumbers[0]->label);
         self::assertSame('+49 170 1234567', $contact->phoneNumbers[0]->rawNumber);
-        self::assertNull($contact->phoneNumbers[0]->normalizedE164);
+        self::assertSame(
+            '+491701234567',
+            $contact->phoneNumbers[0]->normalizedE164
+        );
     }
 
     public function testOtherUserCannotCreateContactInForeignAddressBook(): void
@@ -53,7 +61,8 @@ final class ContactServiceTest extends TestCase
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
         $service = new ContactService(
             $addressBooks,
-            new InMemoryContactRepository()
+            new InMemoryContactRepository(),
+            new TestPhoneNumberNormalizer()
         );
 
         $this->expectException(RuntimeException::class);
@@ -76,7 +85,8 @@ final class ContactServiceTest extends TestCase
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
         $service = new ContactService(
             $addressBooks,
-            new InMemoryContactRepository()
+            new InMemoryContactRepository(),
+            new TestPhoneNumberNormalizer()
         );
 
         $this->expectException(RuntimeException::class);
@@ -88,7 +98,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -114,7 +128,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -135,7 +153,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
 
         $service->create(
             $addressBookId,
@@ -190,7 +212,8 @@ final class ContactServiceTest extends TestCase
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
         $service = new ContactService(
             $addressBooks,
-            new InMemoryContactRepository()
+            new InMemoryContactRepository(),
+            new TestPhoneNumberNormalizer()
         );
 
         $this->expectException(RuntimeException::class);
@@ -203,7 +226,8 @@ final class ContactServiceTest extends TestCase
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
         $service = new ContactService(
             $addressBooks,
-            new InMemoryContactRepository()
+            new InMemoryContactRepository(),
+            new TestPhoneNumberNormalizer()
         );
 
         $this->expectException(RuntimeException::class);
@@ -219,7 +243,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -255,7 +283,11 @@ final class ContactServiceTest extends TestCase
         $addressBooks = new InMemoryAddressBookRepository();
         $contacts = new InMemoryContactRepository();
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
-        $service = new ContactService($addressBooks, $contacts);
+        $service = new ContactService(
+            $addressBooks,
+            $contacts,
+            new TestPhoneNumberNormalizer()
+        );
         $contactId = $service->create(
             $addressBookId,
             10,
@@ -277,7 +309,8 @@ final class ContactServiceTest extends TestCase
         $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
         $service = new ContactService(
             $addressBooks,
-            new InMemoryContactRepository()
+            new InMemoryContactRepository(),
+            new TestPhoneNumberNormalizer()
         );
 
         $this->expectException(RuntimeException::class);
