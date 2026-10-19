@@ -186,6 +186,10 @@ final class VCardContactImportParser implements ContactImportParserInterface
         $phoneNumbers = [];
 
         foreach ($card->select('TEL') as $telephone) {
+            if (!$telephone instanceof Property) {
+                continue;
+            }
+
             $number = trim((string) $telephone);
 
             if (str_starts_with(strtolower($number), 'tel:')) {
@@ -263,11 +267,13 @@ final class VCardContactImportParser implements ContactImportParserInterface
     {
         $properties = $card->select('N');
 
-        if ($properties === []) {
+        $property = $properties[0] ?? null;
+
+        if (!$property instanceof Property) {
             return [null, null];
         }
 
-        $parts = $properties[0]->getParts();
+        $parts = $property->getParts();
         $familyName = $this->optionalText($parts[0] ?? null);
         $givenName = $this->optionalText($parts[1] ?? null);
 
@@ -280,11 +286,13 @@ final class VCardContactImportParser implements ContactImportParserInterface
     ): ?string {
         $properties = $card->select($propertyName);
 
-        if ($properties === []) {
+        $property = $properties[0] ?? null;
+
+        if (!$property instanceof Property) {
             return null;
         }
 
-        return $this->optionalText((string) $properties[0]);
+        return $this->optionalText((string) $property);
     }
 
     private function firstTextPart(
@@ -293,11 +301,13 @@ final class VCardContactImportParser implements ContactImportParserInterface
     ): ?string {
         $properties = $card->select($propertyName);
 
-        if ($properties === []) {
+        $property = $properties[0] ?? null;
+
+        if (!$property instanceof Property) {
             return null;
         }
 
-        $parts = $properties[0]->getParts();
+        $parts = $property->getParts();
 
         return $this->optionalText($parts[0] ?? null);
     }
