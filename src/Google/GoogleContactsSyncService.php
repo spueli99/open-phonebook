@@ -253,9 +253,6 @@ final class GoogleContactsSyncService implements GoogleContactSourceSynchronizer
 
     /**
      * @param list<string> $previousExternalIds
-     */
-    /**
-     * @param list<string> $previousExternalIds
      * @param array<string, int> $records
      */
     private function deleteSourceMappings(
