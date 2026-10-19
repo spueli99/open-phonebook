@@ -25,6 +25,10 @@ final class UserAdministrationService
             throw new RuntimeException('User not found.');
         }
 
+        if ($target->isActive === $active) {
+            return;
+        }
+
         if (!$active && $targetUserId === $actingUserId) {
             throw new RuntimeException('You cannot deactivate your own account.');
         }
