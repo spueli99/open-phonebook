@@ -77,4 +77,23 @@ final class InMemoryUserAdministrationRepository implements UserAdministrationRe
             $user->createdAt,
         );
     }
+
+    public function setRole(int $userId, string $role): void
+    {
+        $user = $this->users[$userId] ?? null;
+
+        if ($user === null) {
+            return;
+        }
+
+        $this->users[$userId] = new UserSummary(
+            $user->id,
+            $user->email,
+            $user->displayName,
+            $role,
+            $user->isActive,
+            $user->isDeleted,
+            $user->createdAt,
+        );
+    }
 }
