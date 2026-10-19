@@ -83,7 +83,11 @@ final class ContactImportPreviewView
                     . '</option>';
 
                 if ($candidate->mergeTarget !== null) {
-                    $action .= '<option value="merge">'
+                    $action .= '<input type="hidden" '
+                        . 'name="merge_target_ids['
+                        . $candidate->sourceRow . ']" value="'
+                        . $candidate->mergeTarget->id . '">'
+                        . '<option value="merge">'
                         . Html::escape(
                             $translator->get('imports.duplicate.merge')
                         )
