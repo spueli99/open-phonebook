@@ -6,6 +6,7 @@ namespace OpenPhonebook\Import;
 
 use RuntimeException;
 use Sabre\VObject\Component\VCard;
+use Sabre\VObject\Parameter;
 use Sabre\VObject\Property;
 use Sabre\VObject\Reader;
 use Throwable;
@@ -158,15 +159,17 @@ final class VCardContactImportParser implements ContactImportParserInterface
         $displayName = $this->firstText($card, 'FN');
 
         if ($displayName === null) {
-            $displayName = trim(
-                implode(
-                    ' ',
-                    array_filter([
-                        $givenName,
-                        $familyName,
-                    ])
-                )
-            );
+            $nameParts = [];
+
+            if ($givenName !== null) {
+                $nameParts[] = $givenName;
+            }
+
+            if ($familyName !== null) {
+                $nameParts[] = $familyName;
+            }
+
+            $displayName = implode(' ', $nameParts);
         }
 
         if ($displayName === '' && $organization !== null) {
@@ -318,11 +321,13 @@ final class VCardContactImportParser implements ContactImportParserInterface
 
     private function phoneLabel(Property $telephone): ?string
     {
-        if (!isset($telephone['TYPE'])) {
+        $type = $telephone['TYPE'] ?? null;
+
+        if (!$type instanceof Parameter) {
             return null;
         }
 
-        $parts = $telephone['TYPE']->getParts();
+        $parts = $type->getParts();
         $labels = [];
 
         foreach ($parts as $part) {
