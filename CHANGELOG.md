@@ -23,9 +23,11 @@ The project is currently in the pre-release architecture and foundation phase.
 - Multiple phone numbers per contact with owner-scoped services
 - Authenticated personal address-book and contact web UI
 - Owner-scoped contact search across names, organizations, and phone data
+- Region-aware E.164 phone-number normalization while preserving raw values
 
 ### Security
 
+- Ambiguous local phone numbers are never assigned a country without explicit region configuration
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
