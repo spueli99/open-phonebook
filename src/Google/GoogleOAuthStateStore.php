@@ -83,6 +83,9 @@ final class GoogleOAuthStateStore
         return hash_hmac('sha256', $state, $this->applicationKey);
     }
 
+    /**
+     * @param positive-int $bytes
+     */
     private function randomBase64Url(int $bytes): string
     {
         return rtrim(
