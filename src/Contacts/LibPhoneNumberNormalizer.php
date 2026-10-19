@@ -13,11 +13,15 @@ final class LibPhoneNumberNormalizer implements PhoneNumberNormalizerInterface
 {
     private readonly ?string $defaultRegion;
 
+    private readonly PhoneNumberUtil $phoneNumberUtil;
+
     public function __construct(
         ?string $defaultRegion,
-        private readonly PhoneNumberUtil $phoneNumberUtil = new PhoneNumberUtil()
+        ?PhoneNumberUtil $phoneNumberUtil = null
     ) {
-        $this->defaultRegion = self::validateRegion($defaultRegion);
+        $this->phoneNumberUtil = $phoneNumberUtil
+            ?? PhoneNumberUtil::getInstance();
+        $this->defaultRegion = $this->validateRegion($defaultRegion);
     }
 
     public function normalize(string $rawNumber): ?string
@@ -47,7 +51,7 @@ final class LibPhoneNumberNormalizer implements PhoneNumberNormalizerInterface
         );
     }
 
-    private static function validateRegion(?string $region): ?string
+    private function validateRegion(?string $region): ?string
     {
         if ($region === null || trim($region) === '') {
             return null;
@@ -59,7 +63,7 @@ final class LibPhoneNumberNormalizer implements PhoneNumberNormalizerInterface
             !preg_match('/^[A-Z]{2}$/', $region)
             || !in_array(
                 $region,
-                PhoneNumberUtil::getInstance()->getSupportedRegions(),
+                $this->phoneNumberUtil->getSupportedRegions(),
                 true
             )
         ) {
