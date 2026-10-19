@@ -37,10 +37,6 @@ final class AdminCreator
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
-        if ($hash === false) {
-            throw new RuntimeException('Unable to hash administrator password.');
-        }
-
         $statement = $this->database->prepare(
             'INSERT INTO users (
                 email, display_name, password_hash, role, locale, timezone,
