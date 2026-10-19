@@ -6,7 +6,7 @@ Die erste Benutzerverwaltungsbasis enthält:
 
 - Benutzerübersicht für Systemadministratoren
 - Aktivieren und Deaktivieren von Konten
-- Erstellen von Einladungen
+- Erstellen und Verwalten aktiver Einladungen
 - sichere Annahme von Einladungen
 - erste rollenbasierte Berechtigungen
 
@@ -31,7 +31,9 @@ Bei der Benutzerverwaltung gelten unter anderem:
 - gelöschte Benutzer werden nicht über die Aktivierungsfunktion verändert
 - eine bereits bestehende Aktivierung oder Deaktivierung wird als No-op behandelt
 
-Eine endgültige Löschung oder freie Rollenänderung ist aktuell noch nicht vorgesehen.
+Systemadministratoren können die Plattformrolle anderer, nicht gelöschter Benutzer zwischen `member` und `system_admin` ändern. Die eigene Systemadministratorrolle kann nicht selbst entzogen werden, und der letzte aktive Systemadministrator kann nicht herabgestuft werden. `organization_admin` bleibt bis zur Einführung eines Organisationskontexts gesperrt.
+
+Eine endgültige Löschung ist aktuell noch nicht vorgesehen.
 
 ## Einladungen
 
@@ -44,7 +46,7 @@ Einladungen:
 - können nicht für bereits vorhandene Benutzer erstellt werden
 - werden für dieselbe E-Mail-Adresse nicht mehrfach parallel aktiv angelegt
 
-Der erzeugte Link wird dem Administrator aktuell einmal angezeigt und kann anschließend über einen geeigneten Kanal an den Empfänger gesendet werden.
+Der erzeugte Link wird dem Administrator aktuell einmal angezeigt und kann anschließend über einen geeigneten Kanal an den Empfänger gesendet werden. Aktive Einladungen werden in der Benutzerverwaltung angezeigt und können widerrufen oder erneuert werden. Beim Erneuern wird der bisherige Token ungültig, ein neuer Token erzeugt und die Gültigkeit erneut auf drei Tage gesetzt.
 
 Ein automatischer E-Mail-Versand folgt später zusammen mit der Mail-/Benachrichtigungs-Infrastruktur.
 
