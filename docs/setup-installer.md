@@ -128,4 +128,6 @@ Re-enabling setup requires deliberate server-side intervention.
 
 Google Contacts, SMTP, Pushover, device credentials, address books, and call-event adapters are not configured by the initial installer. They belong in the authenticated application.
 
+For Google Contacts, configure `OPENPHONEBOOK_GOOGLE_CLIENT_ID` and `OPENPHONEBOOK_GOOGLE_CLIENT_SECRET` (or the equivalent `providers.google` values in `config/local.php`) after installation. The application `base_url` must be HTTPS and the OAuth redirect URI is `<base_url>/sources/google/callback/`.
+
 This keeps installation provider-neutral and allows Open Phonebook to operate without Google or any specific phone vendor.
