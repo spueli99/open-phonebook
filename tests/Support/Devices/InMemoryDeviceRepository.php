@@ -69,6 +69,34 @@ final class InMemoryDeviceRepository implements DeviceRepositoryInterface
         return $id;
     }
 
+    public function updateIdentity(
+        int $deviceId,
+        int $ownerUserId,
+        string $name,
+        ?string $vendor,
+        ?string $model
+    ): bool {
+        $device = $this->findOwnedBy(
+            $deviceId,
+            $ownerUserId
+        );
+
+        if ($device === null) {
+            return false;
+        }
+
+        $this->devices[$deviceId] = new Device(
+            $device->id,
+            $device->ownerUserId,
+            $name,
+            $vendor,
+            $model,
+            $device->isActive
+        );
+
+        return true;
+    }
+
     public function setActive(
         int $deviceId,
         int $ownerUserId,
