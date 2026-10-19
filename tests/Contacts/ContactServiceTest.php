@@ -130,6 +130,90 @@ final class ContactServiceTest extends TestCase
         $service->getInOwnedAddressBook($contactId, $addressBookId, 11);
     }
 
+    public function testOwnerCanSearchContactsByNameAndPhoneNumber(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $contacts = new InMemoryContactRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
+        $service = new ContactService($addressBooks, $contacts);
+
+        $service->create(
+            $addressBookId,
+            10,
+            'Alice Example',
+            'Alice',
+            'Example',
+            'Example GmbH',
+            null,
+            [new ContactPhoneNumberInput('Mobile', '+49 170 1234567')],
+        );
+        $service->create(
+            $addressBookId,
+            10,
+            'Bob Other',
+            'Bob',
+            'Other',
+            null,
+            null,
+            [new ContactPhoneNumberInput('Home', '0211 555')],
+        );
+
+        self::assertCount(
+            1,
+            $service->searchInOwnedAddressBook(
+                $addressBookId,
+                10,
+                'alice'
+            )
+        );
+        self::assertCount(
+            1,
+            $service->searchInOwnedAddressBook(
+                $addressBookId,
+                10,
+                '170 123'
+            )
+        );
+        self::assertCount(
+            2,
+            $service->searchInOwnedAddressBook(
+                $addressBookId,
+                10,
+                ''
+            )
+        );
+    }
+
+    public function testOtherUserCannotSearchForeignAddressBook(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
+        $service = new ContactService(
+            $addressBooks,
+            new InMemoryContactRepository()
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->searchInOwnedAddressBook($addressBookId, 11, 'Alice');
+    }
+
+    public function testRejectsOverlongSearchQuery(): void
+    {
+        $addressBooks = new InMemoryAddressBookRepository();
+        $addressBookId = (new AddressBookService($addressBooks))->create(10, 'Family');
+        $service = new ContactService(
+            $addressBooks,
+            new InMemoryContactRepository()
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->searchInOwnedAddressBook(
+            $addressBookId,
+            10,
+            str_repeat('a', 121)
+        );
+    }
+
     public function testOwnerCanUpdateContact(): void
     {
         $addressBooks = new InMemoryAddressBookRepository();
