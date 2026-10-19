@@ -61,15 +61,15 @@ Mapping between one external provider record identifier and one canonical local 
 
 ### devices
 
-A phone, intercom, software endpoint, or other consumer.
+A phone, intercom, software endpoint, or other consumer. The initial physical schema stores one owner user, name, optional vendor/model metadata, active state, and timestamps.
 
 ### device_credentials
 
-Scoped, revocable credentials. Devices do not authenticate as normal users.
+Scoped, revocable credentials. Devices do not authenticate as normal users. The physical schema stores scope, HMAC token hash, creation/revocation timestamps, and a future last-used timestamp; plaintext tokens are never stored.
 
 ### device_address_books
 
-Defines which address books are visible to a device.
+Explicit many-to-many assignment between devices and address books. Assignment creation requires current read access by the device owner; export-time authorization must revalidate that access.
 
 ## Calls
 
