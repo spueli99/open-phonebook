@@ -60,6 +60,7 @@ final class Installer
                 'base_url' => $baseUrl,
                 'timezone' => $timezone,
                 'locale' => $locale,
+                'key' => bin2hex(random_bytes(32)),
             ],
             'database' => $databaseConfig,
         ]);
