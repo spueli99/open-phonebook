@@ -17,7 +17,8 @@ final class ContactListView
         Translator $translator,
         AddressBook $addressBook,
         array $contacts,
-        string $csrfToken
+        string $csrfToken,
+        string $searchQuery = ''
     ): string {
         $rows = '';
 
@@ -61,6 +62,14 @@ final class ContactListView
             . Html::escape($translator->get('contacts.address_books.title'))
             . '</a></nav>'
             . '<h1>' . Html::escape($addressBook->name) . '</h1>'
+            . '<form method="get" action="/address-books/view/">'
+            . '<input type="hidden" name="id" value="' . $addressBook->id . '">'
+            . '<label>' . Html::escape($translator->get('contacts.search'))
+            . ' <input name="q" maxlength="120" value="'
+            . Html::escape($searchQuery) . '"></label>'
+            . '<button type="submit">'
+            . Html::escape($translator->get('contacts.search.submit'))
+            . '</button></form>'
             . '<p><a class="button" href="/contacts/create/?address_book_id=' . $addressBook->id . '">'
             . Html::escape($translator->get('contacts.create')) . '</a></p>'
             . '<table><thead><tr><th>'
