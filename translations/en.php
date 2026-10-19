@@ -18,6 +18,7 @@ return [
     'nav.devices' => 'Devices',
     'devices.title' => 'Devices',
     'devices.create' => 'Add device',
+    'devices.save' => 'Save device',
     'devices.name' => 'Name',
     'devices.vendor' => 'Vendor',
     'devices.model' => 'Model',
