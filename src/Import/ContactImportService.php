@@ -62,7 +62,17 @@ final class ContactImportService
             $addressBookId,
             $preview->contacts
         );
-        $forcedRows = array_fill_keys($forceDuplicateRows, true);
+        $forcedRows = [];
+
+        foreach ($forceDuplicateRows as $row) {
+            if ($row < 0) {
+                throw new RuntimeException(
+                    'Invalid duplicate import selection.'
+                );
+            }
+
+            $forcedRows[$row] = true;
+        }
 
         [$importedContacts, $skippedDuplicates] =
             $this->transactions->transactional(
@@ -84,28 +94,28 @@ final class ContactImportService
                         }
 
                         $contact = $candidate->contact;
-                    $phoneNumbers = [];
+                        $phoneNumbers = [];
 
-                    foreach ($contact->phoneNumbers as $phoneNumber) {
-                        $phoneNumbers[] = new ContactPhoneNumberInput(
-                            $phoneNumber->label,
-                            $phoneNumber->rawNumber,
-                            $this->phoneNumberNormalizer->normalize(
-                                $phoneNumber->rawNumber
-                            ),
+                        foreach ($contact->phoneNumbers as $phoneNumber) {
+                            $phoneNumbers[] = new ContactPhoneNumberInput(
+                                $phoneNumber->label,
+                                $phoneNumber->rawNumber,
+                                $this->phoneNumberNormalizer->normalize(
+                                    $phoneNumber->rawNumber
+                                ),
+                            );
+                        }
+
+                        $this->contacts->create(
+                            $addressBookId,
+                            $contact->displayName,
+                            $contact->givenName,
+                            $contact->familyName,
+                            $contact->organizationName,
+                            $contact->notes,
+                            $phoneNumbers,
                         );
-                    }
-
-                    $this->contacts->create(
-                        $addressBookId,
-                        $contact->displayName,
-                        $contact->givenName,
-                        $contact->familyName,
-                        $contact->organizationName,
-                        $contact->notes,
-                        $phoneNumbers,
-                    );
-                    $count++;
+                        $count++;
                     }
 
                     return [$count, $skipped];
