@@ -24,6 +24,7 @@ final class ContactFormView
         if ($contact !== null) {
             foreach ($contact->phoneNumbers as $phoneNumber) {
                 $phoneRows .= self::phoneRow(
+                    $translator,
                     $phoneNumber->label ?? '',
                     $phoneNumber->rawNumber
                 );
@@ -31,7 +32,9 @@ final class ContactFormView
         }
 
         if ($phoneRows === '') {
-            $phoneRows = self::phoneRow('', '');
+            for ($index = 0; $index < 3; $index++) {
+                $phoneRows .= self::phoneRow($translator, '', '');
+            }
         }
 
         return '<!doctype html><html lang="' . Html::escape($translator->locale) . '">'
@@ -60,11 +63,18 @@ final class ContactFormView
             . '</form></main></body></html>';
     }
 
-    private static function phoneRow(string $label, string $number): string
-    {
+    private static function phoneRow(
+        Translator $translator,
+        string $label,
+        string $number
+    ): string {
         return '<div class="phone">'
-            . '<input name="phone_labels[]" maxlength="64" placeholder="Label" value="' . Html::escape($label) . '">'
-            . '<input name="phone_numbers[]" maxlength="100" placeholder="Number" value="' . Html::escape($number) . '">'
+            . '<input name="phone_labels[]" maxlength="64" placeholder="'
+            . Html::escape($translator->get('contacts.phone_label'))
+            . '" value="' . Html::escape($label) . '">'
+            . '<input name="phone_numbers[]" maxlength="100" placeholder="'
+            . Html::escape($translator->get('contacts.phone_number'))
+            . '" value="' . Html::escape($number) . '">'
             . '</div>';
     }
 
