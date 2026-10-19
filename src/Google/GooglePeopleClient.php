@@ -181,12 +181,6 @@ final class GooglePeopleClient
             }
         } while ($pageToken !== null);
 
-        if ($nextSyncToken === null) {
-            throw new RuntimeException(
-                'Google People API did not return a sync token.'
-            );
-        }
-
         return new GooglePeopleSyncBatch(
             $result,
             $nextSyncToken,
