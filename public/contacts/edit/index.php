@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use OpenPhonebook\Contacts\AddressBookRepository;
+use OpenPhonebook\Contacts\AddressBookAccessRepository;
+use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactService;
 use OpenPhonebook\Contacts\ContactRepository;
 use OpenPhonebook\Web\ContactFormView;
@@ -48,15 +49,18 @@ $contactId = isset($_GET['contact_id']) && is_string($_GET['contact_id'])
     ? (int) $_GET['contact_id']
     : 0;
 
-$addressBooks = new AddressBookRepository($runtime->database);
+$accessService = new AddressBookAccessService(
+    new AddressBookAccessRepository($runtime->database)
+);
 $service = new ContactService(
-    $addressBooks,
+    $accessService,
     new ContactRepository($runtime->database),
     $runtime->phoneNumberNormalizer()
 );
 
 try {
-    $contact = $service->getInOwnedAddressBook(
+    $accessService->requireWritable($addressBookId, $user->id);
+    $contact = $service->getInAccessibleAddressBook(
         $contactId,
         $addressBookId,
         $user->id
