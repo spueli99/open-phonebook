@@ -13,6 +13,7 @@ use OpenPhonebook\Import\ContactImportPreviewService;
 use OpenPhonebook\Import\ImportDuplicateDetector;
 use OpenPhonebook\Import\ImportDuplicateStatus;
 use OpenPhonebook\Import\CsvContactImportParser;
+use OpenPhonebook\Import\VCardContactImportParser;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookAccessRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryAddressBookRepository;
 use OpenPhonebook\Tests\Support\Contacts\InMemoryContactRepository;
@@ -34,6 +35,31 @@ final class ContactImportPreviewServiceTest extends TestCase
         );
 
         self::assertCount(1, $preview->candidates);
+    }
+
+    public function testOwnerCanPreviewVCardImport(): void
+    {
+        [$service, , , $addressBookId] = $this->fixture();
+
+        $preview = $service->preview(
+            $addressBookId,
+            10,
+            ContactImportFormat::VCard,
+            implode("\r\n", [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                'FN:Alice Example',
+                'TEL;TYPE=CELL:+49 170 1234567',
+                'END:VCARD',
+                '',
+            ])
+        );
+
+        self::assertCount(1, $preview->candidates);
+        self::assertSame(
+            'Alice Example',
+            $preview->candidates[0]->contact->displayName
+        );
     }
 
     public function testWriteShareCanPreviewImport(): void
@@ -248,6 +274,8 @@ final class ContactImportPreviewServiceTest extends TestCase
                 new ContactImportParserRegistry([
                     ContactImportFormat::Csv->value
                         => new CsvContactImportParser(),
+                    ContactImportFormat::VCard->value
+                        => new VCardContactImportParser(),
                 ]),
                 new ImportDuplicateDetector(
                     $contacts,
