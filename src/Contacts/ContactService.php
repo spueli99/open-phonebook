@@ -90,16 +90,18 @@ final class ContactService
                 $notes
             );
 
-        if (!$this->contacts->update(
-            $contactId,
-            $addressBookId,
-            $displayName,
-            $givenName,
-            $familyName,
-            $organizationName,
-            $notes,
-            $this->validatePhoneNumbers($phoneNumbers),
-        )) {
+        if (
+            !$this->contacts->update(
+                $contactId,
+                $addressBookId,
+                $displayName,
+                $givenName,
+                $familyName,
+                $organizationName,
+                $notes,
+                $this->validatePhoneNumbers($phoneNumbers),
+            )
+        ) {
             throw new RuntimeException('Contact could not be updated.');
         }
     }
