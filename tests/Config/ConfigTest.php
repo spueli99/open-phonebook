@@ -15,6 +15,7 @@ final class ConfigTest extends TestCase
 
         self::assertSame('Open Phonebook', $config->get('app.name'));
         self::assertSame('UTC', $config->get('app.timezone'));
+        self::assertNull($config->get('contacts.default_region'));
         self::assertSame('utf8mb4', $config->get('database.charset'));
     }
 
