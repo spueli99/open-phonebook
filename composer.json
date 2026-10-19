@@ -1,0 +1,42 @@
+{
+  "name": "spueli99/open-phonebook",
+  "description": "Self-hosted multi-user contact hub for IP phones, call events and notifications.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.3",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.5",
+    "squizlabs/php_codesniffer": "^3.11"
+  },
+  "autoload": {
+    "psr-4": {
+      "OpenPhonebook\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "OpenPhonebook\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "lint": "phpcs",
+    "analyse": "phpstan analyse --memory-limit=512M",
+    "test": "phpunit",
+    "check": [
+      "@lint",
+      "@analyse",
+      "@test"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
