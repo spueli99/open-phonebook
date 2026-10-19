@@ -11,6 +11,7 @@ return [
         'timezone' => 'UTC',
         'locale' => 'en',
         'fallback_locale' => 'en',
+        'key' => null,
     ],
     'database' => [
         'driver' => 'mysql',
