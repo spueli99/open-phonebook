@@ -103,6 +103,32 @@ final class DeviceAdministrationService
         );
     }
 
+    public function updateIdentity(
+        int $ownerUserId,
+        int $deviceId,
+        string $name,
+        ?string $vendor,
+        ?string $model
+    ): void {
+        [$name, $vendor, $model] = $this->validateIdentity(
+            $name,
+            $vendor,
+            $model
+        );
+
+        if (
+            !$this->devices->updateIdentity(
+                $deviceId,
+                $ownerUserId,
+                $name,
+                $vendor,
+                $model
+            )
+        ) {
+            throw new RuntimeException('Device not found.');
+        }
+    }
+
     public function rotateCredential(
         int $ownerUserId,
         int $deviceId
