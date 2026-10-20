@@ -52,6 +52,37 @@ final class NotificationRuleRepository
         return $this->fetchAll($statement);
     }
 
+    public function exists(
+        int $ownerUserId,
+        int $channelId,
+        ?int $deviceId,
+        NotificationTrigger $trigger
+    ): bool {
+        $sql = 'SELECT 1
+                FROM notification_rules
+                WHERE owner_user_id = :owner_user_id
+                  AND channel_id = :channel_id
+                  AND trigger_name = :trigger_name
+                  AND ' . ($deviceId === null
+                    ? 'device_id IS NULL'
+                    : 'device_id = :device_id')
+            . ' LIMIT 1';
+        $statement = $this->database->prepare($sql);
+        $parameters = [
+            'owner_user_id' => $ownerUserId,
+            'channel_id' => $channelId,
+            'trigger_name' => $trigger->value,
+        ];
+
+        if ($deviceId !== null) {
+            $parameters['device_id'] = $deviceId;
+        }
+
+        $statement->execute($parameters);
+
+        return $statement->fetchColumn() !== false;
+    }
+
     public function create(
         int $ownerUserId,
         int $channelId,
