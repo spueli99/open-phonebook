@@ -16,7 +16,8 @@ final class OperationsHealthView
     public static function render(
         Translator $translator,
         OperationsHealthSnapshot $snapshot,
-        string $timezone
+        string $timezone,
+        string $version
     ): string {
         $schedulerRows = '';
 
@@ -49,7 +50,9 @@ final class OperationsHealthView
             . Html::escape($translator->get('nav.dashboard'))
             . '</a></nav><h1>'
             . Html::escape($translator->get('operations.title'))
-            . '</h1><section class="card"><h2>'
+            . '</h1><p>Open Phonebook '
+            . Html::escape($version)
+            . '</p><section class="card"><h2>'
             . Html::escape($translator->get('operations.database'))
             . '</h2><p>'
             . Html::escape(
