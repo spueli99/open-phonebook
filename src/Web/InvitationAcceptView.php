@@ -21,7 +21,7 @@ final class InvitationAcceptView
             . '<title>' . Html::escape($translator->get('invite.accept.title'))
             . ' · Open Phonebook</title>'
             . '<script src="/assets/invite-capture.js" defer></script>'
-            . '</head><body><main>'
+            . '<link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<h1>' . Html::escape($translator->get('invite.accept.title')) . '</h1>'
             . '<p id="invite-status" data-invalid="'
             . Html::escape($translator->get('invite.capture.invalid'))
