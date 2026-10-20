@@ -64,3 +64,22 @@ Bei einer Wiederherstellung darf der Web-Installer nicht gegen die zurückgespie
 Stattdessen passenden Code-Stand, Datenbank, ursprüngliche Runtime-Konfiguration/Application Key und `storage/installed.lock` wiederherstellen und anschließend `php bin/backup-readiness.php` mit dem beim Backup gespeicherten Fingerprint prüfen.
 
 Siehe [Backup und Wiederherstellung](backup-restore.md).
+
+
+## Optionales Web Push / PWA Setup
+
+Web Push wird nach der Basisinstallation eingerichtet. VAPID ist eine serverweite Deployment-Identität und keine benutzerspezifische Setup-Angabe.
+
+Schlüsselpaar einmalig erzeugen:
+
+`php bin/generate-vapid-keys.php`
+
+Die erzeugten Schlüssel als Runtime-Secrets speichern und einen stabilen VAPID-Subject konfigurieren:
+
+- `OPENPHONEBOOK_WEB_PUSH_SUBJECT=mailto:admin@example.org` oder eine stabile HTTPS-URL
+- `OPENPHONEBOOK_WEB_PUSH_PUBLIC_KEY=...`
+- `OPENPHONEBOOK_WEB_PUSH_PRIVATE_KEY=...`
+
+Diese Schlüssel bei normalen Deployments nicht neu erzeugen. Bestehende Browser-Subscriptions sind an die VAPID-Identität gebunden.
+
+Nach der Konfiguration können angemeldete Benutzer Web Push für jeden Browser in der Benachrichtigungsverwaltung aktivieren.
