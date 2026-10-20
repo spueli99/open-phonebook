@@ -62,7 +62,7 @@ final class InvitationAcceptanceService
                     email,
                     display_name,
                     password_hash,
-                    role,
+                    `role`,
                     locale,
                     timezone,
                     is_active,
