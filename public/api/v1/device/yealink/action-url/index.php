@@ -5,6 +5,7 @@ declare(strict_types=1);
 use OpenPhonebook\Calls\YealinkActionUrlAdapter;
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Web\DeviceRuntime;
+use OpenPhonebook\Web\SecurityHeaders;
 use OpenPhonebook\Web\Request;
 use Throwable;
 
@@ -18,6 +19,8 @@ if (!is_file($autoload)) {
 
 require $autoload;
 
+SecurityHeaders::sendPrivate();
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     http_response_code(405);
     header('Allow: GET');
@@ -26,8 +29,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 
 if (!Request::isHttps()) {
     http_response_code(400);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -48,9 +49,6 @@ if ($device === null) {
     header(
         'WWW-Authenticate: Basic realm="Open Phonebook Yealink callback"'
     );
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: no-referrer');
     exit;
 }
 
@@ -58,8 +56,6 @@ $eventName = $_GET['event'] ?? null;
 
 if (!is_string($eventName) || $eventName === '') {
     http_response_code(400);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -72,9 +68,7 @@ foreach (['call_id', 'local', 'remote'] as $key) {
 
     if (!is_string($_GET[$key])) {
         http_response_code(400);
-        header('Cache-Control: no-store');
-        header('X-Content-Type-Options: nosniff');
-        exit;
+                exit;
     }
 
     $parameters[$key] = $_GET[$key];
@@ -88,8 +82,6 @@ try {
     $result = $runtime->callEvents->record($device, $event);
 } catch (Throwable) {
     http_response_code(400);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -106,9 +98,5 @@ try {
 }
 
 header('Content-Type: text/plain; charset=utf-8');
-header('Cache-Control: no-store, private');
-header('Pragma: no-cache');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: no-referrer');
 
 echo "OK\n";
