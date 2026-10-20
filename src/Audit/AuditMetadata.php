@@ -24,7 +24,7 @@ final class AuditMetadata
     ];
 
     /**
-     * @param array<string, bool|int|string> $metadata
+     * @param array<array-key, mixed> $metadata
      * @return array<string, bool|int|string>
      */
     public static function validate(array $metadata): array
@@ -35,13 +35,26 @@ final class AuditMetadata
             );
         }
 
+        $validated = [];
+
         foreach ($metadata as $key => $value) {
             if (
-                !preg_match('/^[a-z][a-z0-9_]{0,63}$/', $key)
+                !is_string($key)
+                || !preg_match('/^[a-z][a-z0-9_]{0,63}$/', $key)
                 || self::containsForbiddenPart($key)
             ) {
                 throw new InvalidArgumentException(
                     'Audit metadata key is invalid.'
+                );
+            }
+
+            if (
+                !is_bool($value)
+                && !is_int($value)
+                && !is_string($value)
+            ) {
+                throw new InvalidArgumentException(
+                    'Audit metadata value type is invalid.'
                 );
             }
 
@@ -50,9 +63,11 @@ final class AuditMetadata
                     'Audit metadata value is too long.'
                 );
             }
+
+            $validated[$key] = $value;
         }
 
-        return $metadata;
+        return $validated;
     }
 
     private static function containsForbiddenPart(string $key): bool
