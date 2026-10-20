@@ -103,9 +103,27 @@ Gelöschte oder deaktivierte Kanäle führen zu `cancelled`. Fehlende Provider o
 
 Die Verwaltungsseite zeigt aggregierte Zähler für pending, processing, sent, failed und cancelled.
 
-Sobald ein Job einen terminalen Zustand (`sent`, `failed` oder `cancelled`) erreicht, werden sein gerenderter Titel und Nachrichtentext geleert. Die Statusmetadaten bleiben für die Diagnose erhalten, ohne anrufbezogene Inhalte länger als erforderlich zu speichern.
+Zusätzlich werden die 50 letzten Zustellungen des aktuellen Benutzers angezeigt. Die Historie enthält ausschließlich Metadaten wie Kanal, Auslöser, Status, Versuchszahl sowie Erstell-, Fälligkeits-, Fehler- und Versandzeitpunkt. Gerenderter Titel/Nachrichtentext und Provider-Zugangsdaten werden nicht angezeigt.
+
+Sobald ein Job einen terminalen Zustand erreicht, werden gerenderter Titel und Nachrichtentext geleert. Bei `sent` und `cancelled` wird zusätzlich der verschlüsselte Retry-Payload gelöscht. Ein `failed`-Job behält ausschließlich einen separat verschlüsselten Retry-Payload, damit der Besitzer die ursprüngliche Benachrichtigung ausdrücklich erneut versuchen kann, ohne lesbaren anrufbezogenen Nachrichtentext dauerhaft zu speichern.
 
 Die Zustellung arbeitet innerhalb des Retry-Fensters nach dem At-least-once-Prinzip. Stürzt ein Prozess nach erfolgreicher externer Zustellung, aber vor dem lokalen `sent`-Update ab, kann bei Providern ohne Idempotenz ein Duplikat nicht vollständig ausgeschlossen werden.
+
+## Manueller Retry
+
+Nur eine fehlgeschlagene Zustellung des aktuellen Benutzers darf erneut versucht werden.
+
+Zusätzlich muss der ursprüngliche Kanal weiterhin vorhanden und aktiv sein. Der verschlüsselte Retry-Payload wird nur innerhalb des Application Service entschlüsselt, unmittelbar mit neuem Nonce wieder verschlüsselt und derselbe Zustelljob anschließend auf `pending` zurückgesetzt. Die Versuchszahl beginnt wieder bei null.
+
+Der Retry-Payload verwendet eine eigene HKDF-Domain, getrennt von der Verschlüsselung der Provider-Secrets.
+
+## Testversand
+
+Ein aktiver Kanal kann direkt aus der Verwaltung getestet werden.
+
+Der Browser-Request kontaktiert den Provider nicht. Stattdessen wird ein normaler Queue-Job mit dem internen Trigger `test` erzeugt. Der Cron-Worker übernimmt anschließend Versand, Retry, Fehlerisolation und Historie genauso wie bei echten Benachrichtigungen.
+
+Der Trigger `test` ist intern und kann nicht als normale Call-Event-Regel angelegt werden.
 
 ## Fehlerisolation
 
@@ -148,9 +166,8 @@ Provider-Secrets werden verschlüsselt gespeichert und nicht in normale Ausgaben
 
 ## Später
 
-- detaillierte Zustellhistorie und Diagnoseansicht
-- manueller Retry
-- Testversand
+- Filter/Paginierung für größere Zustellhistorien
+- Aufbewahrungs-/Bereinigungsregeln für die Historie
 - Web Push/PWA
 - weitere Provider
 - individuelle Nachrichtentemplates pro Regel
