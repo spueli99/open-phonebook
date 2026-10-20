@@ -7,8 +7,7 @@ namespace OpenPhonebook\Tests\Support\Operations;
 use DateTimeImmutable;
 use OpenPhonebook\Operations\RetentionCleanupRepositoryInterface;
 
-final class InMemoryRetentionCleanupRepository
-    implements RetentionCleanupRepositoryInterface
+final class InMemoryRetentionCleanupRepository implements RetentionCleanupRepositoryInterface
 {
     public ?DateTimeImmutable $callCutoff = null;
     public ?DateTimeImmutable $notificationCutoff = null;
