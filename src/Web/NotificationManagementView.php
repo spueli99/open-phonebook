@@ -16,12 +16,20 @@ final class NotificationManagementView
      * @param list<NotificationChannel> $channels
      * @param list<NotificationRule> $rules
      * @param list<Device> $devices
+     * @param array{
+     *     pending: int,
+     *     processing: int,
+     *     sent: int,
+     *     failed: int,
+     *     cancelled: int
+     * } $deliveryCounts
      */
     public static function render(
         Translator $translator,
         array $channels,
         array $rules,
         array $devices,
+        array $deliveryCounts,
         string $csrfToken,
         ?string $notice = null,
         ?string $error = null
@@ -64,6 +72,22 @@ final class NotificationManagementView
                     )
                 )
                 . '</p>'
+                . (
+                    $rule->quietStart === null
+                    || $rule->quietEnd === null
+                        ? ''
+                        : '<p>'
+                            . Html::escape(
+                                $translator->get(
+                                    'notifications.quiet_hours'
+                                )
+                            )
+                            . ': '
+                            . Html::escape($rule->quietStart)
+                            . '–'
+                            . Html::escape($rule->quietEnd)
+                            . '</p>'
+                )
                 . self::postForm(
                     '/notifications/channel/status/',
                     $csrfToken,
@@ -210,6 +234,36 @@ final class NotificationManagementView
             . Html::escape($translator->get('notifications.title'))
             . '</h1>'
             . $noticeHtml . $errorHtml
+            . '<section class="card"><h2>'
+            . Html::escape(
+                $translator->get('notifications.delivery.title')
+            )
+            . '</h2><p>'
+            . Html::escape(
+                $translator->get('notifications.delivery.pending')
+            )
+            . ': ' . $deliveryCounts['pending']
+            . ' · '
+            . Html::escape(
+                $translator->get('notifications.delivery.processing')
+            )
+            . ': ' . $deliveryCounts['processing']
+            . ' · '
+            . Html::escape(
+                $translator->get('notifications.delivery.sent')
+            )
+            . ': ' . $deliveryCounts['sent']
+            . ' · '
+            . Html::escape(
+                $translator->get('notifications.delivery.failed')
+            )
+            . ': ' . $deliveryCounts['failed']
+            . ' · '
+            . Html::escape(
+                $translator->get('notifications.delivery.cancelled')
+            )
+            . ': ' . $deliveryCounts['cancelled']
+            . '</p></section>'
             . '<div class="grid"><div><h2>'
             . Html::escape(
                 $translator->get('notifications.channels')
@@ -247,7 +301,17 @@ final class NotificationManagementView
             )
             . '<br><select name="device_id">'
             . $deviceOptions
-            . '</select></label><button type="submit">'
+            . '</select></label><label>'
+            . Html::escape(
+                $translator->get('notifications.quiet_start')
+            )
+            . '<br><input type="time" name="quiet_start"></label>'
+            . '<label>'
+            . Html::escape(
+                $translator->get('notifications.quiet_end')
+            )
+            . '<br><input type="time" name="quiet_end"></label>'
+            . '<button type="submit">'
             . Html::escape(
                 $translator->get('notifications.rule.create')
             )
