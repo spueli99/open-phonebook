@@ -92,5 +92,4 @@ final class OperationsHealthService
             ? HealthStatus::Stale
             : HealthStatus::Healthy;
     }
-
 }
