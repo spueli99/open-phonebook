@@ -11,8 +11,7 @@ use PDO;
 use PDOStatement;
 use RuntimeException;
 
-final class NotificationDeliveryRepository
-    implements NotificationDeliveryRepositoryInterface
+final class NotificationDeliveryRepository implements NotificationDeliveryRepositoryInterface
 {
     public function __construct(
         private readonly PDO $database,
