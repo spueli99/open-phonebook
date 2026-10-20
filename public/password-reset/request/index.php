@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use OpenPhonebook\Auth\PasswordResetSession;
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\PasswordResetView;
 use OpenPhonebook\Web\Request;
@@ -38,6 +39,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $startedAt = hrtime(true);
 
     if (CsrfToken::verify(Request::postString('_csrf'))) {
+        (new PasswordResetSession())->clear();
+
         try {
             $runtime->passwordResetService()->request(
                 Request::postString('email')
