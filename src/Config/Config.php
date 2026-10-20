@@ -116,6 +116,21 @@ final class Config
         );
         self::assign(
             $values,
+            ['providers', 'web_push', 'subject'],
+            Environment::get('OPENPHONEBOOK_WEB_PUSH_SUBJECT')
+        );
+        self::assign(
+            $values,
+            ['providers', 'web_push', 'public_key'],
+            Environment::get('OPENPHONEBOOK_WEB_PUSH_PUBLIC_KEY')
+        );
+        self::assign(
+            $values,
+            ['providers', 'web_push', 'private_key'],
+            Environment::get('OPENPHONEBOOK_WEB_PUSH_PRIVATE_KEY')
+        );
+        self::assign(
+            $values,
             [
                 'operations',
                 'scheduler_stale_after_seconds',
