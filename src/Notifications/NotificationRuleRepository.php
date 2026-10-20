@@ -108,6 +108,7 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                 owner_user_id,
                 channel_id,
                 device_id,
+                device_key,
                 trigger_name,
                 is_active,
                 created_at,
@@ -116,6 +117,7 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                 :owner_user_id,
                 :channel_id,
                 :device_id,
+                :device_key,
                 :trigger_name,
                 1,
                 UTC_TIMESTAMP(),
@@ -126,6 +128,7 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
             'owner_user_id' => $ownerUserId,
             'channel_id' => $channelId,
             'device_id' => $deviceId,
+            'device_key' => $deviceId ?? 0,
             'trigger_name' => $trigger->value,
         ]);
 
