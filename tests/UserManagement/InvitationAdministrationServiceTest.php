@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OpenPhonebook\Tests\UserManagement;
 
 use DateInterval;
+use OpenPhonebook\Audit\AuditEventType;
 use OpenPhonebook\Auth\Role;
+use OpenPhonebook\Tests\Support\Audit\RecordingAuditEventWriter;
 use OpenPhonebook\Tests\Support\Clock\FrozenClock;
 use OpenPhonebook\Tests\Support\UserManagement\InMemoryInvitationRepository;
 use OpenPhonebook\UserManagement\InvitationAdministrationService;
@@ -53,14 +55,21 @@ final class InvitationAdministrationServiceTest extends TestCase
         );
         $created = $creation->create('user@example.com', Role::Member, 1);
 
+        $audit = new RecordingAuditEventWriter();
         $service = new InvitationAdministrationService(
             $repository,
             $clock,
             str_repeat('a', 64),
+            $audit,
         );
         $service->revoke($created->id, 1);
 
         self::assertSame([], $service->allUsable());
+        self::assertCount(1, $audit->events);
+        self::assertSame(
+            AuditEventType::InvitationRevoked,
+            $audit->events[0]['type']
+        );
         self::assertNull($creation->resolve($created->token));
     }
 
@@ -77,14 +86,21 @@ final class InvitationAdministrationServiceTest extends TestCase
         $created = $creation->create('user@example.com', Role::Member, 1);
         $clock->advance(new DateInterval('P1D'));
 
+        $audit = new RecordingAuditEventWriter();
         $service = new InvitationAdministrationService(
             $repository,
             $clock,
             str_repeat('a', 64),
+            $audit,
         );
         $renewed = $service->renew($created->id, 2);
 
         self::assertNotSame($created->token, $renewed->token);
+        self::assertCount(1, $audit->events);
+        self::assertSame(
+            AuditEventType::InvitationRenewed,
+            $audit->events[0]['type']
+        );
         self::assertNull($creation->resolve($created->token));
         self::assertNotNull($creation->resolve($renewed->token));
         self::assertSame(
