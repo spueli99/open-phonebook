@@ -67,6 +67,23 @@ final class BackupReadinessServiceTest extends TestCase
         );
     }
 
+    public function testMissingComposerLockIsWarning(): void
+    {
+        $snapshot = $this->service(
+            self::KEY,
+            true,
+            true,
+            $this->migrations,
+            false
+        )->snapshot();
+
+        self::assertSame(
+            BackupReadinessStatus::Warning,
+            $snapshot->status
+        );
+        self::assertFalse($snapshot->dependencyLockPresent);
+    }
+
     public function testMissingKeyFailsReadiness(): void
     {
         $snapshot = $this->service(
@@ -182,7 +199,8 @@ final class BackupReadinessServiceTest extends TestCase
         ?string $key,
         bool $localConfig,
         bool $installationLock,
-        array $appliedMigrations
+        array $appliedMigrations,
+        bool $dependencyLock = true
     ): BackupReadinessService {
         return new BackupReadinessService(
             new InMemoryBackupReadinessRepository(
@@ -198,6 +216,7 @@ final class BackupReadinessServiceTest extends TestCase
             $key,
             $localConfig,
             $installationLock,
+            $dependencyLock,
             $this->migrations
         );
     }
