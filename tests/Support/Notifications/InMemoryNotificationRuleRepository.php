@@ -8,8 +8,7 @@ use OpenPhonebook\Notifications\NotificationRule;
 use OpenPhonebook\Notifications\NotificationRuleRepositoryInterface;
 use OpenPhonebook\Notifications\NotificationTrigger;
 
-final class InMemoryNotificationRuleRepository
-    implements NotificationRuleRepositoryInterface
+final class InMemoryNotificationRuleRepository implements NotificationRuleRepositoryInterface
 {
     /** @var array<int, NotificationRule> */
     private array $rules = [];
