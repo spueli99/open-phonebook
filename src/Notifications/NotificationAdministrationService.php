@@ -101,8 +101,12 @@ final class NotificationAdministrationService
         int $ownerUserId,
         int $channelId,
         ?int $deviceId,
-        NotificationTrigger $trigger
+        NotificationTrigger $trigger,
+        ?string $quietStart = null,
+        ?string $quietEnd = null
     ): int {
+        QuietHoursPolicy::validateWindow($quietStart, $quietEnd);
+
         $channel = $this->channels->findOwnedBy(
             $channelId,
             $ownerUserId
@@ -141,7 +145,9 @@ final class NotificationAdministrationService
             $ownerUserId,
             $channelId,
             $deviceId,
-            $trigger
+            $trigger,
+            $quietStart,
+            $quietEnd
         );
     }
 
