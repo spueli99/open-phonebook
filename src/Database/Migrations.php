@@ -15,6 +15,7 @@ use OpenPhonebook\Database\Migrations\Version202610190008;
 use OpenPhonebook\Database\Migrations\Version202610200001;
 use OpenPhonebook\Database\Migrations\Version202610200002;
 use OpenPhonebook\Database\Migrations\Version202610200003;
+use OpenPhonebook\Database\Migrations\Version202610200003;
 
 final class Migrations
 {
@@ -34,6 +35,7 @@ final class Migrations
             new Version202610190008(),
             new Version202610200001(),
             new Version202610200002(),
+            new Version202610200003(),
             new Version202610200003(),
         ];
     }
