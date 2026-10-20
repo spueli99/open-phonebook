@@ -192,6 +192,41 @@ final class NotificationAdministrationServiceTest extends TestCase
         self::assertSame(0, $deliveries->get($deliveryId)->attempts);
     }
 
+    public function testOtherUserCannotRetryFailedDelivery(): void
+    {
+        $channels = new InMemoryNotificationChannelRepository();
+        $deliveries = new InMemoryNotificationDeliveryRepository();
+        $clock = new FrozenClock('2026-10-20 10:00:00');
+        $service = new NotificationAdministrationService(
+            $channels,
+            new InMemoryNotificationRuleRepository(),
+            new InMemoryDeviceRepository(),
+            new NotificationConfigCipher(
+                new SecretCipher(self::APP_KEY)
+            ),
+            $deliveries,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
+            $clock
+        );
+        $channelId = $service->createChannel(
+            10,
+            'Mail',
+            'email',
+            [
+                'recipient' => 'user@example.test',
+                'from' => 'phonebook@example.test',
+            ]
+        );
+        $deliveryId = $service->testChannel(10, $channelId);
+        $deliveries->claimDue($clock->now(), 10);
+        $deliveries->markFailed($deliveryId, $clock->now());
+
+        $this->expectException(RuntimeException::class);
+        $service->retryDelivery(20, $deliveryId);
+    }
+
     public function testTestTriggerCannotBecomeRule(): void
     {
         $channels = new InMemoryNotificationChannelRepository();
