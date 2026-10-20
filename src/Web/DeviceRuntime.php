@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use OpenPhonebook\Calls\CallEventService;
+use OpenPhonebook\Calls\CallerLookupService;
+use OpenPhonebook\Calls\CallSessionRepository;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
@@ -29,6 +32,7 @@ final readonly class DeviceRuntime
         public DeviceCredentialHttpAuthenticator $authentication,
         public DevicePhonebookService $phonebooks,
         public PhonebookExporterRegistry $exporters,
+        public CallEventService $callEvents,
     ) {
     }
 
@@ -87,7 +91,31 @@ final readonly class DeviceRuntime
                 new JsonPhonebookExporter(),
                 new CsvPhonebookExporter(),
                 new YealinkPhonebookExporter(),
-            ])
+            ]),
+            new CallEventService(
+                new CallSessionRepository($database),
+                new CallerLookupService(
+                    $assignments,
+                    $access,
+                    new ContactRepository($database),
+                    self::phoneNumberNormalizer($config)
+                ),
+                $transactions
+            )
+        );
+    }
+
+    private static function phoneNumberNormalizer(
+        Config $config
+    ): \OpenPhonebook\Contacts\PhoneNumberNormalizerInterface {
+        $region = $config->get('contacts.default_region');
+
+        if ($region !== null && !is_string($region)) {
+            throw new RuntimeException('Default phone region is invalid.');
+        }
+
+        return new \OpenPhonebook\Contacts\LibPhoneNumberNormalizer(
+            $region
         );
     }
 }
