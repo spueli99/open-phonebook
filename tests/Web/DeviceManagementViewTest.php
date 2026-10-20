@@ -47,6 +47,14 @@ final class DeviceManagementViewTest extends TestCase
             $html
         );
         self::assertStringContainsString(
+            'class="app-header"',
+            $html
+        );
+        self::assertStringContainsString(
+            'class="app-footer"',
+            $html
+        );
+        self::assertStringContainsString(
             'Last used: 2026-10-20 14:00:00 CEST',
             $html
         );
