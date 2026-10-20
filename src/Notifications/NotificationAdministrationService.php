@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Notifications;
 
+use OpenPhonebook\Clock\ClockInterface;
 use OpenPhonebook\Devices\DeviceRepositoryInterface;
 use RuntimeException;
 
@@ -15,6 +16,8 @@ final class NotificationAdministrationService
         private readonly DeviceRepositoryInterface $devices,
         private readonly NotificationConfigCipher $configCipher,
         private readonly NotificationDeliveryRepositoryInterface $deliveries,
+        private readonly NotificationMessageCipher $messageCipher,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -54,6 +57,95 @@ final class NotificationAdministrationService
     public function deliveryCounts(int $ownerUserId): array
     {
         return $this->deliveries->countsOwnedBy($ownerUserId);
+    }
+
+    /**
+     * @return list<NotificationDeliveryHistoryItem>
+     */
+    public function deliveryHistory(
+        int $ownerUserId,
+        int $limit = 50
+    ): array {
+        return $this->deliveries->recentOwnedBy(
+            $ownerUserId,
+            $limit
+        );
+    }
+
+    public function retryDelivery(
+        int $ownerUserId,
+        int $deliveryId
+    ): void {
+        $candidate = $this->deliveries->retryCandidateOwnedBy(
+            $deliveryId,
+            $ownerUserId
+        );
+
+        if ($candidate === null || $candidate->channelId === null) {
+            throw new RuntimeException(
+                'Notification delivery is not retryable.'
+            );
+        }
+
+        $channel = $this->channels->findOwnedBy(
+            $candidate->channelId,
+            $ownerUserId
+        );
+
+        if ($channel === null || !$channel->isActive) {
+            throw new RuntimeException(
+                'Notification channel is not active.'
+            );
+        }
+
+        $message = $this->messageCipher->decrypt(
+            $candidate->encryptedPayload
+        );
+        $encryptedPayload = $this->messageCipher->encrypt($message);
+
+        if (
+            !$this->deliveries->retryFailedOwnedBy(
+                $deliveryId,
+                $ownerUserId,
+                $message,
+                $encryptedPayload,
+                $this->clock->now()
+            )
+        ) {
+            throw new RuntimeException(
+                'Notification delivery could not be retried.'
+            );
+        }
+    }
+
+    public function testChannel(
+        int $ownerUserId,
+        int $channelId
+    ): int {
+        $channel = $this->channels->findOwnedBy(
+            $channelId,
+            $ownerUserId
+        );
+
+        if ($channel === null || !$channel->isActive) {
+            throw new RuntimeException(
+                'Notification channel is not active.'
+            );
+        }
+
+        $message = new NotificationMessage(
+            'Open Phonebook test notification',
+            'This is a test notification from Open Phonebook.'
+        );
+
+        return $this->deliveries->enqueue(
+            $ownerUserId,
+            $channel->id,
+            NotificationTrigger::Test,
+            $message,
+            $this->messageCipher->encrypt($message),
+            $this->clock->now()
+        );
     }
 
     /**
@@ -120,6 +212,12 @@ final class NotificationAdministrationService
         ?string $quietStart = null,
         ?string $quietEnd = null
     ): int {
+        if ($trigger === NotificationTrigger::Test) {
+            throw new RuntimeException(
+                'Test notifications cannot be used as rules.'
+            );
+        }
+
         QuietHoursPolicy::validateWindow($quietStart, $quietEnd);
 
         $channel = $this->channels->findOwnedBy(
