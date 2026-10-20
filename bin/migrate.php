@@ -8,7 +8,6 @@ use OpenPhonebook\Database\Migration;
 use OpenPhonebook\Database\MigrationRunner;
 use OpenPhonebook\Database\Migrations;
 use OpenPhonebook\Operations\BackupReadinessRepository;
-use Throwable;
 
 $projectRoot = dirname(__DIR__);
 $autoload = $projectRoot . '/vendor/autoload.php';
@@ -51,8 +50,13 @@ try {
     }
 
     $applied = (new MigrationRunner($database))->run($migrations);
-} catch (Throwable) {
-    fwrite(STDERR, "Database migration failed.\n");
+} catch (\Throwable $exception) {
+    fwrite(
+        STDERR,
+        "Database migration failed: "
+            . $exception->getMessage()
+            . PHP_EOL
+    );
     exit(2);
 }
 

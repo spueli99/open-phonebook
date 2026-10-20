@@ -8,6 +8,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Added
 
+- CI MariaDB smoke coverage for the complete fresh-install migration chain, update readiness, and migration idempotency
 - System-admin operations diagnostics with database, scheduler, and notification-queue health
 - Persistent aggregate heartbeats for Google Contacts sync and notification delivery cron jobs
 - Configurable scheduler stale thresholds with environment overrides

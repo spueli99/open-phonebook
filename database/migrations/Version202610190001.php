@@ -22,7 +22,7 @@ final class Version202610190001 implements Migration
                 email VARCHAR(254) NOT NULL,
                 display_name VARCHAR(190) NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
-                role VARCHAR(64) NOT NULL DEFAULT \'member\',
+                `role` VARCHAR(64) NOT NULL DEFAULT \'member\',
                 locale VARCHAR(16) NOT NULL DEFAULT \'en\',
                 timezone VARCHAR(64) NOT NULL DEFAULT \'UTC\',
                 is_active TINYINT(1) NOT NULL DEFAULT 1,

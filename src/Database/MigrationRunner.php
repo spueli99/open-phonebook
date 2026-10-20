@@ -30,7 +30,6 @@ final class MigrationRunner
             }
 
             try {
-                $this->database->beginTransaction();
                 $migration->up($this->database);
 
                 $statement = $this->database->prepare(
@@ -38,13 +37,8 @@ final class MigrationRunner
                 );
                 $statement->execute(['migration_id' => $migration->id()]);
 
-                $this->database->commit();
                 $applied[] = $migration->id();
             } catch (Throwable $exception) {
-                if ($this->database->inTransaction()) {
-                    $this->database->rollBack();
-                }
-
                 throw new RuntimeException(
                     sprintf('Migration failed: %s.', $migration->id()),
                     0,

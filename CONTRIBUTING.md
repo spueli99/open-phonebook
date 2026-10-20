@@ -32,6 +32,8 @@ Before merging dependency-sensitive changes, also run:
 
 CI performs the same audit against the committed lock file.
 
+CI also starts a real MariaDB service, applies the complete migration chain to an empty database, verifies update readiness, and runs the migration command a second time to prove idempotency.
+
 Do not run `composer update` as part of unrelated feature work. Dependency updates should be intentional, reviewed as their own change, and commit the resulting `composer.lock` diff.
 
 ## Pull requests

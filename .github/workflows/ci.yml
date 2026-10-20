@@ -67,3 +67,66 @@ jobs:
 
       - name: Tests
         run: composer test
+
+
+  database-smoke:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_DATABASE: open_phonebook
+          MARIADB_USER: open_phonebook
+          MARIADB_PASSWORD: open_phonebook
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping
+          -h 127.0.0.1
+          -u root
+          -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      OPENPHONEBOOK_DB_HOST: 127.0.0.1
+      OPENPHONEBOOK_DB_PORT: 3306
+      OPENPHONEBOOK_DB_NAME: open_phonebook
+      OPENPHONEBOOK_DB_USER: open_phonebook
+      OPENPHONEBOOK_DB_PASSWORD: open_phonebook
+      OPENPHONEBOOK_APP_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: curl, dom, json, mbstring, openssl, pdo, pdo_mysql, xmlreader, xmlwriter
+          coverage: none
+          tools: composer:v2
+
+      - name: Install locked dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare installed-state marker
+        run: |
+          mkdir -p storage
+          printf '{"installed_at":"2026-10-20T00:00:00+00:00"}\n' > storage/installed.lock
+
+      - name: Migrate empty database
+        run: php bin/migrate.php
+
+      - name: Verify update readiness
+        run: php bin/update-readiness.php
+
+      - name: Verify migration idempotency
+        run: |
+          output="$(php bin/migrate.php)"
+          printf '%s\n' "$output"
+          test "$output" = "No pending migrations."
