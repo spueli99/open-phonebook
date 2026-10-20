@@ -36,6 +36,13 @@ final class AuditMetadataTest extends TestCase
         }
     }
 
+    public function testRejectsUnsupportedValueTypes(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        AuditMetadata::validate(['role' => ['member']]);
+    }
+
     public function testRejectsTooManyMetadataEntries(): void
     {
         $this->expectException(InvalidArgumentException::class);
