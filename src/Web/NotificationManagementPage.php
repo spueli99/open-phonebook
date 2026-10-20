@@ -19,6 +19,7 @@ final class NotificationManagementPage
         int $ownerUserId,
         string $timezone,
         string $csrfToken,
+        ?string $webPushPublicKey = null,
         ?string $notice = null,
         ?string $error = null
     ): string {
@@ -31,6 +32,7 @@ final class NotificationManagementPage
             $this->notifications->deliveryHistory($ownerUserId),
             $timezone,
             $csrfToken,
+            $webPushPublicKey,
             $notice,
             $error
         );
