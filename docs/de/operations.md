@@ -123,7 +123,7 @@ Siehe [Backup und Wiederherstellung](backup-restore.md) für Recovery-Satz, Read
 
 ## Historienaufbewahrung
 
-Standardmäßig werden beendete Anrufsitzungen 180 Tage und abgeschlossene Benachrichtigungszustellungen 90 Tage aufbewahrt. Beide Fristen sind unabhängig konfigurierbar und können mit `0` deaktiviert werden. Die Bereinigung läuft bewusst per Cron und nicht innerhalb normaler Web-Requests, damit Benutzeranfragen niemals größere Löschvorgänge ausführen.
+Standardmäßig werden beendete Anrufsitzungen 180 Tage und abgeschlossene Benachrichtigungszustellungen 90 Tage aufbewahrt. Beide Fristen sind unabhängig konfigurierbar und können mit `0` deaktiviert werden. Die Bereinigung läuft bewusst per Cron und nicht innerhalb normaler Web-Requests, damit Benutzeranfragen niemals größere Löschvorgänge ausführen. Gelöscht wird in 500er-Batches; pro Bereich sind je Cronlauf höchstens 100 Batches vorgesehen. Große Altbestände werden dadurch kontrolliert über mehrere Läufe abgebaut statt in einem unbegrenzten Löschvorgang.
 
 ## Spätere Operations-Themen
 
