@@ -62,6 +62,26 @@ final class DeviceAdministrationServiceTest extends TestCase
         self::assertNotNull($authenticated);
         self::assertSame(1, $authenticated->deviceId);
         self::assertSame(10, $authenticated->ownerUserId);
+        self::assertNull(
+            $service->activeCredentialLastUsedAt(
+                10,
+                1,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+
+        (new DeviceCredentialAuthenticator(
+            $credentials,
+            self::APP_KEY
+        ))->markUsed($authenticated);
+
+        self::assertNotNull(
+            $service->activeCredentialLastUsedAt(
+                10,
+                1,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
     }
 
     public function testOwnerCanUpdateDeviceMetadata(): void
