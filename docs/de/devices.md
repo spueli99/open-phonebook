@@ -14,6 +14,7 @@ Beim Anlegen eines Geräts wird zunächst ein Telefonbuch-Credential erzeugt. Ei
 
 - `phonebook:read`
 - `call-events:write`
+- `yealink-callback:write`
 
 Der Klartext-Token wird nur unmittelbar nach dem Anlegen oder Rotieren angezeigt.
 
@@ -35,7 +36,7 @@ Beim Deaktivieren eines Geräts werden alle aktiven Geräte-Credentials widerruf
 
 Für jedes Credential wird `last_used_at` erst dann aktualisiert, wenn die Authentifizierung erfolgreich war und auch die geschützte Gerätefunktion selbst erfolgreich abgeschlossen wurde. Ungültige Tokens, fehlerhafte Requests, fehlgeschlagene Telefonbuch-Exporte und abgewiesene Call-Events aktualisieren den Zeitstempel nicht. Ein Fehler beim reinen Telemetrie-Update macht einen ansonsten erfolgreichen Geräte-Request nicht nachträglich fehlerhaft.
 
-Die Geräteverwaltung zeigt die letzte erfolgreiche Nutzung getrennt für die aktiven Scopes `phonebook:read` und `call-events:write` in der Zeitzone des angemeldeten Benutzers an. Ein neu rotiertes Credential wird bis zum ersten erfolgreichen Request als noch nie verwendet angezeigt.
+Die Geräteverwaltung zeigt die letzte erfolgreiche Nutzung getrennt für die aktiven Scopes `phonebook:read`, `call-events:write` und `yealink-callback:write` in der Zeitzone des angemeldeten Benutzers an. Ein neu rotiertes Credential wird bis zum ersten erfolgreichen Request als noch nie verwendet angezeigt.
 
 ## Adressbuchzuordnung
 
@@ -56,6 +57,7 @@ Aktuell möglich:
 - Gerät aktivieren/deaktivieren
 - Phonebook-Credential rotieren/widerrufen
 - Call-Event-Credential rotieren/widerrufen
+- Yealink-Callback-Credential rotieren/widerrufen
 - lesbare Adressbücher zuweisen
 
 ## Telefonbuch-Exporte
@@ -74,7 +76,7 @@ Ein Abruf ist auf 5.000 Kontakte begrenzt. Der Yealink-Serializer verwirft XML-A
 
 ## Call-Event-Credentials
 
-Anrufereignisse verwenden den unabhängigen Scope `call-events:write`. Rotation oder Widerruf dieses Scopes beeinflusst `phonebook:read` nicht.
+Generische JSON-Anrufereignisse verwenden den unabhängigen Scope `call-events:write`. Direkte Yealink-Action-URL-Callbacks verwenden den engeren, separat verwalteten Scope `yealink-callback:write` und ausschließlich HTTP Basic. Rotation oder Widerruf eines dieser Scopes beeinflusst weder `phonebook:read` noch das jeweils andere Call-Event-Credential.
 
 Siehe [Anrufereignisse](call-events.md).
 

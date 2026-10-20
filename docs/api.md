@@ -8,6 +8,7 @@ Implemented public API endpoints:
 
 - `GET /api/v1/device/phonebook/?format=<format>`
 - `POST /api/v1/device/call-events/`
+- `GET /api/v1/device/yealink/action-url/`
 
 Browser-session endpoints used by the web UI are not part of the public device API and are not covered by the compatibility guarantees in this document.
 
@@ -43,6 +44,7 @@ Current scopes:
 
 - `phonebook:read`
 - `call-events:write`
+- `yealink-callback:write`
 
 A credential is accepted only when:
 
@@ -430,9 +432,30 @@ Notification-provider failures do not change an accepted call event. Notificatio
 
 ---
 
-# Yealink Action URL normalization
+# Yealink Action URL callback
 
-A Yealink normalization adapter exists in the application layer, but no public direct Yealink callback endpoint is currently exposed.
+Endpoint:
+
+`GET /api/v1/device/yealink/action-url/`
+
+Required scope:
+
+`yealink-callback:write`
+
+This endpoint is HTTPS-only and accepts the dedicated callback credential only through HTTP Basic authentication with username `device`. Bearer credentials are rejected. Credentials are never accepted from query parameters or path segments.
+
+Required query fields:
+
+- `event`
+- `call_id`
+
+Optional query fields:
+
+- `local`
+- `remote`
+
+Only those documented Yealink values are passed into the normalization layer.
+
 
 Supported adapter mappings include:
 
@@ -445,7 +468,9 @@ Supported adapter mappings include:
 - `remote_busy` -> `idle`
 - `call_remote_canceled` -> `idle`
 
-Direct callback transport is intentionally deferred until a safe credential transport can be used without putting normal device tokens into callback URLs.
+Successful callbacks return `200 OK` with a small text response. Invalid credentials return `401`, unsupported or malformed events return `400`, non-GET requests return `405`, and non-HTTPS requests are rejected with `400`.
+
+A normal `phonebook:read` or `call-events:write` credential must never be reused for this endpoint. The dedicated callback credential can be rotated or revoked independently.
 
 ---
 

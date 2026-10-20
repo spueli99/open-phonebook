@@ -8,6 +8,7 @@ Implementierte öffentliche API-Endpunkte:
 
 - `GET /api/v1/device/phonebook/?format=<format>`
 - `POST /api/v1/device/call-events/`
+- `GET /api/v1/device/yealink/action-url/`
 
 Browser-Endpunkte der Weboberfläche gehören nicht zur öffentlichen Geräte-API und unterliegen nicht den Kompatibilitätszusagen dieser Referenz.
 
@@ -45,6 +46,7 @@ Aktuelle Scopes:
 
 - `phonebook:read`
 - `call-events:write`
+- `yealink-callback:write`
 
 Ein Credential wird nur akzeptiert, wenn:
 
@@ -430,9 +432,30 @@ Fehler externer Notification-Provider verändern ein bereits akzeptiertes Call-E
 
 ---
 
-# Yealink-Action-URL-Normalisierung
+# Yealink-Action-URL-Callback
 
-Eine Yealink-Normalisierungsschicht ist implementiert, derzeit aber kein öffentlicher direkter Yealink-Callback-Endpunkt.
+Endpunkt:
+
+`GET /api/v1/device/yealink/action-url/`
+
+Erforderlicher Scope:
+
+`yealink-callback:write`
+
+Der Endpunkt ist ausschließlich über HTTPS nutzbar und akzeptiert das separate Callback-Credential nur per HTTP Basic mit dem Benutzernamen `device`. Bearer-Credentials werden abgewiesen. Credentials werden niemals aus Query-Parametern oder Pfadsegmenten gelesen.
+
+Erforderliche Query-Felder:
+
+- `event`
+- `call_id`
+
+Optionale Query-Felder:
+
+- `local`
+- `remote`
+
+Nur diese dokumentierten Yealink-Werte werden an die Normalisierung weitergegeben.
+
 
 Unterstützte Adapter-Mappings unter anderem:
 
@@ -445,7 +468,9 @@ Unterstützte Adapter-Mappings unter anderem:
 - `remote_busy` -> `idle`
 - `call_remote_canceled` -> `idle`
 
-Der direkte Callback-Transport bleibt bewusst zurückgestellt, bis ein sicherer Credential-Transport möglich ist, ohne normale Geräte-Tokens in Callback-URLs abzulegen.
+Erfolgreiche Callbacks liefern `200 OK` mit einer kleinen Textantwort. Ungültige Credentials liefern `401`, fehlerhafte oder nicht unterstützte Events `400`, andere HTTP-Methoden `405`; nicht per HTTPS eingehende Requests werden mit `400` abgewiesen.
+
+Ein normales `phonebook:read`- oder `call-events:write`-Credential darf für diesen Endpunkt niemals wiederverwendet werden. Das separate Callback-Credential kann unabhängig rotiert oder widerrufen werden.
 
 ---
 

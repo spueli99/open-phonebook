@@ -30,11 +30,13 @@ final class DeviceManagementViewTest extends TestCase
             [1 => []],
             [1 => true],
             [1 => true],
+            [1 => true],
             [
                 1 => new DateTimeImmutable(
                     '2026-10-20 12:00:00 UTC'
                 ),
             ],
+            [1 => null],
             [1 => null],
             'Europe/Berlin',
             'csrf'
@@ -68,6 +70,8 @@ final class DeviceManagementViewTest extends TestCase
             [1 => []],
             [1 => false],
             [1 => false],
+            [1 => false],
+            [1 => null],
             [1 => null],
             [1 => null],
             'UTC',

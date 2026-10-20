@@ -48,6 +48,42 @@ final class DeviceCredentialHttpAuthenticator
         );
     }
 
+    /**
+     * @param array<string, mixed> $server
+     */
+    public function authenticateBasic(
+        array $server,
+        DeviceCredentialScope $scope
+    ): ?AuthenticatedDevice {
+        $authorization = $server['HTTP_AUTHORIZATION']
+            ?? $server['REDIRECT_HTTP_AUTHORIZATION']
+            ?? null;
+
+        if (is_string($authorization) && $authorization !== '') {
+            $token = $this->basicTokenFromAuthorization($authorization);
+
+            return $token === null
+                ? null
+                : $this->authenticator->authenticate($token, $scope);
+        }
+
+        $username = $server['PHP_AUTH_USER'] ?? null;
+        $password = $server['PHP_AUTH_PW'] ?? null;
+
+        if (
+            $username !== self::BASIC_USERNAME
+            || !is_string($password)
+            || preg_match('/^[a-f0-9]{64}$/', $password) !== 1
+        ) {
+            return null;
+        }
+
+        return $this->authenticator->authenticate(
+            $password,
+            $scope
+        );
+    }
+
     public function markUsed(AuthenticatedDevice $device): void
     {
         $this->authenticator->markUsed($device);
@@ -65,6 +101,12 @@ final class DeviceCredentialHttpAuthenticator
             return $matches[1];
         }
 
+        return $this->basicTokenFromAuthorization($value);
+    }
+
+    private function basicTokenFromAuthorization(
+        string $value
+    ): ?string {
         if (
             preg_match(
                 '/^Basic ([A-Za-z0-9+\/=]+)$/',

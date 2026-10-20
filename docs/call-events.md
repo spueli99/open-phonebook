@@ -86,7 +86,27 @@ The Yealink adapter maps supported Action URL event names to the canonical model
 
 Yealink `$local` and `$remote` SIP URIs are reduced to their user/number component before normalization.
 
-The adapter is intentionally separate from the public HTTP controller. A direct Yealink callback endpoint is not enabled until a secure callback credential transport is documented and verified; normal device tokens must not be placed in callback URLs.
+The direct callback endpoint is:
+
+`GET /api/v1/device/yealink/action-url/`
+
+It requires a dedicated `yealink-callback:write` credential and accepts that credential only through HTTP Basic authentication with username `device`. Bearer authentication is deliberately rejected by this endpoint.
+
+The endpoint requires HTTPS and never accepts credentials from query parameters or path segments. The callback credential is independent from both `phonebook:read` and `call-events:write`, can be rotated/revoked separately, and is automatically revoked when the device is deactivated.
+
+For Yealink firmware that converts URI userinfo to HTTP Basic authentication, configure Action URLs with the dedicated callback token as the Basic password. Example:
+
+```text
+https://device:CALLBACK_TOKEN@phonebook.example/api/v1/device/yealink/action-url/?event=incoming_call&call_id=$call_id&local=$local&remote=$remote
+```
+
+Configure the event name to match the corresponding Yealink Action URL setting, for example `incoming_call`, `outgoing_call`, `call_established`, `on_hook`, `missed_call`, `cancel_callout`, `remote_busy`, or `call_remote_canceled`.
+
+The token must never be copied into a query-string parameter. If a phone/firmware does not emit HTTP Basic authentication from URI userinfo for Action URLs, Open Phonebook intentionally provides no query-token fallback; use the generic authenticated call-event API or validate another secure transport for that model.
+
+Because Yealink Action URLs are GET requests, optional `local` and `remote` values appear in the request URI and may otherwise be written to web-server or reverse-proxy access logs. Production deployments that include those values must suppress or redact the callback query string in access logging. They may also omit `local`/`remote` entirely when caller lookup and number snapshots are not required.
+
+The callback response is a small `200 OK` text response after the existing transactional call-state service accepts the event. Notification dispatch remains isolated after the call-state commit. Successful callbacks update only the dedicated callback credential's `last_used_at`.
 
 ## Persistence
 
