@@ -54,7 +54,7 @@ final class DashboardView
             . '<meta name="theme-color" content="#0f172a">'
             . '<script src="/assets/pwa.js" defer></script>'
             . '<title>' . Html::escape($translator->get('dashboard.title'))
-            . ' · Open Phonebook</title></head><body><main>'
+            . ' · Open Phonebook</title><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<h1>' . Html::escape($translator->get('dashboard.title')) . '</h1>'
             . '<p>' . Html::escape($translator->get('dashboard.welcome'))
             . ' ' . $name . '</p>'
