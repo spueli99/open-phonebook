@@ -25,6 +25,12 @@ Beim Anmelden werden unter anderem folgende Schritte durchgeführt:
 
 Bei falschen Zugangsdaten wird absichtlich nicht verraten, ob die E-Mail-Adresse überhaupt existiert.
 
+## Session-Modell
+
+Browser-Sessions verwenden ausschließlich Cookies mit `HttpOnly`, `SameSite=Lax` und bei HTTPS zusätzlich `Secure`. Außerdem ist der strikte PHP-Session-Modus aktiv; nach relevanten Authentifizierungsänderungen wird die Session-ID erneuert.
+
+Diese Cookie-Schutzmechanismen sind bewusst feste Sicherheitsinvarianten im Code und keine abschaltbaren Betreiberoptionen. Insbesondere werden keine scheinbaren Konfigurationswerte angeboten, mit denen `HttpOnly` oder `SameSite` abgeschwächt werden könnten.
+
 ## Login-Schutz
 
 Fehlgeschlagene Anmeldungen werden datenbankgestützt begrenzt.
