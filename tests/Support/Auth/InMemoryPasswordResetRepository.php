@@ -16,6 +16,11 @@ final class InMemoryPasswordResetRepository implements PasswordResetRepositoryIn
 
     private int $nextId = 1;
 
+    public function lockUser(int $userId): void
+    {
+        // The in-memory test repository is single-threaded.
+    }
+
     public function hasRecentRequest(
         int $userId,
         DateTimeImmutable $since
