@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OpenPhonebook\Security\CsrfToken;
 use OpenPhonebook\Web\Request;
+use OpenPhonebook\Web\SecurityHeaders;
 use OpenPhonebook\Web\WebRuntime;
 use Throwable;
 
@@ -16,6 +17,8 @@ if (!is_file($autoload)) {
 }
 
 require $autoload;
+
+SecurityHeaders::sendPrivate();
 
 try {
     $runtime = WebRuntime::boot($projectRoot);
@@ -54,7 +57,5 @@ try {
 }
 
 header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
-header('X-Content-Type-Options: nosniff');
 
 echo '{"ok":true}';
