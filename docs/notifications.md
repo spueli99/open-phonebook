@@ -50,24 +50,68 @@ Duplicate rules with the same owner, channel, optional device, and trigger are r
 
 ## Call integration
 
-Notification dispatch occurs only after the call-event service has successfully committed the call state.
+Notification evaluation occurs only after the call-event service has successfully committed the call state.
 
 This ordering is intentional:
 
 1. authenticate and validate the device call event
 2. commit the call/session state
-3. evaluate notification rules
-4. invoke matching providers
+3. evaluate matching notification rules
+4. suppress rules that are currently inside quiet hours
+5. persist one delivery job for every remaining active channel
+6. return the accepted call-event response without contacting external providers
 
-A provider failure therefore cannot roll back or corrupt call history.
+Provider latency or failure therefore cannot roll back call history or delay the device request.
 
-Repeated incoming callbacks do not produce duplicate incoming notifications because only a newly created incoming/ringing session triggers `incoming`. Terminal states are not reopened, so missed/completed notifications are emitted only when that terminal transition is first recorded.
+Repeated incoming callbacks do not produce duplicate incoming jobs because only a newly created incoming/ringing session triggers `incoming`. Terminal states are not reopened, so missed/completed jobs are created only when that terminal transition is first recorded.
+
+## Quiet hours
+
+Quiet hours are configured per notification rule with a local start and end time.
+
+The user's configured timezone is used for evaluation, including daylight-saving transitions.
+
+Both ordinary windows such as `13:00–15:00` and overnight windows such as `22:00–07:00` are supported. The start is inclusive and the end is exclusive.
+
+A notification suppressed by quiet hours is intentionally discarded. It is not queued for delayed delivery after the quiet window.
+
+## Delivery queue and retry
+
+Notifications are delivered by the cron-compatible worker:
+
+`php bin/notification-deliveries.php`
+
+The worker should normally run once per minute.
+
+Delivery jobs are persisted with one of these states:
+
+- `pending`
+- `processing`
+- `sent`
+- `failed`
+- `cancelled`
+
+The first attempt is due immediately. Transient provider failures are retried with bounded backoff:
+
+- after attempt 1: 1 minute
+- after attempt 2: 5 minutes
+- after attempt 3: 15 minutes
+- after attempt 4: 60 minutes
+- attempt 5 is the final provider attempt
+
+A worker claim is protected by a database transaction and row lock. A `processing` job whose lock is older than 10 minutes is released back to `pending` so a later cron run can recover from a crashed worker.
+
+Deleted or inactive channels cancel queued jobs. Missing providers or undecryptable provider configuration fail the job permanently.
+
+The management page exposes aggregate delivery counts for pending, processing, sent, failed, and cancelled jobs.
+
+Delivery is at-least-once within the retry window. A process crash after the external provider accepted a message but before the local `sent` update can result in a duplicate retry; providers without idempotency support cannot eliminate that ambiguity completely.
 
 ## Failure isolation
 
-Each matching channel is dispatched independently. A disabled channel, unknown provider, invalid encrypted configuration, quota error, transport error, or other provider exception is isolated from the remaining channels.
+Each queued delivery is processed independently. One failed provider or channel does not block other jobs.
 
-The initial synchronous implementation does not retry failed deliveries and does not persist delivery-attempt history. Queueing, retries, and delivery diagnostics remain later operational work.
+The worker exits with status 1 only when a job becomes permanently failed during that run. Transient reschedules remain normal operation. Bootstrap/configuration failures use exit status 2.
 
 ## Pushover
 
@@ -104,9 +148,8 @@ Provider secrets are encrypted at rest and are not written to ordinary applicati
 
 ## Deferred
 
-- quiet hours
-- retry/backoff queue
-- delivery-attempt history and diagnostics
+- detailed per-delivery history view and diagnostics
+- manual retry action
 - test-send action
 - Web Push/PWA
 - additional providers
