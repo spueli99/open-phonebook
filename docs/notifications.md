@@ -178,7 +178,7 @@ The private key is a runtime secret and must not be exposed to the browser. Only
 
 A browser subscription can only be registered through an authenticated, CSRF-protected POST request. The server validates HTTPS endpoints and accepts only known browser push-service hosts to prevent arbitrary authenticated SSRF through the push worker.
 
-The browser stores a random local browser identifier. This lets a refreshed subscription replace the same channel without deleting its existing rules. A matching endpoint is also reused if browser local storage was cleared.
+The browser stores a random local browser identifier. The management page checks the current browser subscription against server state without mutating it. Activation remains an explicit user action. When the user activates again, a refreshed subscription replaces the same channel without deleting its existing rules. A matching endpoint is also reused if browser local storage was cleared.
 
 Push delivery runs through the existing persistent notification queue. Successful messages are encrypted by the Web Push library before transport. Expired push subscriptions reported as HTTP 404/410 are automatically disabled and the queued delivery is cancelled rather than retried.
 
