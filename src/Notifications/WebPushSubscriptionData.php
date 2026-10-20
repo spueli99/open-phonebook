@@ -11,6 +11,7 @@ final readonly class WebPushSubscriptionData
         public string $p256dh,
         public string $auth,
         public string $contentEncoding,
+        public string $browserId,
     ) {
     }
 
@@ -24,6 +25,7 @@ final readonly class WebPushSubscriptionData
             'p256dh' => $this->p256dh,
             'auth' => $this->auth,
             'content_encoding' => $this->contentEncoding,
+            'browser_id' => $this->browserId,
         ];
     }
 }
