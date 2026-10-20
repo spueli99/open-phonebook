@@ -22,6 +22,10 @@ final class AuditEventRepository implements AuditEventWriterInterface
         int $targetId,
         array $metadata = []
     ): void {
+        if ($actorUserId < 1 || $targetId < 1) {
+            throw new RuntimeException('Audit actor or target ID is invalid.');
+        }
+
         $metadata = AuditMetadata::validate($metadata);
 
         try {
@@ -106,7 +110,8 @@ final class AuditEventRepository implements AuditEventWriterInterface
                 throw new RuntimeException('Stored audit metadata is invalid.');
             }
 
-            /** @var array<string, bool|int|string> $metadata */
+            $metadata = AuditMetadata::validate($metadata);
+
             $events[] = new AuditEvent(
                 (int) $row['id'],
                 AuditEventType::from((string) $row['event_type']),
