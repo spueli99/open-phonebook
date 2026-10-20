@@ -110,6 +110,14 @@ Cron-driven application tasks report aggregate lifecycle heartbeats through a sm
 The diagnostics layer is deliberately separate from scheduler business logic and does not persist or display provider exceptions or user-derived content.
 
 
+## Release and update boundary
+
+Open Phonebook carries an explicit semantic release identity in the root `VERSION` file. Update readiness compares the deployed code's registered migration set with the database before schema changes. Known pending migrations are an expected update state; migrations unknown to the deployed code block the update and migration CLI to prevent unsafe downgrades.
+
+Schema changes are applied only through the explicit CLI migration path. The web installer remains installation-only. Updates require the documented backup/recovery boundary before migrations are executed.
+
+See [Release and Updates](update-release.md).
+
 ## Backup and restore boundary
 
 Backup/restore uses standard MariaDB/MySQL dumps rather than a proprietary application archive. Open Phonebook provides a server-side readiness/verification layer around that standard process.

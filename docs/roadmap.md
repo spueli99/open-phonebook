@@ -142,11 +142,13 @@ Completed or in active work:
 - backup/restore recovery documentation
 - server-side backup/restore readiness CLI
 - application-key fingerprint verification for restores
+- explicit release/version identity
+- update-readiness CLI and explicit migration CLI
+- documented release/update and rollback process
 
 Still planned:
 - Docker deployment option
 - API documentation
-- release/update process
 - optional external monitoring integration
 
 ## Explicit non-goals

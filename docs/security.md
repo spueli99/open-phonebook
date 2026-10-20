@@ -157,6 +157,14 @@ Scheduler heartbeats persist only task names, UTC timestamps, status, and aggreg
 Global notification queue diagnostics expose counts only. Scheduler stale thresholds are configuration values and are not rendered as secret-bearing configuration dumps.
 
 
+## Update security
+
+The update-readiness CLI exposes only release identity, boolean runtime checks, and migration IDs. It does not output configuration secrets or application data.
+
+The migration CLI refuses to run when the database contains migration IDs unknown to the deployed code, preventing an older or mismatched code release from silently operating on a newer schema. Schema migrations must be preceded by a verified backup, and there are intentionally no automatic down-migrations.
+
+See [Release and Updates](update-release.md).
+
 ## Backup and restore security
 
 A complete recovery set includes the database plus the original runtime application key. The application key is deliberately not stored in the database and cannot be reconstructed from encrypted records or from the non-secret backup fingerprint.

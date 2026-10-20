@@ -249,6 +249,10 @@ Ohne Shell-Zugriff:
 
 Datenbankdump oder Runtime-Konfiguration niemals zum Download unter dem öffentlichen Document Root ablegen.
 
+## Updates
+
+Vor jedem schemaändernden Anwendungsupdate muss anhand dieser Recovery-Grenze ein geprüftes Backup erstellt werden. Der separate [Release- und Update-Prozess](update-release.md) beschreibt Update-Readiness, explizite Migrationen und das Rollback-Verhalten.
+
 ## Disaster-Recovery-Grundsatz
 
 Datenbank und Application Key bilden gemeinsam eine Recovery-Einheit.

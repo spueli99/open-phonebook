@@ -7,7 +7,7 @@ Open Phonebook besitzt cron-gesteuerte Hintergrundaufgaben für:
 - Google-Kontakte-Synchronisierung
 - Benachrichtigungszustellung
 
-Die Betriebsdiagnose zeigt minimal und technisch, ob diese Aufgaben planmäßig laufen.
+Die Betriebsdiagnose zeigt minimal und technisch, ob diese Aufgaben planmäßig laufen. Zusätzlich wird die installierte Open-Phonebook-Version aus der eingecheckten `VERSION`-Datei angezeigt.
 
 Die Seite ist ausschließlich für angemeldete Systemadministratoren mit der Berechtigung `view_operations` verfügbar.
 
@@ -118,5 +118,4 @@ Siehe [Backup und Wiederherstellung](backup-restore.md) für Recovery-Satz, Read
 
 - optionale Aufbewahrungs-/Bereinigungsregeln
 - Docker-Betrieb
-- Release-/Update-Prozess
 - bei Bedarf externe Monitoring-Integration

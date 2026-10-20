@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OpenPhonebook\Auth\Authorization;
 use OpenPhonebook\Auth\Permission;
+use OpenPhonebook\Operations\ApplicationVersion;
 use OpenPhonebook\Web\OperationsHealthView;
 use OpenPhonebook\Web\SecurityHeaders;
 use OpenPhonebook\Web\WebRuntime;
@@ -45,6 +46,7 @@ if (
 
 try {
     $snapshot = $runtime->operationsHealthService()->snapshot();
+    $version = ApplicationVersion::read($projectRoot);
 } catch (Throwable) {
     http_response_code(503);
     exit;
@@ -55,5 +57,6 @@ SecurityHeaders::sendHtml();
 echo OperationsHealthView::render(
     $runtime->translator($user->locale),
     $snapshot,
-    $user->timezone
+    $user->timezone,
+    $version
 );

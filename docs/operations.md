@@ -7,7 +7,7 @@ Open Phonebook contains cron-driven background work for:
 - Google Contacts synchronization
 - notification delivery
 
-The operations diagnostics page provides a minimal technical view of whether these jobs are running on schedule.
+The operations diagnostics page provides a minimal technical view of whether these jobs are running on schedule. It also displays the deployed Open Phonebook version from the committed `VERSION` file.
 
 The page is available only to authenticated system administrators with the `view_operations` permission.
 
@@ -116,5 +116,4 @@ See [Backup and restore](backup-restore.md) for the recovery set, readiness CLI,
 
 - optional history retention/cleanup controls
 - Docker deployment option
-- release/update process
 - external monitoring integration if required
