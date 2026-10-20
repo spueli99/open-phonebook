@@ -103,9 +103,9 @@ Current triggers are incoming, missed, and completed call notifications. Rules m
 
 Persistent outbound delivery jobs created after call-state commit and quiet-hours evaluation.
 
-The physical schema stores owner/channel references, trigger, rendered title/body, status, attempt count, next-available time, worker lock timestamp, last-error timestamp, sent timestamp, and UTC audit timestamps.
+The physical schema stores owner/channel references, trigger, rendered title/body, optional encrypted retry payload, status, attempt count, next-available time, worker lock timestamp, last-error timestamp, sent timestamp, and UTC audit timestamps.
 
-Current delivery states are pending, processing, sent, failed, and cancelled.
+Current delivery states are pending, processing, sent, failed, and cancelled. Rendered title/body are cleared in terminal states. Sent/cancelled jobs also clear the retry payload; failed jobs may keep only the encrypted retry payload for explicit owner-initiated retry.
 
 ## Time
 
