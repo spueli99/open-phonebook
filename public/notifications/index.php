@@ -81,5 +81,7 @@ echo (new NotificationManagementPage(
     $user->timezone,
     CsrfToken::issue(),
     $runtime->webPushPublicKey(),
+    null,
+    null,
     $historyFilter
 );
