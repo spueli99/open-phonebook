@@ -26,7 +26,9 @@ html {
 
 body {
   min-height: 100vh;
+  max-width: none;
   margin: 0;
+  padding: 0;
   color: var(--text);
   background:
     radial-gradient(circle at top right, rgb(37 99 235 / 0.08), transparent 28rem),
