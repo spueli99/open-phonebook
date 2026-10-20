@@ -9,3 +9,15 @@ Options -Indexes
 <FilesMatch "^\.">
     Require all denied
 </FilesMatch>
+
+
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType image/svg+xml .svg
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "^(service-worker\.js|manifest\.webmanifest)$">
+        Header always set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
