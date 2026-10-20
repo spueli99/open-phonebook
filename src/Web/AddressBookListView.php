@@ -98,7 +98,7 @@ final class AddressBookListView
             . '.actions form{margin:0;display:flex;gap:6px}'
             . '.create{display:flex;gap:8px;margin:20px 0}'
             . 'input,button,a.button{padding:8px}</style>'
-            . '<link rel="stylesheet" href="/assets/app.css"></head><body><main><nav><a href="/">'
+            . '<link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main><nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard')) . '</a></nav>'
             . '<h1>'
             . Html::escape($translator->get('contacts.address_books.title'))
@@ -121,7 +121,7 @@ final class AddressBookListView
             . '</th><th>'
             . Html::escape($translator->get('users.actions'))
             . '</th></tr></thead><tbody>'
-            . $rows . '</tbody></table></main></body></html>';
+            . $rows . '</tbody></table></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private function __construct()
