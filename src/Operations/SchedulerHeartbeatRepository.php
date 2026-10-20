@@ -26,7 +26,7 @@ final class SchedulerHeartbeatRepository
             $now,
             null,
             null,
-            null,
+            'running',
             null,
             null,
             null
