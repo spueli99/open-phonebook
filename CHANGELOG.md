@@ -12,6 +12,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Added
 
+- Responsive dashboard navigation cards with permission-aware administration links and a compact logout header
+
 - Shared responsive application UI foundation with a local CSP-compatible stylesheet for authenticated and account-management views
 
 - CI MariaDB smoke coverage for the complete fresh-install migration chain, update readiness, and migration idempotency
