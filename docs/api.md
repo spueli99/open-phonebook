@@ -76,6 +76,19 @@ curl --fail-with-body \
 
 A successful protected operation updates the exact credential's `last_used_at` timestamp. Authentication alone is not enough: rejected requests or failed protected operations do not count as successful use.
 
+### Authentication-failure throttle
+
+Public device endpoints throttle failed credential checks independently by endpoint and client IP address.
+
+Current policy:
+
+- 20 failed credential checks within 15 minutes
+- 15-minute block after the threshold is reached
+- blocked requests return `429 Too Many Requests`
+- blocked responses include `Retry-After: 900`
+- successful authentication clears only that endpoint/IP bucket
+- the database stores only a domain-separated HMAC of endpoint + client IP, never the plaintext credential, Authorization header, or phone number
+
 ## Common response behavior
 
 Private device responses use no-store headers. Successful phonebook and call-event responses include:
@@ -251,6 +264,7 @@ Structure:
 - `200 OK`: export generated successfully
 - `400 Bad Request`: invalid `format` syntax
 - `401 Unauthorized`: credential missing, malformed, invalid, revoked, wrong scope, inactive device, or inactive/deleted owner
+- `429 Too Many Requests`: repeated failed credential checks triggered the endpoint/IP throttle
 - `404 Not Found`: syntactically valid but unsupported export format
 - `405 Method Not Allowed`: request method is not GET
 - `500 Internal Server Error`: export generation failed
@@ -420,6 +434,7 @@ curl --fail-with-body \
 - `400 Bad Request`: invalid JSON, invalid/missing fields, unsupported value, or invalid call-state transition
 - `401 Unauthorized`: credential missing, malformed, invalid, revoked, wrong scope, inactive device, or inactive/deleted owner
 - `405 Method Not Allowed`: request method is not POST
+- `429 Too Many Requests`: repeated failed credential checks triggered the endpoint/IP throttle
 - `413 Content Too Large`: request body exceeds 16 KiB
 - `415 Unsupported Media Type`: Content-Type does not start with `application/json`
 - `503 Service Unavailable`: application runtime could not start
@@ -468,7 +483,7 @@ Supported adapter mappings include:
 - `remote_busy` -> `idle`
 - `call_remote_canceled` -> `idle`
 
-Successful callbacks return `200 OK` with a small text response. Invalid credentials return `401`, unsupported or malformed events return `400`, non-GET requests return `405`, and non-HTTPS requests are rejected with `400`.
+Successful callbacks return `200 OK` with a small text response. Invalid credentials return `401`, unsupported or malformed events return `400`, non-GET requests return `405`, repeated failed credential checks return `429`, and non-HTTPS requests are rejected with `400`.
 
 A normal `phonebook:read` or `call-events:write` credential must never be reused for this endpoint. The dedicated callback credential can be rotated or revoked independently.
 
