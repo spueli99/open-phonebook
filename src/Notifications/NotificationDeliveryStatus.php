@@ -10,4 +10,5 @@ enum NotificationDeliveryStatus: string
     case Processing = 'processing';
     case Sent = 'sent';
     case Failed = 'failed';
+    case Cancelled = 'cancelled';
 }
