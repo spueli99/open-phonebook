@@ -106,6 +106,7 @@ if ($method === 'POST' && $action === 'accept') {
                     $runtime->database,
                     new InvitationRepository($runtime->database),
                     new UserAdministrationRepository($runtime->database),
+                    $runtime->auditEventRepository(),
                 );
                 $acceptance->accept(
                     $invitation,
