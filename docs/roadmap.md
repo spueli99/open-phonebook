@@ -136,10 +136,11 @@ Completed or in active work:
 - configurable stale detection for Google sync and notification delivery
 - aggregate notification-queue diagnostics
 - database query health check
+- backup/restore recovery documentation
+- server-side backup/restore readiness CLI
+- application-key fingerprint verification for restores
 
 Still planned:
-
-- backup and restore documentation
 - Docker deployment option
 - API documentation
 - release/update process

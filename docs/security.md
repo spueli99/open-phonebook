@@ -135,3 +135,12 @@ The operations page is authenticated and permission-gated with `view_operations`
 Scheduler heartbeats persist only task names, UTC timestamps, status, and aggregate attempted/succeeded/failed counts. They deliberately do not persist exception messages, contact/source identifiers, phone numbers, notification recipients, message content, provider configuration, or secrets.
 
 Global notification queue diagnostics expose counts only. Scheduler stale thresholds are configuration values and are not rendered as secret-bearing configuration dumps.
+
+
+## Backup and restore security
+
+A complete recovery set includes the database plus the original runtime application key. The application key is deliberately not stored in the database and cannot be reconstructed from encrypted records or from the non-secret backup fingerprint.
+
+The server-side backup readiness CLI exposes only schema metadata, a domain-separated application-key fingerprint, configuration/lock presence flags, and aggregate counts of key-dependent records. It never outputs the application key, database password, provider credentials, contact data, phone numbers, or notification content.
+
+Database dumps and runtime secret configuration must be protected as sensitive backup material, encrypted at rest, access-controlled, and kept outside the public document root. Restores must verify the saved application-key fingerprint before production traffic or cron jobs are re-enabled.
