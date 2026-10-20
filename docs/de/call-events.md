@@ -87,6 +87,8 @@ Der Eventname muss zur jeweiligen Yealink-Action-URL-Einstellung passen, z. B. `
 
 Der Token darf niemals zusätzlich als Query-Parameter übertragen werden. Falls ein Telefon bzw. eine Firmware bei Action URLs aus URI-Userinfo keine HTTP-Basic-Authentifizierung erzeugt, gibt es bewusst keinen unsicheren Query-Token-Fallback. In diesem Fall ist die generische authentifizierte Call-Event-API oder ein für das konkrete Modell verifizierter anderer sicherer Transport zu verwenden.
 
+Da Yealink Action URLs per GET senden, stehen die optionalen Werte `local` und `remote` in der Request-URI und könnten sonst in Access-Logs des Webservers oder Reverse Proxys gespeichert werden. Werden diese Werte produktiv verwendet, muss für den Callback-Pfad die Query im Access-Logging unterdrückt oder geschwärzt werden. Falls Anruferauflösung und Rufnummern-Snapshots nicht benötigt werden, können `local`/`remote` auch vollständig weggelassen werden.
+
 Nach erfolgreicher Verarbeitung antwortet der Callback mit einer kleinen `200 OK`-Textantwort. Die bestehende transaktionale Call-State-Logik wird unverändert verwendet; die Notification-Verarbeitung bleibt nach dem Call-State-Commit isoliert. Erfolgreiche Callbacks aktualisieren ausschließlich `last_used_at` des separaten Callback-Credentials.
 
 ## Speicherung
