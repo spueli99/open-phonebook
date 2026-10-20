@@ -31,10 +31,13 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      - name: Verify Composer lock
+        run: test -f composer.lock
+
       - name: Validate Composer configuration
         run: composer validate --strict
 
-      - name: Install dependencies
+      - name: Install locked dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Coding standard
