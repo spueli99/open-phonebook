@@ -15,6 +15,9 @@ use OpenPhonebook\Notifications\NotificationDeliveryWorker;
 use OpenPhonebook\Notifications\NotificationProviderRegistry;
 use OpenPhonebook\Notifications\PhpMailTransport;
 use OpenPhonebook\Notifications\PushoverNotificationProvider;
+use OpenPhonebook\Notifications\MinishlinkWebPushTransport;
+use OpenPhonebook\Notifications\WebPushNotificationProvider;
+use OpenPhonebook\Notifications\WebPushServerConfigurationFactory;
 use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
 use OpenPhonebook\Operations\SchedulerTask;
 use OpenPhonebook\Security\SecretCipher;
@@ -63,20 +66,32 @@ try {
     }
 
     $transactions = new PdoTransactionManager($database);
+    $providers = [
+        new PushoverNotificationProvider(
+            new CurlHttpClient()
+        ),
+        new EmailNotificationProvider(
+            new PhpMailTransport()
+        ),
+    ];
+    $webPushConfiguration =
+        WebPushServerConfigurationFactory::fromConfig($config);
+
+    if ($webPushConfiguration !== null) {
+        $providers[] = new WebPushNotificationProvider(
+            new MinishlinkWebPushTransport(
+                $webPushConfiguration
+            )
+        );
+    }
+
     $worker = new NotificationDeliveryWorker(
         new NotificationDeliveryRepository(
             $database,
             $transactions
         ),
         new NotificationChannelRepository($database),
-        new NotificationProviderRegistry([
-            new PushoverNotificationProvider(
-                new CurlHttpClient()
-            ),
-            new EmailNotificationProvider(
-                new PhpMailTransport()
-            ),
-        ]),
+        new NotificationProviderRegistry($providers),
         new NotificationConfigCipher(
             new SecretCipher($applicationKey)
         ),
