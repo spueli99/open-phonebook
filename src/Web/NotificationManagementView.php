@@ -38,6 +38,7 @@ final class NotificationManagementView
         array $deliveryHistory,
         string $timezone,
         string $csrfToken,
+        ?string $webPushPublicKey = null,
         ?string $notice = null,
         ?string $error = null
     ): string {
@@ -240,6 +241,14 @@ final class NotificationManagementView
             . Html::escape($translator->locale) . '"><head>'
             . '<meta charset="utf-8"><meta name="viewport" '
             . 'content="width=device-width, initial-scale=1">'
+            . '<link rel="manifest" href="/manifest.webmanifest">'
+            . '<meta name="theme-color" content="#0f172a">'
+            . '<script src="/assets/pwa.js" defer></script>'
+            . (
+                $webPushPublicKey === null
+                    ? ''
+                    : '<script src="/assets/web-push.js" defer></script>'
+            )
             . '<title>'
             . Html::escape($translator->get('notifications.title'))
             . ' · Open Phonebook</title>'
@@ -264,6 +273,11 @@ final class NotificationManagementView
             . Html::escape($translator->get('notifications.title'))
             . '</h1>'
             . $noticeHtml . $errorHtml
+            . self::webPushSetup(
+                $translator,
+                $webPushPublicKey,
+                $csrfToken
+            )
             . '<section class="card"><h2>'
             . Html::escape(
                 $translator->get('notifications.delivery.title')
@@ -348,6 +362,41 @@ final class NotificationManagementView
             . '</button></form></div></div>'
             . $historyHtml
             . '</main></body></html>';
+    }
+
+    private static function webPushSetup(
+        Translator $translator,
+        ?string $publicKey,
+        string $csrfToken
+    ): string {
+        if ($publicKey === null) {
+            return '<section class="card"><h2>Web Push</h2><p>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.web_push.not_configured'
+                    )
+                )
+                . '</p></section>';
+        }
+
+        return '<section class="card" id="web-push-setup" '
+            . 'data-vapid-public-key="'
+            . Html::escape($publicKey)
+            . '" data-csrf-token="'
+            . Html::escape($csrfToken)
+            . '"><h2>Web Push</h2><p id="web-push-status">'
+            . Html::escape(
+                $translator->get('notifications.web_push.checking')
+            )
+            . '</p><button type="button" id="web-push-enable">'
+            . Html::escape(
+                $translator->get('notifications.web_push.enable')
+            )
+            . '</button> <button type="button" id="web-push-disable">'
+            . Html::escape(
+                $translator->get('notifications.web_push.disable')
+            )
+            . '</button></section>';
     }
 
     /**
