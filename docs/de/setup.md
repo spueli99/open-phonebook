@@ -83,3 +83,16 @@ Die erzeugten Schlüssel als Runtime-Secrets speichern und einen stabilen VAPID-
 Diese Schlüssel bei normalen Deployments nicht neu erzeugen. Bestehende Browser-Subscriptions sind an die VAPID-Identität gebunden.
 
 Nach der Konfiguration können angemeldete Benutzer Web Push für jeden Browser in der Benachrichtigungsverwaltung aktivieren.
+
+
+## Absender für System-E-Mails
+
+Bei einer neuen Installation wird im Anwendungsschritt eine gültige Absenderadresse für System-E-Mails verlangt.
+
+Der Wert wird als `mail.from` in der Runtime-Konfiguration gespeichert und für Passwort-Reset-E-Mails sowie zukünftige systemseitige E-Mails verwendet.
+
+Bei Environment-basierter Konfiguration kann alternativ gesetzt werden:
+
+`OPENPHONEBOOK_MAIL_FROM`
+
+Für Passwort-Reset muss zusätzlich `app.base_url` als gültige HTTPS-URL konfiguriert sein, da daraus der Recovery-Link erzeugt wird.
