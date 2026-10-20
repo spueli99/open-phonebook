@@ -4,10 +4,11 @@
 
 Notifications are user-owned outbound channels triggered by application events.
 
-The first implementation connects call lifecycle events to:
+Call lifecycle events can currently be delivered through:
 
 - Pushover
 - email
+- Web Push/PWA
 
 Notification providers are adapters behind a common interface. Call-state persistence does not depend on provider availability.
 
@@ -19,6 +20,7 @@ Current providers:
 
 - `pushover`
 - `email`
+- `web_push`
 
 Provider configuration is encrypted at rest with the application secret cipher. The web UI never displays stored provider credentials after creation.
 
@@ -32,7 +34,9 @@ Email configuration stores:
 - recipient address
 - sender address
 
-Channels can be enabled, disabled, or deleted by their owner.
+Web Push channel configuration stores the browser push endpoint, the browser public encryption key/auth secret, content encoding, and a random browser identifier. The complete subscription configuration is encrypted at rest with the same notification-channel cipher.
+
+Channels can be enabled, disabled, or deleted by their owner. Re-registering the same browser updates its existing Web Push channel so notification rules are retained.
 
 ## Rules
 
@@ -156,6 +160,30 @@ Recipient and sender addresses are validated before use. Header values containin
 
 A later SMTP/provider-specific transport can implement the same mail transport interface without changing notification rules.
 
+## Web Push and PWA
+
+Open Phonebook includes a minimal PWA manifest and root-scoped service worker. The service worker handles push events and notification clicks only; it deliberately does not intercept fetch requests and does not cache authenticated HTML, contacts, sessions, or other private application content.
+
+Web Push uses VAPID. Generate a key pair once:
+
+`php bin/generate-vapid-keys.php`
+
+Configure:
+
+- `OPENPHONEBOOK_WEB_PUSH_SUBJECT` — a stable `mailto:` subject or HTTPS URL
+- `OPENPHONEBOOK_WEB_PUSH_PUBLIC_KEY`
+- `OPENPHONEBOOK_WEB_PUSH_PRIVATE_KEY`
+
+The private key is a runtime secret and must not be exposed to the browser. Only the public key is rendered to the authenticated notification-management page.
+
+A browser subscription can only be registered through an authenticated, CSRF-protected POST request. The server validates HTTPS endpoints and accepts only known browser push-service hosts to prevent arbitrary authenticated SSRF through the push worker.
+
+The browser stores a random local browser identifier. This lets a refreshed subscription replace the same channel without deleting its existing rules. A matching endpoint is also reused if browser local storage was cleared.
+
+Push delivery runs through the existing persistent notification queue. Successful messages are encrypted by the Web Push library before transport. Expired push subscriptions reported as HTTP 404/410 are automatically disabled and the queued delivery is cancelled rather than retried.
+
+The push payload contains only the rendered notification title/body and an internal same-origin target URL. The service worker validates that click targets remain relative to the application origin.
+
 ## Security
 
 Notification administration requires an authenticated browser session and CSRF-protected POST requests.
@@ -170,6 +198,5 @@ Provider secrets are encrypted at rest and are not written to ordinary applicati
 
 - filtering/pagination for larger delivery histories
 - bulk history cleanup/retention policy
-- Web Push/PWA
 - additional providers
 - per-rule custom message templates
