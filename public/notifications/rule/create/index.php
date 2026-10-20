@@ -61,7 +61,13 @@ try {
         $user->id,
         Request::postPositiveInt('channel_id'),
         $deviceId,
-        $trigger
+        $trigger,
+        ($quietStart = Request::postString('quiet_start')) === ''
+            ? null
+            : $quietStart,
+        ($quietEnd = Request::postString('quiet_end')) === ''
+            ? null
+            : $quietEnd
     );
 } catch (Throwable) {
     http_response_code(400);
