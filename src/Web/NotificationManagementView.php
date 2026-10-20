@@ -269,8 +269,18 @@ final class NotificationManagementView
                 'name',
                 120
             )
-            . self::textInput('Application API token', 'token', 30)
-            . self::textInput('User/group key', 'user', 30)
+            . self::textInput(
+                'Application API token',
+                'token',
+                30,
+                'password'
+            )
+            . self::textInput(
+                'User/group key',
+                'user',
+                30,
+                'password'
+            )
             . '<button type="submit">'
             . Html::escape(
                 $translator->get('notifications.channel.create')
