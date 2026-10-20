@@ -12,7 +12,8 @@ A complete recovery set therefore contains:
 2. the runtime secret configuration, especially the exact application key
 3. `storage/installed.lock`
 4. the matching Open Phonebook code/release
-5. a non-secret readiness manifest/fingerprint for verification
+5. `composer.lock` from the deployed artifact when available
+6. a non-secret readiness manifest/fingerprint for verification
 
 Current cache and log files under `storage/` are not required for recovery. Open Phonebook currently has no persistent user-upload directory that must be restored separately.
 
@@ -36,6 +37,7 @@ The check verifies:
 - the effective application key exists and has a valid minimum length
 - `storage/installed.lock` exists
 - whether `config/local.php` exists
+- whether `composer.lock` is present
 - counts of records whose continued usability depends on the same application key
 
 The report never outputs the application key, database password, OAuth client secret, provider token, notification payload, phone number, or contact data.
@@ -111,7 +113,15 @@ Back up:
 
 This file is not secret, but restoring it prevents the setup installer from being unintentionally re-enabled.
 
-### 4. Code/release identity
+### 4. Dependency lock
+
+Back up `composer.lock` when it exists in the deployed artifact.
+
+Without a dependency lock, Composer may resolve newer compatible dependency versions during recovery. The readiness check therefore reports a warning when `composer.lock` is absent.
+
+The repository currently does not contain a committed `composer.lock`; adding and maintaining one should be handled as a separate dependency-management change. Until then, retain the deployed lock/artifact if your deployment process generates one.
+
+### 5. Code/release identity
 
 Record the exact Open Phonebook release, Git commit, or deployment artifact used when the backup was created.
 
@@ -141,10 +151,11 @@ Recommended sequence:
 4. Create the complete database dump.
 5. Securely back up `config/local.php` or the equivalent environment-managed secrets.
 6. Back up `storage/installed.lock`.
-7. Record the exact application release/commit.
-8. Store database and secret backup separately or in an encrypted backup repository.
-9. Verify that the dump is non-empty and can be read by the chosen restore tool.
-10. Periodically perform a restore test on an isolated environment.
+7. Back up `composer.lock` when present.
+8. Record the exact application release/commit.
+9. Store database and secret backup separately or in an encrypted backup repository.
+10. Verify that the dump is non-empty and can be read by the chosen restore tool.
+11. Periodically perform a restore test on an isolated environment.
 
 A backup that has never been restore-tested should not be considered proven.
 
@@ -161,11 +172,12 @@ Recommended order:
 5. Import the complete SQL dump.
 6. Restore the original runtime configuration/application key.
 7. Restore `storage/installed.lock`.
-8. Install Composer production dependencies for that code version.
-9. Run the readiness check with the fingerprint from the backup manifest.
-10. Perform the functional checks below.
-11. Re-enable the notification and Google cron jobs.
-12. Re-enable public traffic.
+8. Restore `composer.lock` when it was part of the deployment/backup.
+9. Install Composer production dependencies for that code version using the lock when available.
+10. Run the readiness check with the fingerprint from the backup manifest.
+11. Perform the functional checks below.
+12. Re-enable the notification and Google cron jobs.
+13. Re-enable public traffic.
 
 Do not run the web installer against a restored database.
 
@@ -189,7 +201,7 @@ The restore must not be accepted if:
 - the application key is unavailable
 - the installation lock is missing
 
-A missing `config/local.php` produces a warning rather than a failure when the effective application key is available from environment-managed configuration. In that case, verify all required platform secrets independently.
+A missing `config/local.php` produces a warning rather than a failure when the effective application key is available from environment-managed configuration. A missing `composer.lock` also produces a warning because dependency resolution is then not exact. In that case, verify all required platform secrets independently.
 
 ## Functional post-restore checks
 
