@@ -37,15 +37,21 @@ final class JsonCallEventParser
         $type = $this->enumString($data, 'event');
         $direction = $data['direction'] ?? null;
 
+        $normalizedDirection = null;
+
+        if ($direction !== null) {
+            $normalizedDirection = CallDirection::tryFrom(
+                $this->scalarString($direction)
+            ) ?? throw new RuntimeException(
+                'Invalid call direction.'
+            );
+        }
+
         return new NormalizedCallEvent(
             $this->requiredString($data, 'call_id', 191),
             CallEventType::tryFrom($type)
                 ?? throw new RuntimeException('Invalid call event type.'),
-            $direction === null
-                ? null
-                : CallDirection::tryFrom(
-                    $this->scalarString($direction)
-                ),
+            $normalizedDirection,
             $this->optionalString($data, 'local_number', 120),
             $this->optionalString($data, 'remote_number', 120),
         );
