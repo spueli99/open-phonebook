@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Notifications;
 
-use RuntimeException;
-
 final class WebPushNotificationProvider implements NotificationProviderInterface
 {
     public function __construct(
@@ -31,10 +29,5 @@ final class WebPushNotificationProvider implements NotificationProviderInterface
             );
         }
 
-        if ($result !== WebPushTransportResult::Sent) {
-            throw new RuntimeException(
-                'Unexpected Web Push transport result.'
-            );
-        }
     }
 }
