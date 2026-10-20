@@ -23,6 +23,12 @@ interface NotificationChannelRepositoryInterface
         string $encryptedConfig
     ): int;
 
+    public function updateConfig(
+        int $channelId,
+        int $ownerUserId,
+        string $encryptedConfig
+    ): bool;
+
     public function setActive(
         int $channelId,
         int $ownerUserId,
