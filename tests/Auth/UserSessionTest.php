@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OpenPhonebook\Tests\Auth;
 
 use OpenPhonebook\Auth\AuthenticatedUser;
+use OpenPhonebook\Auth\UserRecord;
 use OpenPhonebook\Auth\UserSession;
+use OpenPhonebook\Tests\Support\Auth\InMemoryUserRepository;
 use PHPUnit\Framework\TestCase;
 
 final class UserSessionTest extends TestCase
@@ -42,6 +44,29 @@ final class UserSessionTest extends TestCase
         self::assertFalse($session->isAuthenticated());
     }
 
+    public function testAuthRevisionMismatchInvalidatesSession(): void
+    {
+        $record = new UserRecord(
+            42,
+            'member@example.com',
+            'Member',
+            password_hash('a long enough password', PASSWORD_DEFAULT),
+            2,
+            'member',
+            'de',
+            'Europe/Berlin',
+            true,
+            false
+        );
+        $session = new UserSession(
+            new InMemoryUserRepository($record)
+        );
+        $session->login($this->user());
+
+        self::assertNull($session->user());
+        self::assertFalse($session->isAuthenticated());
+    }
+
     private function user(): AuthenticatedUser
     {
         return new AuthenticatedUser(
@@ -51,6 +76,7 @@ final class UserSessionTest extends TestCase
             'member',
             'de',
             'Europe/Berlin',
+            1,
         );
     }
 }
