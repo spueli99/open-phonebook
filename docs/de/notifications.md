@@ -103,6 +103,8 @@ Gelöschte oder deaktivierte Kanäle führen zu `cancelled`. Fehlende Provider o
 
 Die Verwaltungsseite zeigt aggregierte Zähler für pending, processing, sent, failed und cancelled.
 
+Sobald ein Job einen terminalen Zustand (`sent`, `failed` oder `cancelled`) erreicht, werden sein gerenderter Titel und Nachrichtentext geleert. Die Statusmetadaten bleiben für die Diagnose erhalten, ohne anrufbezogene Inhalte länger als erforderlich zu speichern.
+
 Die Zustellung arbeitet innerhalb des Retry-Fensters nach dem At-least-once-Prinzip. Stürzt ein Prozess nach erfolgreicher externer Zustellung, aber vor dem lokalen `sent`-Update ab, kann bei Providern ohne Idempotenz ein Duplikat nicht vollständig ausgeschlossen werden.
 
 ## Fehlerisolation
