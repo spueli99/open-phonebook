@@ -100,7 +100,7 @@ System administration should focus on platform operations. The UI should avoid e
 
 ## Audit
 
-The first persistent audit milestone records user activation/deactivation, platform-role changes, and invitation creation/renewal/revocation. These writes are transactionally coupled to the protected administrative state change and store only bounded non-sensitive metadata.
+The first persistent audit milestone records user activation/deactivation, platform-role changes, and invitation creation/acceptance/renewal/revocation. These writes are transactionally coupled to the protected administrative state change and store only bounded non-sensitive metadata.
 
 Future expansion should audit security-sensitive actions such as:
 
