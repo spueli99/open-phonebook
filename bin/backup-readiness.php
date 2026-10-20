@@ -83,6 +83,7 @@ try {
         $effectiveKey,
         is_file($projectRoot . '/config/local.php'),
         is_file($projectRoot . '/storage/installed.lock'),
+        is_file($projectRoot . '/composer.lock'),
         $expectedMigrationIds
     ))->snapshot($expectedFingerprint);
 } catch (Throwable) {
