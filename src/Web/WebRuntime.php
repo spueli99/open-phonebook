@@ -28,6 +28,7 @@ use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
 use OpenPhonebook\Operations\OperationsHealthService;
+use OpenPhonebook\Operations\OperationsMetricsRepository;
 use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
@@ -153,7 +154,7 @@ final readonly class WebRuntime
         }
 
         return new OperationsHealthService(
-            $this->database,
+            new OperationsMetricsRepository($this->database),
             new SchedulerHeartbeatRepository($this->database),
             new SystemClock(),
             $validated
