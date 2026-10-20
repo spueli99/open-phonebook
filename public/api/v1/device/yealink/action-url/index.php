@@ -63,10 +63,27 @@ if (!is_string($eventName) || $eventName === '') {
     exit;
 }
 
+$parameters = [];
+
+foreach (['call_id', 'local', 'remote'] as $key) {
+    if (!array_key_exists($key, $_GET)) {
+        continue;
+    }
+
+    if (!is_string($_GET[$key])) {
+        http_response_code(400);
+        header('Cache-Control: no-store');
+        header('X-Content-Type-Options: nosniff');
+        exit;
+    }
+
+    $parameters[$key] = $_GET[$key];
+}
+
 try {
     $event = (new YealinkActionUrlAdapter())->normalize(
         $eventName,
-        $_GET
+        $parameters
     );
     $result = $runtime->callEvents->record($device, $event);
 } catch (Throwable) {
