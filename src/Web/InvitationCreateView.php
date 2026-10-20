@@ -12,11 +12,20 @@ final class InvitationCreateView
         Translator $translator,
         string $csrfToken,
         ?string $invitationUrl = null,
-        ?string $error = null
+        ?string $error = null,
+        bool $mailSent = false
     ): string {
         $result = '';
 
-        if ($invitationUrl !== null) {
+        if ($mailSent) {
+            $result = '<div class="result" role="status">'
+                . '<p><strong>'
+                . Html::escape($translator->get('users.invite.created'))
+                . '</strong></p>'
+                . '<p>'
+                . Html::escape($translator->get('users.invite.sent'))
+                . '</p></div>';
+        } elseif ($invitationUrl !== null) {
             $result = '<div class="result" role="status">'
                 . '<p><strong>'
                 . Html::escape($translator->get('users.invite.created'))
