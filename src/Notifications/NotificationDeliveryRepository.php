@@ -245,6 +245,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         $limit = max(1, min(100, $limit));
         $statement = $this->prepare(
             'SELECT d.id, d.channel_id, c.name AS channel_name,
+                    c.is_active AS channel_active,
                     d.trigger_name, d.status, d.attempts,
                     d.available_at, d.last_error_at, d.sent_at,
                     d.created_at, d.encrypted_retry_payload
@@ -294,6 +295,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
                 self::parseUtc((string) $row['created_at']),
                 $status === NotificationDeliveryStatus::Failed
                     && $row['channel_id'] !== null
+                    && (bool) ($row['channel_active'] ?? false)
                     && is_string($row['encrypted_retry_payload'])
                     && $row['encrypted_retry_payload'] !== ''
             );
