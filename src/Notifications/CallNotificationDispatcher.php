@@ -17,6 +17,7 @@ final class CallNotificationDispatcher
         private readonly NotificationRuleRepositoryInterface $rules,
         private readonly NotificationChannelRepositoryInterface $channels,
         private readonly NotificationDeliveryRepositoryInterface $deliveries,
+        private readonly NotificationMessageCipher $messageCipher,
         private readonly QuietHoursPolicy $quietHours,
         private readonly ClockInterface $clock,
     ) {
@@ -60,6 +61,7 @@ final class CallNotificationDispatcher
                     $channel->id,
                     $trigger,
                     $message,
+                    $this->messageCipher->encrypt($message),
                     $this->clock->now()
                 );
             } catch (Throwable) {
