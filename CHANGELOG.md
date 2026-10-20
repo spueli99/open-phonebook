@@ -27,6 +27,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - System-level user administration foundation
 - Explicit user-management permissions
 - Secure invitation creation and acceptance flow
+- System email delivery for invitations with token-safe legacy manual fallback
 - Active invitation listing, revocation, and token-safe renewal
 - Guarded platform role management for members and system administrators
 - English and German user-management documentation
@@ -111,3 +112,4 @@ The project is currently in the pre-release architecture and foundation phase.
 - Protection against self-deactivation and deactivation of the last active system administrator
 - Protection against self-demotion and demotion of the last active system administrator
 - Renewal invalidates the previous invitation token before exposing a replacement token
+- Successful invitation email delivery keeps plaintext tokens out of administrator HTML; failed delivery revokes the newly issued invitation
