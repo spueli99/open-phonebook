@@ -48,6 +48,11 @@ final class DeviceCredentialHttpAuthenticator
         );
     }
 
+    public function markUsed(AuthenticatedDevice $device): void
+    {
+        $this->authenticator->markUsed($device);
+    }
+
     private function tokenFromAuthorization(string $value): ?string
     {
         if (
