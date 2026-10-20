@@ -108,9 +108,12 @@ The diagnostics page:
 
 Scheduler heartbeat writes never include exception messages because those could contain sensitive provider or account information.
 
+## Backup and restore
+
+See [Backup and restore](backup-restore.md) for the recovery set, readiness CLI, key-fingerprint verification, database export/import guidance, and post-restore checks.
+
 ## Future operations work
 
-- backup and restore documentation
 - optional history retention/cleanup controls
 - Docker deployment option
 - release/update process
