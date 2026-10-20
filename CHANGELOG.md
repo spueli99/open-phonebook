@@ -18,6 +18,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - English and German backup/restore runbooks for database, secrets, install lock, and code/dependency recovery
 - Secure web setup installer and versioned migration foundation
 - Local email/password authentication foundation
+- Email-based password reset/recovery with 30-minute single-use fragment tokens
+- Authentication revision tracking to invalidate all prior browser sessions after recovery
+- System mail sender configuration and setup field for account-recovery email
 - Secure authenticated browser sessions
 - Database-backed login throttling with HMAC-derived subject identifiers
 - English and German authentication localization
@@ -100,6 +103,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - CSRF protection for login, logout, user administration, and invitation acceptance
 - Session ID regeneration after authentication state changes
 - Generic invalid-credential responses and unknown-user timing mitigation
+- Password-reset requests use generic responses, issuance cooldown, minimum response timing, CSRF-protected fragment-token capture, and domain-separated HMAC token storage
+- Successful password reset atomically consumes the token, rotates the password hash, and invalidates existing browser sessions through `auth_revision`
 - Application key generation outside the database
 - HMAC-only storage of invitation tokens
 - Fragment-based invitation links to keep invitation tokens out of ordinary HTTP request URLs
