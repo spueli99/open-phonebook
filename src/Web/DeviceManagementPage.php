@@ -29,8 +29,10 @@ final class DeviceManagementPage
         $assignments = [];
         $phonebookCredentialStates = [];
         $callEventCredentialStates = [];
+        $yealinkCallbackCredentialStates = [];
         $phonebookLastUsedAt = [];
         $callEventLastUsedAt = [];
+        $yealinkCallbackLastUsedAt = [];
 
         foreach ($devices as $device) {
             $assignments[$device->id] = $this->devices->addressBookIds(
@@ -49,6 +51,12 @@ final class DeviceManagementPage
                     $device->id,
                     DeviceCredentialScope::CallEventsWrite
                 );
+            $yealinkCallbackCredentialStates[$device->id] =
+                $this->devices->hasActiveCredential(
+                    $ownerUserId,
+                    $device->id,
+                    DeviceCredentialScope::YealinkCallbackWrite
+                );
             $phonebookLastUsedAt[$device->id] =
                 $this->devices->activeCredentialLastUsedAt(
                     $ownerUserId,
@@ -61,6 +69,12 @@ final class DeviceManagementPage
                     $device->id,
                     DeviceCredentialScope::CallEventsWrite
                 );
+            $yealinkCallbackLastUsedAt[$device->id] =
+                $this->devices->activeCredentialLastUsedAt(
+                    $ownerUserId,
+                    $device->id,
+                    DeviceCredentialScope::YealinkCallbackWrite
+                );
         }
 
         return DeviceManagementView::render(
@@ -70,8 +84,10 @@ final class DeviceManagementPage
             $assignments,
             $phonebookCredentialStates,
             $callEventCredentialStates,
+            $yealinkCallbackCredentialStates,
             $phonebookLastUsedAt,
             $callEventLastUsedAt,
+            $yealinkCallbackLastUsedAt,
             $timezone,
             $csrfToken,
             $credential,
