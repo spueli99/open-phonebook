@@ -8,8 +8,7 @@ use OpenPhonebook\Notifications\NotificationMessage;
 use OpenPhonebook\Notifications\NotificationProviderInterface;
 use RuntimeException;
 
-final class RecordingNotificationProvider
-    implements NotificationProviderInterface
+final class RecordingNotificationProvider implements NotificationProviderInterface
 {
     /**
      * @var list<array{
