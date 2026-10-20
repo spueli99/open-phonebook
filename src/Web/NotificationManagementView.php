@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Throwable;
 use OpenPhonebook\Devices\Device;
 use OpenPhonebook\I18n\Translator;
 use OpenPhonebook\Notifications\NotificationChannel;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryItem;
 use OpenPhonebook\Notifications\NotificationRule;
 use OpenPhonebook\Notifications\NotificationTrigger;
 
@@ -23,6 +27,7 @@ final class NotificationManagementView
      *     failed: int,
      *     cancelled: int
      * } $deliveryCounts
+     * @param list<NotificationDeliveryHistoryItem> $deliveryHistory
      */
     public static function render(
         Translator $translator,
@@ -30,6 +35,8 @@ final class NotificationManagementView
         array $rules,
         array $devices,
         array $deliveryCounts,
+        array $deliveryHistory,
+        string $timezone,
         string $csrfToken,
         ?string $notice = null,
         ?string $error = null
@@ -80,6 +87,18 @@ final class NotificationManagementView
                         'active' => $nextState,
                     ],
                     $translator->get($stateLabel)
+                )
+                . (
+                    $channel->isActive
+                        ? self::postForm(
+                            '/notifications/channel/test/',
+                            $csrfToken,
+                            ['channel_id' => (string) $channel->id],
+                            $translator->get(
+                                'notifications.channel.test'
+                            )
+                        )
+                        : ''
                 )
                 . self::postForm(
                     '/notifications/channel/delete/',
@@ -184,6 +203,10 @@ final class NotificationManagementView
         $triggerOptions = '';
 
         foreach (NotificationTrigger::cases() as $trigger) {
+            if ($trigger === NotificationTrigger::Test) {
+                continue;
+            }
+
             $triggerOptions .= '<option value="'
                 . Html::escape($trigger->value)
                 . '">'
@@ -194,6 +217,13 @@ final class NotificationManagementView
                 )
                 . '</option>';
         }
+
+        $historyHtml = self::history(
+            $translator,
+            $deliveryHistory,
+            $timezone,
+            $csrfToken
+        );
 
         $noticeHtml = $notice === null
             ? ''
@@ -316,7 +346,145 @@ final class NotificationManagementView
                 $translator->get('notifications.rule.create')
             )
             . '</button></form></div></div>'
+            . $historyHtml
             . '</main></body></html>';
+    }
+
+    /**
+     * @param list<NotificationDeliveryHistoryItem> $history
+     */
+    private static function history(
+        Translator $translator,
+        array $history,
+        string $timezone,
+        string $csrfToken
+    ): string {
+        $rows = '';
+
+        foreach ($history as $item) {
+            $channel = $item->channelName
+                ?? $translator->get(
+                    'notifications.history.channel_deleted'
+                );
+            $triggerKey = 'notifications.trigger.'
+                . $item->trigger->value;
+            $statusKey = 'notifications.delivery.'
+                . $item->status->value;
+            $retry = $item->canRetry
+                ? self::postForm(
+                    '/notifications/delivery/retry/',
+                    $csrfToken,
+                    ['delivery_id' => (string) $item->id],
+                    $translator->get(
+                        'notifications.delivery.retry'
+                    )
+                )
+                : '';
+
+            $rows .= '<tr><td>'
+                . Html::escape($channel)
+                . '</td><td>'
+                . Html::escape($translator->get($triggerKey))
+                . '</td><td>'
+                . Html::escape($translator->get($statusKey))
+                . '</td><td>'
+                . $item->attempts
+                . '</td><td>'
+                . Html::escape(
+                    self::formatTime(
+                        $item->createdAt,
+                        $timezone
+                    )
+                )
+                . '</td><td>'
+                . (
+                    $item->lastErrorAt === null
+                        ? '—'
+                        : Html::escape(
+                            self::formatTime(
+                                $item->lastErrorAt,
+                                $timezone
+                            )
+                        )
+                )
+                . '</td><td>'
+                . $retry
+                . '</td></tr>';
+        }
+
+        if ($rows === '') {
+            return '<section class="card"><h2>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.title'
+                    )
+                )
+                . '</h2><p>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.none'
+                    )
+                )
+                . '</p></section>';
+        }
+
+        return '<section class="card"><h2>'
+            . Html::escape(
+                $translator->get('notifications.history.title')
+            )
+            . '</h2><div style="overflow-x:auto"><table>'
+            . '<thead><tr><th>'
+            . Html::escape(
+                $translator->get('notifications.channel')
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get('notifications.trigger')
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get('devices.status')
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get(
+                    'notifications.history.attempts'
+                )
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get(
+                    'notifications.history.created'
+                )
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get(
+                    'notifications.history.last_error'
+                )
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get('users.actions')
+            )
+            . '</th></tr></thead><tbody>'
+            . $rows
+            . '</tbody></table></div></section>';
+    }
+
+    private static function formatTime(
+        DateTimeImmutable $time,
+        string $timezone
+    ): string {
+        try {
+            $zone = new DateTimeZone($timezone);
+        } catch (Throwable) {
+            $zone = new DateTimeZone('UTC');
+        }
+
+        return $time
+            ->setTimezone($zone)
+            ->format('Y-m-d H:i:s T');
     }
 
     private static function pushoverForm(
