@@ -33,7 +33,7 @@ final class CallEventService
         return $this->transactions->transactional(
             function () use ($device, $event): CallEventResult {
                 $session = $this->sessions
-                    ->findByDeviceAndExternalIdForUpdate(
+                    ->findOpenByDeviceAndExternalIdForUpdate(
                         $device->deviceId,
                         $event->externalCallId
                     );
