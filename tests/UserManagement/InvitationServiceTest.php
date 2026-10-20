@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OpenPhonebook\Tests\UserManagement;
 
 use DateInterval;
+use OpenPhonebook\Audit\AuditEventType;
 use OpenPhonebook\Auth\Role;
+use OpenPhonebook\Tests\Support\Audit\RecordingAuditEventWriter;
 use OpenPhonebook\Tests\Support\Clock\FrozenClock;
 use OpenPhonebook\Tests\Support\UserManagement\InMemoryInvitationRepository;
 use OpenPhonebook\Tests\Support\UserManagement\InMemoryUserAdministrationRepository;
@@ -21,11 +23,13 @@ final class InvitationServiceTest extends TestCase
         $invitations = new InMemoryInvitationRepository();
         $users = new InMemoryUserAdministrationRepository([]);
         $clock = new FrozenClock('2026-10-19 12:00:00');
+        $audit = new RecordingAuditEventWriter();
         $service = new InvitationService(
             $invitations,
             $users,
             $clock,
             str_repeat('a', 64),
+            $audit,
         );
 
         $result = $service->create(
@@ -37,6 +41,12 @@ final class InvitationServiceTest extends TestCase
         self::assertSame('new.user@example.com', $result->email);
         self::assertSame(Role::Member, $result->role);
         self::assertSame(64, strlen($result->token));
+        self::assertCount(1, $audit->events);
+        self::assertSame(
+            AuditEventType::InvitationCreated,
+            $audit->events[0]['type']
+        );
+        self::assertSame(['role' => 'member'], $audit->events[0]['metadata']);
 
         $resolved = $service->resolve($result->token);
         self::assertNotNull($resolved);
