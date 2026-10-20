@@ -39,7 +39,7 @@ final class AdminCreator
 
         $statement = $this->database->prepare(
             'INSERT INTO users (
-                email, display_name, password_hash, role, locale, timezone,
+                email, display_name, password_hash, `role`, locale, timezone,
                 is_active, created_at, updated_at
             ) VALUES (
                 :email, :display_name, :password_hash, :role, :locale, :timezone,
