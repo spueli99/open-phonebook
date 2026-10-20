@@ -125,6 +125,54 @@ final class CallEventServiceTest extends TestCase
         self::assertSame(CallSessionState::Cancelled, $result->session->state);
     }
 
+    public function testExternalCallIdMayBeReusedAfterTerminalState(): void
+    {
+        [$service] = $this->service();
+        $device = $this->device();
+
+        $service->record(
+            $device,
+            new NormalizedCallEvent(
+                'reused',
+                CallEventType::Ringing,
+                CallDirection::Incoming,
+                null,
+                '+49123'
+            )
+        );
+        $service->record(
+            $device,
+            new NormalizedCallEvent(
+                'reused',
+                CallEventType::Idle,
+                null,
+                null,
+                null
+            )
+        );
+
+        $second = $service->record(
+            $device,
+            new NormalizedCallEvent(
+                'reused',
+                CallEventType::Calling,
+                CallDirection::Outgoing,
+                '100',
+                '+49211'
+            )
+        );
+
+        self::assertTrue($second->created);
+        self::assertSame(
+            CallSessionState::Calling,
+            $second->session->state
+        );
+        self::assertSame(
+            CallDirection::Outgoing,
+            $second->session->direction
+        );
+    }
+
     public function testFollowUpWithoutSessionIsRejected(): void
     {
         [$service] = $this->service();
