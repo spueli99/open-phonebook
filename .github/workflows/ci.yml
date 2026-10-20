@@ -40,6 +40,9 @@ jobs:
       - name: Install locked dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Audit locked dependencies
+        run: composer audit --locked --no-interaction
+
       - name: Coding standard
         run: composer lint
 
