@@ -38,6 +38,7 @@ use OpenPhonebook\Operations\OperationsMetricsRepository;
 use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
+use OpenPhonebook\UserManagement\InvitationMailer;
 use PDO;
 use RuntimeException;
 
@@ -82,6 +83,32 @@ final readonly class WebRuntime
             $applicationKey,
             $projectRoot,
         );
+    }
+
+    public function invitationMailer(): ?InvitationMailer
+    {
+        $baseUrl = $this->config->get('app.base_url');
+        $from = $this->config->get('mail.from');
+        $locale = $this->config->get('app.locale', 'en');
+
+        if (
+            !is_string($baseUrl)
+            || !is_string($from)
+            || !is_string($locale)
+        ) {
+            return null;
+        }
+
+        try {
+            return new InvitationMailer(
+                new PhpMailTransport(),
+                $baseUrl,
+                $from,
+                $locale
+            );
+        } catch (RuntimeException) {
+            return null;
+        }
     }
 
     public function passwordResetService(): PasswordResetService
