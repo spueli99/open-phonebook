@@ -10,6 +10,14 @@ use RuntimeException;
 
 final class ApplicationVersionTest extends TestCase
 {
+    public function testRepositoryVersionIsValid(): void
+    {
+        self::assertNotSame(
+            '',
+            ApplicationVersion::read(dirname(__DIR__, 2))
+        );
+    }
+
     public function testReadsSemanticVersion(): void
     {
         $directory = sys_get_temp_dir()
