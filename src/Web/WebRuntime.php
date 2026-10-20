@@ -89,23 +89,24 @@ final readonly class WebRuntime
         $baseUrl = $this->config->get('app.base_url');
         $from = $this->config->get('mail.from');
 
-        if (
-            !is_string($baseUrl)
-            || !is_string($from)
-        ) {
-            throw new RuntimeException(
-                'Password reset mail is not configured.'
-            );
+        $mailer = null;
+
+        if (is_string($baseUrl) && is_string($from)) {
+            try {
+                $mailer = new PasswordResetMailer(
+                    new PhpMailTransport(),
+                    $baseUrl,
+                    $from
+                );
+            } catch (RuntimeException) {
+                $mailer = null;
+            }
         }
 
         return new PasswordResetService(
             new UserRepository($this->database),
             new PasswordResetRepository($this->database),
-            new PasswordResetMailer(
-                new PhpMailTransport(),
-                $baseUrl,
-                $from
-            ),
+            $mailer,
             new PdoTransactionManager($this->database),
             new SystemClock(),
             $this->applicationKey
