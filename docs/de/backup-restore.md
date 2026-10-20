@@ -98,10 +98,13 @@ Besonders wichtig:
 
 - `OPENPHONEBOOK_APP_KEY` / `app.key`
 - Google-OAuth-Client-Zugangsdaten, falls genutzt
+- Web-Push-VAPID-Subject/Public-/Private-Key, falls genutzt
 - Datenbankzugang bzw. die Informationen zu dessen Wiederherstellung
 - relevante Base-URL-, Rufnummernregions- und Operations-Einstellungen
 
 Der Application Key muss **identisch** wiederhergestellt werden. Ein neu erzeugter Schlüssel ersetzt den alten nicht.
+
+Bei aktiviertem Web Push muss auch das VAPID-Schlüsselpaar identisch wiederhergestellt werden. Ein Wechsel trennt bestehende Browser-Subscriptions von der Serveridentität und erfordert eine erneute Anmeldung der Browser.
 
 ### 3. Installationslock
 
