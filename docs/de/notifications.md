@@ -4,10 +4,11 @@
 
 Benachrichtigungen sind benutzereigene ausgehende Kanäle, die durch Anwendungsereignisse ausgelöst werden.
 
-Die erste Umsetzung verbindet Anrufereignisse mit:
+Anrufereignisse können aktuell über folgende Kanäle zugestellt werden:
 
 - Pushover
 - E-Mail
+- Web Push/PWA
 
 Die Anbieter sind Adapter hinter einer gemeinsamen Schnittstelle. Die Speicherung eines Anrufzustands hängt nicht von der Erreichbarkeit eines Benachrichtigungsanbieters ab.
 
@@ -19,6 +20,7 @@ Aktuell unterstützt:
 
 - `pushover`
 - `email`
+- `web_push`
 
 Die Anbieter-Konfiguration wird mit der Secret-Cipher des Application Keys verschlüsselt gespeichert. Gespeicherte Zugangsdaten werden nach dem Anlegen in der Weboberfläche nicht erneut angezeigt.
 
@@ -32,7 +34,9 @@ E-Mail speichert:
 - Empfängeradresse
 - Absenderadresse
 
-Der Besitzer kann Kanäle aktivieren, deaktivieren oder löschen.
+Ein Web-Push-Kanal speichert Push-Endpoint, öffentlichen Browser-Verschlüsselungsschlüssel/Auth-Secret, Content-Encoding und eine zufällige Browser-ID. Die komplette Subscription-Konfiguration wird wie andere Notification-Kanäle verschlüsselt gespeichert.
+
+Der Besitzer kann Kanäle aktivieren, deaktivieren oder löschen. Eine erneute Registrierung desselben Browsers aktualisiert den bestehenden Kanal, sodass vorhandene Regeln erhalten bleiben.
 
 ## Regeln
 
@@ -154,6 +158,30 @@ Empfänger- und Absenderadresse werden validiert. CR/LF in Headerwerten wird abg
 
 Ein späterer SMTP- oder Provider-Transport kann dieselbe Mail-Transport-Schnittstelle implementieren, ohne Regeln ändern zu müssen.
 
+## Web Push und PWA
+
+Open Phonebook enthält ein minimales PWA-Manifest und einen Service Worker mit Root-Scope. Der Service Worker verarbeitet ausschließlich Push-Ereignisse und Notification-Klicks. Er greift bewusst nicht in normale Fetch-Requests ein und cached keine authentifizierten HTML-Seiten, Kontakte, Sessions oder andere privaten Anwendungsdaten.
+
+Web Push verwendet VAPID. Das Schlüsselpaar einmalig erzeugen:
+
+`php bin/generate-vapid-keys.php`
+
+Konfiguration:
+
+- `OPENPHONEBOOK_WEB_PUSH_SUBJECT` — stabiler `mailto:`-Subject oder HTTPS-URL
+- `OPENPHONEBOOK_WEB_PUSH_PUBLIC_KEY`
+- `OPENPHONEBOOK_WEB_PUSH_PRIVATE_KEY`
+
+Der Private Key ist ein Runtime-Secret und wird niemals an den Browser ausgegeben. Nur der Public Key wird in der authentifizierten Benachrichtigungsverwaltung bereitgestellt.
+
+Browser-Subscriptions können nur über authentifizierte, CSRF-geschützte POST-Anfragen registriert werden. Der Server akzeptiert nur HTTPS-Endpoints bekannter Browser-Push-Dienste, damit die Push-Funktion nicht als authentifizierter SSRF-Kanal zu beliebigen Hosts missbraucht werden kann.
+
+Eine zufällige lokale Browser-ID ermöglicht es, eine erneuerte Subscription im bestehenden Kanal zu aktualisieren, ohne Regeln zu verlieren. Wurde LocalStorage gelöscht, wird zusätzlich ein identischer Endpoint wiederverwendet.
+
+Die Zustellung läuft vollständig über die bestehende persistente Notification-Queue. Abgelaufene Subscriptions, die der Push-Dienst mit HTTP 404/410 meldet, werden automatisch deaktiviert; der betreffende Job endet als `cancelled` und wird nicht weiter retryt.
+
+Der Push-Payload enthält nur gerenderten Titel/Nachrichtentext und einen internen Same-Origin-Zielpfad. Der Service Worker akzeptiert für Notification-Klicks ausschließlich relative Ziele innerhalb der Anwendung.
+
 ## Sicherheit
 
 Die Verwaltung erfordert eine authentifizierte Browser-Sitzung und CSRF-geschützte POST-Anfragen.
@@ -168,6 +196,5 @@ Provider-Secrets werden verschlüsselt gespeichert und nicht in normale Ausgaben
 
 - Filter/Paginierung für größere Zustellhistorien
 - Aufbewahrungs-/Bereinigungsregeln für die Historie
-- Web Push/PWA
 - weitere Provider
 - individuelle Nachrichtentemplates pro Regel
