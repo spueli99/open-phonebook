@@ -45,7 +45,7 @@ final class AuditLogView
             . 'th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd;'
             . 'vertical-align:top}'
             . 'code{white-space:nowrap}'
-            . '</style></head><body><main><nav><a href="/">'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main><nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/admin/operations/">'
             . Html::escape($translator->get('nav.operations'))

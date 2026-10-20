@@ -337,7 +337,7 @@ final class DeviceManagementView
             . '.book{display:block;margin:6px 0}'
             . '.notice,.error{padding:10px;border:1px solid currentColor}'
             . 'input,button{padding:8px}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/address-books/">'

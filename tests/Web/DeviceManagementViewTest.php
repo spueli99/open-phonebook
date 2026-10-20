@@ -43,6 +43,10 @@ final class DeviceManagementViewTest extends TestCase
         );
 
         self::assertStringContainsString(
+            '<link rel="stylesheet" href="/assets/app.css">',
+            $html
+        );
+        self::assertStringContainsString(
             'Last used: 2026-10-20 14:00:00 CEST',
             $html
         );

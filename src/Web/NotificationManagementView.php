@@ -267,7 +267,7 @@ final class NotificationManagementView
             . 'input,select,button{padding:8px}'
             . '.inline{display:inline-block;margin-right:8px}'
             . '.notice,.error{padding:10px;border:1px solid currentColor}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/devices/">'

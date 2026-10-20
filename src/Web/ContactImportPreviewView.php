@@ -246,7 +246,7 @@ final class ContactImportPreviewView
             . 'input,button{padding:8px}'
             . 'table{width:100%;border-collapse:collapse}'
             . 'th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left;vertical-align:top}'
-            . '</style></head><body><main>';
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>';
     }
 
     private static function pageEnd(): string
