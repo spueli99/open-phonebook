@@ -136,7 +136,7 @@ final class UserManagementView
             . '.actions{display:flex;gap:8px;flex-wrap:wrap}'
             . '.actions form{display:flex;gap:6px;margin:0}'
             . 'button,a.button,select{padding:8px 12px}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main>'
             . '<nav><a href="/">' . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/admin/users/invite/">'
             . Html::escape($translator->get('users.invite.title')) . '</a></nav>'
@@ -158,7 +158,7 @@ final class UserManagementView
             . '<th>' . Html::escape($translator->get('users.invitation.expires')) . '</th>'
             . '<th>' . Html::escape($translator->get('users.actions')) . '</th>'
             . '</tr></thead><tbody>' . $invitationRows . '</tbody></table>'
-            . '</main></body></html>';
+            . '</main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function roleOption(
