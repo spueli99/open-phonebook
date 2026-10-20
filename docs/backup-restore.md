@@ -100,10 +100,13 @@ Especially critical:
 
 - `OPENPHONEBOOK_APP_KEY` / `app.key`
 - Google OAuth client credentials when configured
+- Web Push VAPID subject/public/private key when configured
 - database connection credentials or the information required to recreate them
 - relevant base URL / phone-region / operations overrides
 
 The application key must be restored exactly. Generating a new key is not equivalent to restoring the old one.
+
+If Web Push is enabled, the VAPID key pair must also be restored exactly. Rotating it invalidates the relationship with existing browser subscriptions and requires users to subscribe their browsers again.
 
 ### 3. Installation lock
 
