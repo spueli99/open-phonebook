@@ -7,12 +7,15 @@ namespace OpenPhonebook\Tests\Support\Operations;
 use DateTimeImmutable;
 use OpenPhonebook\Operations\RetentionCleanupRepositoryInterface;
 
-final class InMemoryRetentionCleanupRepository implements RetentionCleanupRepositoryInterface
+final class InMemoryRetentionCleanupRepository
+    implements RetentionCleanupRepositoryInterface
 {
     public ?DateTimeImmutable $callCutoff = null;
     public ?DateTimeImmutable $notificationCutoff = null;
     public ?int $callLimit = null;
     public ?int $notificationLimit = null;
+    public int $callDeleteCalls = 0;
+    public int $notificationDeleteCalls = 0;
 
     /**
      * @param list<int> $callBatches
@@ -30,6 +33,7 @@ final class InMemoryRetentionCleanupRepository implements RetentionCleanupReposi
     ): int {
         $this->callCutoff = $cutoff;
         $this->callLimit = $limit;
+        $this->callDeleteCalls++;
 
         return array_shift($this->callBatches) ?? 0;
     }
@@ -40,6 +44,7 @@ final class InMemoryRetentionCleanupRepository implements RetentionCleanupReposi
     ): int {
         $this->notificationCutoff = $cutoff;
         $this->notificationLimit = $limit;
+        $this->notificationDeleteCalls++;
 
         return array_shift($this->notificationBatches) ?? 0;
     }
