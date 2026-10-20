@@ -68,6 +68,18 @@ final class NotificationAdministrationServiceTest extends TestCase
 
         self::assertCount(1, $service->rules(10));
 
+        try {
+            $service->createRule(
+                10,
+                $channelId,
+                1,
+                NotificationTrigger::Missed
+            );
+            self::fail('Duplicate notification rule was accepted.');
+        } catch (RuntimeException) {
+            self::assertCount(1, $service->rules(10));
+        }
+
         $this->expectException(RuntimeException::class);
         $service->createRule(
             10,
