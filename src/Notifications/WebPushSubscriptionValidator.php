@@ -61,7 +61,6 @@ final class WebPushSubscriptionValidator
             || isset($parts['user'])
             || isset($parts['pass'])
             || !isset($parts['host'])
-            || !is_string($parts['host'])
             || !self::hostAllowed($parts['host'])
         ) {
             throw new RuntimeException(
