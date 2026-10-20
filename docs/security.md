@@ -126,3 +126,12 @@ Users should eventually be able to export and delete their own application data.
 Audit administrative and security actions without turning the audit log into contact-access surveillance.
 
 Authentication logs must not include plaintext passwords, provider secrets, session identifiers, invitation tokens, or unnecessary personal data.
+
+
+## Operations diagnostics
+
+The operations page is authenticated and permission-gated with `view_operations`; it is not a public health endpoint. It uses the normal no-store HTML security headers.
+
+Scheduler heartbeats persist only task names, UTC timestamps, status, and aggregate attempted/succeeded/failed counts. They deliberately do not persist exception messages, contact/source identifiers, phone numbers, notification recipients, message content, provider configuration, or secrets.
+
+Global notification queue diagnostics expose counts only. Scheduler stale thresholds are configuration values and are not rendered as secret-bearing configuration dumps.

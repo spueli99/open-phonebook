@@ -108,3 +108,10 @@ A health endpoint may expose non-sensitive operational status such as:
 - last successful background run
 
 Sensitive provider or account data must not be exposed.
+
+
+## Operations diagnostics
+
+Operations health and scheduler diagnostics are currently available only through the authenticated, permission-gated system-administration UI.
+
+There is deliberately no public unauthenticated health API endpoint. External monitoring integration is deferred until an explicit authentication and exposure model is defined.

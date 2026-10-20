@@ -8,6 +8,10 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Added
 
+- System-admin operations diagnostics with database, scheduler, and notification-queue health
+- Persistent aggregate heartbeats for Google Contacts sync and notification delivery cron jobs
+- Configurable scheduler stale thresholds with environment overrides
+- Dedicated `view_operations` permission
 - Secure web setup installer and versioned migration foundation
 - Local email/password authentication foundation
 - Secure authenticated browser sessions
@@ -51,6 +55,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Operations diagnostics are authenticated, permission-gated, no-store, and aggregate-only
+- Scheduler heartbeats never persist exception text, contact/source identifiers, notification content, provider credentials, or secrets
 - Ambiguous local phone numbers are never assigned a country without explicit region configuration
 - Shared address books retain owner-only metadata and sharing administration
 - Contact import preview validates untrusted uploads before any persistence and requires write access plus CSRF protection

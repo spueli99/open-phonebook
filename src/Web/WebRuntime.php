@@ -27,6 +27,9 @@ use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
+use OpenPhonebook\Operations\OperationsHealthService;
+use OpenPhonebook\Operations\OperationsMetricsRepository;
+use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
 use PDO;
@@ -122,6 +125,39 @@ final readonly class WebRuntime
                 $this->applicationKey
             ),
             new SystemClock()
+        );
+    }
+
+    public function operationsHealthService(): OperationsHealthService
+    {
+        $thresholds = $this->config->get(
+            'operations.scheduler_stale_after_seconds',
+            []
+        );
+
+        if (!is_array($thresholds)) {
+            throw new RuntimeException(
+                'Scheduler health configuration is invalid.'
+            );
+        }
+
+        $validated = [];
+
+        foreach ($thresholds as $task => $seconds) {
+            if (!is_string($task) || !is_int($seconds)) {
+                throw new RuntimeException(
+                    'Scheduler health threshold is invalid.'
+                );
+            }
+
+            $validated[$task] = $seconds;
+        }
+
+        return new OperationsHealthService(
+            new OperationsMetricsRepository($this->database),
+            new SchedulerHeartbeatRepository($this->database),
+            new SystemClock(),
+            $validated
         );
     }
 

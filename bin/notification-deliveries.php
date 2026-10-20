@@ -15,6 +15,8 @@ use OpenPhonebook\Notifications\NotificationDeliveryWorker;
 use OpenPhonebook\Notifications\NotificationProviderRegistry;
 use OpenPhonebook\Notifications\PhpMailTransport;
 use OpenPhonebook\Notifications\PushoverNotificationProvider;
+use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
+use OpenPhonebook\Operations\SchedulerTask;
 use OpenPhonebook\Security\SecretCipher;
 use RuntimeException;
 use Throwable;
@@ -29,6 +31,9 @@ if (!is_file($autoload)) {
 
 require $autoload;
 
+$heartbeat = null;
+$clock = new SystemClock();
+
 try {
     $config = Config::load($projectRoot);
     $databaseConfig = $config->get('database');
@@ -38,6 +43,13 @@ try {
             'Database configuration is invalid.'
         );
     }
+
+    $database = ConnectionFactory::create($databaseConfig);
+    $heartbeat = new SchedulerHeartbeatRepository($database);
+    $heartbeat->markStarted(
+        SchedulerTask::NotificationDelivery,
+        $clock->now()
+    );
 
     $applicationKey = $config->get('app.key');
 
@@ -50,7 +62,6 @@ try {
         );
     }
 
-    $database = ConnectionFactory::create($databaseConfig);
     $transactions = new PdoTransactionManager($database);
     $worker = new NotificationDeliveryWorker(
         new NotificationDeliveryRepository(
@@ -69,11 +80,42 @@ try {
         new NotificationConfigCipher(
             new SecretCipher($applicationKey)
         ),
-        new SystemClock()
+        $clock
     );
 
     $result = $worker->run(50);
+
+    if ($result->failed > 0) {
+        $heartbeat->markFailed(
+            SchedulerTask::NotificationDelivery,
+            $clock->now(),
+            $result->claimed,
+            $result->sent,
+            $result->failed
+        );
+    } else {
+        $heartbeat->markSucceeded(
+            SchedulerTask::NotificationDelivery,
+            $clock->now(),
+            $result->claimed,
+            $result->sent,
+            0
+        );
+    }
 } catch (Throwable) {
+    if ($heartbeat instanceof SchedulerHeartbeatRepository) {
+        try {
+            $heartbeat->markFailed(
+                SchedulerTask::NotificationDelivery,
+                $clock->now(),
+                0,
+                0,
+                1
+            );
+        } catch (Throwable) {
+            // Preserve the original failure if heartbeat persistence also fails.
+        }
+    }
     fwrite(
         STDERR,
         "Notification delivery worker could not be started.\n"

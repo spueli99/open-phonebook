@@ -12,7 +12,8 @@ final class Authorization
 
         return match ($permission) {
             Permission::ManageUsers,
-            Permission::InviteUsers => $role === Role::SystemAdmin,
+            Permission::InviteUsers,
+            Permission::ViewOperations => $role === Role::SystemAdmin,
         };
     }
 }

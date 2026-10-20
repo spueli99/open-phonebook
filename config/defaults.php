@@ -31,6 +31,12 @@ return [
         'password' => null,
         'charset' => 'utf8mb4',
     ],
+    'operations' => [
+        'scheduler_stale_after_seconds' => [
+            'google_contacts_sync' => 1800,
+            'notification_delivery' => 300,
+        ],
+    ],
     'security' => [
         'force_https' => true,
         'session_cookie_secure' => true,

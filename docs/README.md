@@ -9,6 +9,7 @@
 - [Devices](devices.md)
 - [Call events](call-events.md)
 - [Notifications](notifications.md)
+- [Operations and health diagnostics](operations.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Setup installer](setup-installer.md)
