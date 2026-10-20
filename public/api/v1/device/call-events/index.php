@@ -5,6 +5,7 @@ declare(strict_types=1);
 use OpenPhonebook\Calls\JsonCallEventParser;
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Web\DeviceRuntime;
+use OpenPhonebook\Web\Request;
 use OpenPhonebook\Web\SecurityHeaders;
 use Throwable;
 
@@ -20,6 +21,9 @@ require $autoload;
 
 SecurityHeaders::sendPrivate();
 
+$clientIp = Request::clientIp();
+$throttleEndpoint = 'call-events';
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     http_response_code(405);
     header('Allow: POST');
@@ -33,12 +37,22 @@ try {
     exit;
 }
 
+if ($runtime->throttle->isBlocked($throttleEndpoint, $clientIp)) {
+    http_response_code(429);
+    header('Retry-After: 900');
+    exit;
+}
+
 $device = $runtime->authentication->authenticate(
     $_SERVER,
     DeviceCredentialScope::CallEventsWrite
 );
 
 if ($device === null) {
+    $runtime->throttle->registerFailure(
+        $throttleEndpoint,
+        $clientIp
+    );
     http_response_code(401);
     header(
         'WWW-Authenticate: Bearer realm="Open Phonebook"',
@@ -50,6 +64,8 @@ if ($device === null) {
     );
     exit;
 }
+
+$runtime->throttle->clear($throttleEndpoint, $clientIp);
 
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
