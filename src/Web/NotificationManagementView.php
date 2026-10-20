@@ -10,7 +10,9 @@ use Throwable;
 use OpenPhonebook\Devices\Device;
 use OpenPhonebook\I18n\Translator;
 use OpenPhonebook\Notifications\NotificationChannel;
-use OpenPhonebook\Notifications\NotificationDeliveryHistoryItem;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryFilter;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryPage;
+use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationRule;
 use OpenPhonebook\Notifications\NotificationTrigger;
 
@@ -27,7 +29,6 @@ final class NotificationManagementView
      *     failed: int,
      *     cancelled: int
      * } $deliveryCounts
-     * @param list<NotificationDeliveryHistoryItem> $deliveryHistory
      */
     public static function render(
         Translator $translator,
@@ -35,7 +36,8 @@ final class NotificationManagementView
         array $rules,
         array $devices,
         array $deliveryCounts,
-        array $deliveryHistory,
+        NotificationDeliveryHistoryPage $deliveryHistory,
+        NotificationDeliveryHistoryFilter $historyFilter,
         string $timezone,
         string $csrfToken,
         ?string $webPushPublicKey = null,
@@ -222,6 +224,8 @@ final class NotificationManagementView
         $historyHtml = self::history(
             $translator,
             $deliveryHistory,
+            $historyFilter,
+            $channels,
             $timezone,
             $csrfToken
         );
@@ -422,15 +426,20 @@ final class NotificationManagementView
     /**
      * @param list<NotificationDeliveryHistoryItem> $history
      */
+    /**
+     * @param list<NotificationChannel> $channels
+     */
     private static function history(
         Translator $translator,
-        array $history,
+        NotificationDeliveryHistoryPage $page,
+        NotificationDeliveryHistoryFilter $filter,
+        array $channels,
         string $timezone,
         string $csrfToken
     ): string {
         $rows = '';
 
-        foreach ($history as $item) {
+        foreach ($page->items as $item) {
             $channel = $item->channelName
                 ?? $translator->get(
                     'notifications.history.channel_deleted'
@@ -499,76 +508,209 @@ final class NotificationManagementView
                 . '</td></tr>';
         }
 
-        if ($rows === '') {
-            return '<section class="card"><h2>'
+        $table = $rows === ''
+            ? '<p>'
                 . Html::escape(
                     $translator->get(
-                        'notifications.history.title'
+                        'notifications.history.none_filtered'
                     )
                 )
-                . '</h2><p>'
+                . '</p>'
+            : '<div style="overflow-x:auto"><table>'
+                . '<thead><tr><th>'
+                . Html::escape(
+                    $translator->get('notifications.channel')
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get('notifications.trigger')
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get('devices.status')
+                )
+                . '</th><th>'
                 . Html::escape(
                     $translator->get(
-                        'notifications.history.none'
+                        'notifications.history.attempts'
                     )
                 )
-                . '</p></section>';
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.created'
+                    )
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.available'
+                    )
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.last_error'
+                    )
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.history.sent'
+                    )
+                )
+                . '</th><th>'
+                . Html::escape(
+                    $translator->get('users.actions')
+                )
+                . '</th></tr></thead><tbody>'
+                . $rows
+                . '</tbody></table></div>';
+
+        $older = '';
+
+        if ($page->olderBeforeId !== null) {
+            $query = self::historyQuery($filter);
+            $query['before'] = (string) $page->olderBeforeId;
+            $older = '<p><a href="/notifications/?'
+                . Html::escape(http_build_query($query))
+                . '">'
+                . Html::escape(
+                    $translator->get('notifications.history.older')
+                )
+                . '</a></p>';
         }
 
         return '<section class="card"><h2>'
             . Html::escape(
                 $translator->get('notifications.history.title')
             )
-            . '</h2><div style="overflow-x:auto"><table>'
-            . '<thead><tr><th>'
-            . Html::escape(
-                $translator->get('notifications.channel')
+            . '</h2>'
+            . self::historyFilterForm(
+                $translator,
+                $filter,
+                $channels
             )
-            . '</th><th>'
+            . $table
+            . $older
+            . '</section>';
+    }
+
+    /**
+     * @param list<NotificationChannel> $channels
+     */
+    private static function historyFilterForm(
+        Translator $translator,
+        NotificationDeliveryHistoryFilter $filter,
+        array $channels
+    ): string {
+        $statusOptions = '<option value="">'
             . Html::escape(
-                $translator->get('notifications.trigger')
+                $translator->get('notifications.history.all_statuses')
             )
-            . '</th><th>'
-            . Html::escape(
-                $translator->get('devices.status')
-            )
-            . '</th><th>'
-            . Html::escape(
-                $translator->get(
-                    'notifications.history.attempts'
+            . '</option>';
+
+        foreach (NotificationDeliveryStatus::cases() as $status) {
+            $selected = $filter->status === $status
+                ? ' selected'
+                : '';
+            $statusOptions .= '<option value="'
+                . Html::escape($status->value)
+                . '"' . $selected . '>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.delivery.' . $status->value
+                    )
                 )
-            )
-            . '</th><th>'
+                . '</option>';
+        }
+
+        $triggerOptions = '<option value="">'
             . Html::escape(
-                $translator->get(
-                    'notifications.history.created'
+                $translator->get('notifications.history.all_triggers')
+            )
+            . '</option>';
+
+        foreach (NotificationTrigger::cases() as $trigger) {
+            $selected = $filter->trigger === $trigger
+                ? ' selected'
+                : '';
+            $triggerOptions .= '<option value="'
+                . Html::escape($trigger->value)
+                . '"' . $selected . '>'
+                . Html::escape(
+                    $translator->get(
+                        'notifications.trigger.' . $trigger->value
+                    )
                 )
-            )
-            . '</th><th>'
+                . '</option>';
+        }
+
+        $channelOptions = '<option value="">'
             . Html::escape(
-                $translator->get(
-                    'notifications.history.available'
-                )
+                $translator->get('notifications.history.all_channels')
             )
-            . '</th><th>'
+            . '</option>';
+
+        foreach ($channels as $channel) {
+            $selected = $filter->channelId === $channel->id
+                ? ' selected'
+                : '';
+            $channelOptions .= '<option value="'
+                . $channel->id . '"' . $selected . '>'
+                . Html::escape($channel->name)
+                . '</option>';
+        }
+
+        return '<form method="get" action="/notifications/">'
+            . '<label>'
+            . Html::escape($translator->get('devices.status'))
+            . ' <select name="status">'
+            . $statusOptions
+            . '</select></label> '
+            . '<label>'
+            . Html::escape($translator->get('notifications.trigger'))
+            . ' <select name="trigger">'
+            . $triggerOptions
+            . '</select></label> '
+            . '<label>'
+            . Html::escape($translator->get('notifications.channel'))
+            . ' <select name="channel">'
+            . $channelOptions
+            . '</select></label> '
+            . '<button type="submit">'
             . Html::escape(
-                $translator->get(
-                    'notifications.history.last_error'
-                )
+                $translator->get('notifications.history.filter')
             )
-            . '</th><th>'
+            . '</button> '
+            . '<a href="/notifications/">'
             . Html::escape(
-                $translator->get(
-                    'notifications.history.sent'
-                )
+                $translator->get('notifications.history.reset')
             )
-            . '</th><th>'
-            . Html::escape(
-                $translator->get('users.actions')
-            )
-            . '</th></tr></thead><tbody>'
-            . $rows
-            . '</tbody></table></div></section>';
+            . '</a></form>';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function historyQuery(
+        NotificationDeliveryHistoryFilter $filter
+    ): array {
+        $query = [];
+
+        if ($filter->status !== null) {
+            $query['status'] = $filter->status->value;
+        }
+
+        if ($filter->trigger !== null) {
+            $query['trigger'] = $filter->trigger->value;
+        }
+
+        if ($filter->channelId !== null) {
+            $query['channel'] = (string) $filter->channelId;
+        }
+
+        return $query;
     }
 
     private static function formatTime(
