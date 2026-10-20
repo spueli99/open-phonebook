@@ -23,6 +23,14 @@ final class ConfigTest extends TestCase
             $config->get('providers.google.client_secret')
         );
         self::assertSame('utf8mb4', $config->get('database.charset'));
+        self::assertSame(
+            180,
+            $config->get('operations.retention_days.call_history')
+        );
+        self::assertSame(
+            90,
+            $config->get('operations.retention_days.notification_history')
+        );
     }
 
     public function testMissingKeyReturnsDefault(): void
