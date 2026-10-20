@@ -21,6 +21,7 @@ final class DashboardViewTest extends TestCase
                 'Admin User',
                 'system_admin',
                 'en',
+                'Europe/Berlin',
                 1
             ),
             'csrf',
