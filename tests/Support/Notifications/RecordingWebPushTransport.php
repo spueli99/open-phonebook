@@ -14,10 +14,12 @@ final class RecordingWebPushTransport implements WebPushTransportInterface
     /** @var list<array{subscription: WebPushSubscriptionData, message: NotificationMessage}> */
     public array $sent = [];
 
+    private readonly WebPushTransportResult $result;
+
     public function __construct(
-        private readonly WebPushTransportResult $result =
-            WebPushTransportResult::Sent
+        ?WebPushTransportResult $result = null
     ) {
+        $this->result = $result ?? WebPushTransportResult::Sent;
     }
 
     public function send(
