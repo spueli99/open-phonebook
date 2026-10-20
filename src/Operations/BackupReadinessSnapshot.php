@@ -24,6 +24,7 @@ final readonly class BackupReadinessSnapshot
         public ?bool $expectedKeyFingerprintMatched,
         public bool $localConfigPresent,
         public bool $installationLockPresent,
+        public bool $dependencyLockPresent,
         public array $missingMigrationIds,
         public array $unknownMigrationIds,
         public array $keyDependentRecords,
