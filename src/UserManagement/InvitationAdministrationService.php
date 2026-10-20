@@ -37,6 +37,16 @@ final class InvitationAdministrationService
         int $actingUserId,
         string $reason = 'admin'
     ): void {
+        if (
+            !in_array(
+                $reason,
+                ['admin', 'mail_configuration_invalid', 'mail_delivery_failed'],
+                true
+            )
+        ) {
+            throw new RuntimeException('Invitation revoke reason is invalid.');
+        }
+
         $this->transactional(function () use (
             $invitationId,
             $actingUserId,
