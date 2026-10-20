@@ -107,7 +107,7 @@ Gelöschte oder deaktivierte Kanäle führen zu `cancelled`. Fehlende Provider o
 
 Die Verwaltungsseite zeigt aggregierte Zähler für pending, processing, sent, failed und cancelled.
 
-Zusätzlich werden die 50 letzten Zustellungen des aktuellen Benutzers angezeigt. Die Historie enthält ausschließlich Metadaten wie Kanal, Auslöser, Status, Versuchszahl sowie Erstell-, Fälligkeits-, Fehler- und Versandzeitpunkt. Gerenderter Titel/Nachrichtentext und Provider-Zugangsdaten werden nicht angezeigt.
+Zusätzlich wird die Zustellhistorie des aktuellen Benutzers seitenweise mit bis zu 50 Einträgen angezeigt. Die Historie kann nach Zustellstatus, Auslöser und einem eigenen Benachrichtigungskanal gefiltert werden. Ältere Seiten werden über einen stabilen ID-Cursor geladen; aktive Filter bleiben dabei erhalten. Die Historie enthält ausschließlich Metadaten wie Kanal, Auslöser, Status, Versuchszahl sowie Erstell-, Fälligkeits-, Fehler- und Versandzeitpunkt. Gerenderter Titel/Nachrichtentext und Provider-Zugangsdaten werden nicht angezeigt.
 
 Sobald ein Job einen terminalen Zustand erreicht, werden gerenderter Titel und Nachrichtentext geleert. Bei `sent` und `cancelled` wird zusätzlich der verschlüsselte Retry-Payload gelöscht. Ein `failed`-Job behält ausschließlich einen separat verschlüsselten Retry-Payload, damit der Besitzer die ursprüngliche Benachrichtigung ausdrücklich erneut versuchen kann, ohne lesbaren anrufbezogenen Nachrichtentext dauerhaft zu speichern.
 
@@ -202,6 +202,5 @@ Konfiguration über `operations.retention_days.notification_history` in `config/
 
 ## Später
 
-- Filter/Paginierung für größere Zustellhistorien
 - weitere Provider
 - individuelle Nachrichtentemplates pro Regel
