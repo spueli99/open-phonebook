@@ -9,6 +9,7 @@ The first persisted event types cover:
 - user activation and deactivation
 - platform role changes
 - invitation creation
+- invitation acceptance
 - invitation renewal
 - invitation revocation
 
