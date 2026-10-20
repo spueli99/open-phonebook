@@ -8,6 +8,7 @@ use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Google\GoogleContactsConnectionService;
 use OpenPhonebook\Google\GoogleOAuthStateStore;
 use OpenPhonebook\Sources\ContactSourceRepository;
+use OpenPhonebook\Web\SecurityHeaders;
 use OpenPhonebook\Web\WebRuntime;
 use RuntimeException;
 use Throwable;
@@ -21,6 +22,8 @@ if (!is_file($autoload)) {
 }
 
 require $autoload;
+
+SecurityHeaders::sendPrivate();
 
 try {
     $runtime = WebRuntime::boot($projectRoot);

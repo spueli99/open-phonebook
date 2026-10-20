@@ -79,6 +79,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Sensitive device, Web Push, and OAuth callback responses now apply a shared no-store/no-referrer baseline on both success and early error paths
+- Removed unused session-cookie security defaults so fixed HttpOnly/SameSite protections are not misrepresented as operator-tunable settings
 - Web setup enforces HTTPS before every setup step/session and preflights config/install-lock writability before database changes
 - CI audits the committed Composer lock against published security advisories before merge/release
 - Direct Yealink callbacks use a separate revocable credential scope, reject Bearer/query-token authentication, require HTTPS, and whitelist only documented callback parameters

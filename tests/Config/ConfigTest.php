@@ -31,6 +31,16 @@ final class ConfigTest extends TestCase
             90,
             $config->get('operations.retention_days.notification_history')
         );
+        self::assertTrue($config->get('security.force_https'));
+        self::assertNull(
+            $config->get('security.session_cookie_secure')
+        );
+        self::assertNull(
+            $config->get('security.session_cookie_httponly')
+        );
+        self::assertNull(
+            $config->get('security.session_cookie_samesite')
+        );
     }
 
     public function testMissingKeyReturnsDefault(): void

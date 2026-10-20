@@ -85,6 +85,8 @@ The session stores only the minimum authenticated identity needed by the current
 - timezone
 - authentication timestamp
 
+These cookie protections are security invariants in code, not operator-tunable configuration. Open Phonebook deliberately does not expose settings that could disable HttpOnly or weaken SameSite behavior. The Secure flag follows the actual HTTPS request used to start the session, while production runtime normally requires HTTPS.
+
 Authorization must still be checked server-side for every protected operation. Session presence alone does not grant access to arbitrary resources.
 
 ## Login throttling

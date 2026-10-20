@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Web\DeviceRuntime;
+use OpenPhonebook\Web\SecurityHeaders;
 use Throwable;
 
 $projectRoot = dirname(__DIR__, 5);
@@ -15,6 +16,8 @@ if (!is_file($autoload)) {
 }
 
 require $autoload;
+
+SecurityHeaders::sendPrivate();
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     http_response_code(405);
@@ -44,8 +47,6 @@ if ($device === null) {
         'WWW-Authenticate: Basic realm="Open Phonebook"',
         false
     );
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -53,8 +54,6 @@ $format = $_GET['format'] ?? '';
 
 if (!is_string($format) || !preg_match('/^[a-z0-9_-]+$/', $format)) {
     http_response_code(400);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -62,8 +61,6 @@ $exporter = $runtime->exporters->get($format);
 
 if ($exporter === null) {
     http_response_code(404);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -73,8 +70,6 @@ try {
     );
 } catch (Throwable) {
     http_response_code(500);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -86,9 +81,5 @@ try {
 
 header('Content-Type: ' . $export->contentType);
 header('Content-Disposition: inline; filename="' . $export->fileName . '"');
-header('Cache-Control: no-store, private');
-header('Pragma: no-cache');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: no-referrer');
 
 echo $export->body;

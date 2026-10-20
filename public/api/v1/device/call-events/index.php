@@ -5,6 +5,7 @@ declare(strict_types=1);
 use OpenPhonebook\Calls\JsonCallEventParser;
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Web\DeviceRuntime;
+use OpenPhonebook\Web\SecurityHeaders;
 use Throwable;
 
 $projectRoot = dirname(__DIR__, 5);
@@ -16,6 +17,8 @@ if (!is_file($autoload)) {
 }
 
 require $autoload;
+
+SecurityHeaders::sendPrivate();
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     http_response_code(405);
@@ -45,8 +48,6 @@ if ($device === null) {
         'WWW-Authenticate: Basic realm="Open Phonebook"',
         false
     );
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -60,8 +61,6 @@ if (
     )
 ) {
     http_response_code(415);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -69,8 +68,6 @@ $body = file_get_contents('php://input', false, null, 0, 16_385);
 
 if (!is_string($body) || strlen($body) > 16_384) {
     http_response_code(413);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -79,8 +76,6 @@ try {
     $result = $runtime->callEvents->record($device, $event);
 } catch (Throwable) {
     http_response_code(400);
-    header('Cache-Control: no-store');
-    header('X-Content-Type-Options: nosniff');
     exit;
 }
 
@@ -97,10 +92,6 @@ try {
 }
 
 header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store, private');
-header('Pragma: no-cache');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: no-referrer');
 
 echo json_encode(
     [
