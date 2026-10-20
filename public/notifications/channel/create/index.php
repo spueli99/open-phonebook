@@ -76,6 +76,7 @@ try {
         $user->id,
         $user->timezone,
         CsrfToken::rotate(),
+        $runtime->webPushPublicKey(),
         $runtime->translator($user->locale)->get(
             'notifications.updated'
         )
@@ -86,6 +87,7 @@ try {
         $user->id,
         $user->timezone,
         CsrfToken::issue(),
+        $runtime->webPushPublicKey(),
         null,
         $runtime->translator($user->locale)->get(
             'error.request'

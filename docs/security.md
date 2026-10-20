@@ -144,3 +144,18 @@ A complete recovery set includes the database plus the original runtime applicat
 The server-side backup readiness CLI exposes only schema metadata, a domain-separated application-key fingerprint, configuration/lock presence flags, and aggregate counts of key-dependent records. It never outputs the application key, database password, provider credentials, contact data, phone numbers, or notification content.
 
 Database dumps and runtime secret configuration must be protected as sensitive backup material, encrypted at rest, access-controlled, and kept outside the public document root. Restores must verify the saved application-key fingerprint before production traffic or cron jobs are re-enabled.
+
+
+## Web Push and PWA
+
+Web Push uses a stable VAPID key pair stored in runtime configuration. The private VAPID key is a secret and is never rendered to browser clients; only the public VAPID key is exposed to authenticated users who can register a browser subscription.
+
+Push subscription endpoints and encryption material are treated as provider configuration and are encrypted at rest inside notification channels. Subscription mutation requires an authenticated session and CSRF-protected POST requests.
+
+The server restricts browser subscription endpoints to HTTPS and known push-service host suffixes before they can reach the outbound Web Push transport. This prevents an authenticated user from turning the notification worker into a generic SSRF client.
+
+The PWA service worker intentionally has no fetch handler and creates no offline cache. Authenticated pages, contact data, cookies, and application responses are therefore not persisted into a service-worker-controlled cache.
+
+The HTML Content Security Policy allows only the minimum additional same-origin PWA capabilities: service workers, manifest/images, and same-origin subscription requests. It does not allow arbitrary external connections.
+
+Notification-click URLs are normalized and origin-checked before navigation; protocol-relative or cross-origin targets fall back to the application root. Expired subscriptions are automatically deactivated on push-service 404/410 responses.

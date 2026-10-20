@@ -148,6 +148,151 @@ final class NotificationAdministrationService
         );
     }
 
+    public function registerWebPush(
+        int $ownerUserId,
+        string $endpoint,
+        string $p256dh,
+        string $auth,
+        string $contentEncoding,
+        string $browserId
+    ): int {
+        $subscription = WebPushSubscriptionValidator::validate(
+            $endpoint,
+            $p256dh,
+            $auth,
+            $contentEncoding,
+            $browserId
+        );
+        $encrypted = $this->configCipher->encrypt(
+            $subscription->toConfig()
+        );
+
+        foreach ($this->channels->allOwnedBy($ownerUserId) as $channel) {
+            if ($channel->provider !== 'web_push') {
+                continue;
+            }
+
+            try {
+                $existing = $this->configCipher->decrypt(
+                    $channel->encryptedConfig
+                );
+            } catch (\Throwable) {
+                continue;
+            }
+
+            if (
+                ($existing['browser_id'] ?? '') !== $browserId
+                && ($existing['endpoint'] ?? '')
+                    !== $subscription->endpoint
+            ) {
+                continue;
+            }
+
+            $target = $subscription->toConfig();
+
+            if ($existing !== $target) {
+                if (
+                    !$this->channels->updateConfig(
+                        $channel->id,
+                        $ownerUserId,
+                        $encrypted
+                    )
+                ) {
+                    throw new RuntimeException(
+                        'Web Push channel could not be updated.'
+                    );
+                }
+            }
+
+            if (!$channel->isActive) {
+                $this->channels->setActive(
+                    $channel->id,
+                    $ownerUserId,
+                    true
+                );
+            }
+
+            return $channel->id;
+        }
+
+        return $this->channels->create(
+            $ownerUserId,
+            'Web Push',
+            'web_push',
+            $encrypted
+        );
+    }
+
+    public function webPushActive(
+        int $ownerUserId,
+        string $browserId,
+        string $endpoint
+    ): bool {
+        self::validateBrowserId($browserId);
+        $endpoint = trim($endpoint);
+
+        foreach ($this->channels->allOwnedBy($ownerUserId) as $channel) {
+            if ($channel->provider !== 'web_push') {
+                continue;
+            }
+
+            $config = $this->decryptWebPushConfig($channel);
+
+            if (
+                $config === null
+                || !self::matchesWebPushBrowser(
+                    $config,
+                    $browserId,
+                    $endpoint
+                )
+            ) {
+                continue;
+            }
+
+            return $channel->isActive;
+        }
+
+        return false;
+    }
+
+    public function disableWebPush(
+        int $ownerUserId,
+        string $browserId,
+        string $endpoint
+    ): void {
+        self::validateBrowserId($browserId);
+        $endpoint = trim($endpoint);
+
+        foreach ($this->channels->allOwnedBy($ownerUserId) as $channel) {
+            if ($channel->provider !== 'web_push') {
+                continue;
+            }
+
+            $config = $this->decryptWebPushConfig($channel);
+
+            if (
+                $config === null
+                || !self::matchesWebPushBrowser(
+                    $config,
+                    $browserId,
+                    $endpoint
+                )
+            ) {
+                continue;
+            }
+
+            if ($channel->isActive) {
+                $this->channels->setActive(
+                    $channel->id,
+                    $ownerUserId,
+                    false
+                );
+            }
+
+            return;
+        }
+    }
+
     /**
      * @param array<string, string> $config
      */
@@ -276,6 +421,45 @@ final class NotificationAdministrationService
     }
 
     /**
+     * @return array<string, string>|null
+     */
+    private function decryptWebPushConfig(
+        NotificationChannel $channel
+    ): ?array {
+        try {
+            return $this->configCipher->decrypt(
+                $channel->encryptedConfig
+            );
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @param array<string, string> $config
+     */
+    private static function matchesWebPushBrowser(
+        array $config,
+        string $browserId,
+        string $endpoint
+    ): bool {
+        return ($config['browser_id'] ?? '') === $browserId
+            || (
+                $endpoint !== ''
+                && ($config['endpoint'] ?? '') === $endpoint
+            );
+    }
+
+    private static function validateBrowserId(string $browserId): void
+    {
+        if (preg_match('/^[a-f0-9]{32}$/', $browserId) !== 1) {
+            throw new RuntimeException(
+                'Invalid Web Push browser identifier.'
+            );
+        }
+    }
+
+    /**
      * @param array<string, string> $config
      * @return array<string, string>
      */
@@ -286,6 +470,9 @@ final class NotificationAdministrationService
         return match ($provider) {
             'pushover' => $this->validatePushover($config),
             'email' => $this->validateEmail($config),
+            'web_push' => WebPushSubscriptionValidator::fromConfig(
+                $config
+            )->toConfig(),
             default => throw new RuntimeException(
                 'Unsupported notification provider.'
             ),

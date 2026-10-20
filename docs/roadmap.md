@@ -120,11 +120,14 @@ Completed or in active work:
 - owner-scoped recent delivery history
 - manual retry for failed deliveries
 - queued test-send action
+- Web Push notification provider
+- authenticated browser subscription lifecycle
+- minimal installable PWA manifest/service worker without private offline caching
+- automatic cleanup of expired push subscriptions
 
 Still planned:
 
 - history filtering/pagination and retention cleanup
-- Web Push/PWA
 - future additional providers
 
 ## Operations

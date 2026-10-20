@@ -6,6 +6,7 @@
     <file>public</file>
     <exclude-pattern>vendor/*</exclude-pattern>
     <arg name="colors"/>
+    <arg name="extensions" value="php"/>
     <arg value="sp"/>
     <rule ref="PSR12"/>
 </ruleset>

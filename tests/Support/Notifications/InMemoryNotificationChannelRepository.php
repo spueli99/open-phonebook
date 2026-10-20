@@ -60,6 +60,29 @@ final class InMemoryNotificationChannelRepository implements NotificationChannel
         return $id;
     }
 
+    public function updateConfig(
+        int $channelId,
+        int $ownerUserId,
+        string $encryptedConfig
+    ): bool {
+        $channel = $this->findOwnedBy($channelId, $ownerUserId);
+
+        if ($channel === null) {
+            return false;
+        }
+
+        $this->channels[$channelId] = new NotificationChannel(
+            $channel->id,
+            $channel->ownerUserId,
+            $channel->name,
+            $channel->provider,
+            $encryptedConfig,
+            $channel->isActive
+        );
+
+        return true;
+    }
+
     public function setActive(
         int $channelId,
         int $ownerUserId,

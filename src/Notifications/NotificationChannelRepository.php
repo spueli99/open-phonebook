@@ -106,6 +106,27 @@ final class NotificationChannelRepository implements NotificationChannelReposito
         return (int) $this->database->lastInsertId();
     }
 
+    public function updateConfig(
+        int $channelId,
+        int $ownerUserId,
+        string $encryptedConfig
+    ): bool {
+        $statement = $this->database->prepare(
+            'UPDATE notification_channels
+             SET encrypted_config = :encrypted_config,
+                 updated_at = UTC_TIMESTAMP()
+             WHERE id = :id
+               AND owner_user_id = :owner_user_id'
+        );
+        $statement->execute([
+            'encrypted_config' => $encryptedConfig,
+            'id' => $channelId,
+            'owner_user_id' => $ownerUserId,
+        ]);
+
+        return $statement->rowCount() === 1;
+    }
+
     public function setActive(
         int $channelId,
         int $ownerUserId,

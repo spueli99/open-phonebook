@@ -114,3 +114,12 @@ Backup/restore uses standard MariaDB/MySQL dumps rather than a proprietary appli
 The readiness service compares the database migration set with the migrations known by the current code, checks the effective application key and installation lock, reports whether dependency locking is available, and derives a non-secret domain-separated fingerprint for restore verification.
 
 The database and original application key are one logical recovery unit. Cache/log storage is not part of the current persistent domain model.
+
+
+## Web Push / PWA
+
+Web Push is implemented as another notification-provider adapter and therefore reuses the same user-owned channels, notification rules, quiet-hours evaluation, persistent delivery queue, retries, test sends, and delivery history as Pushover and email.
+
+The Minishlink Web Push library is isolated behind `WebPushTransportInterface`. Browser subscription data remains in encrypted channel configuration; global VAPID identity remains in runtime configuration.
+
+The PWA layer is intentionally minimal. The root service worker receives push payloads and handles notification clicks but does not provide an offline application cache. This preserves the existing no-store model for authenticated private content.

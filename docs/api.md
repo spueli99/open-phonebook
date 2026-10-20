@@ -115,3 +115,16 @@ Sensitive provider or account data must not be exposed.
 Operations health and scheduler diagnostics are currently available only through the authenticated, permission-gated system-administration UI.
 
 There is deliberately no public unauthenticated health API endpoint. External monitoring integration is deferred until an explicit authentication and exposure model is defined.
+
+
+## Web Push browser subscription
+
+Web Push subscription management is currently a browser-session feature, not a public API.
+
+The authenticated notification page uses CSRF-protected POST endpoints to register or disable the current browser subscription:
+
+- `/notifications/web-push/status/`
+- `/notifications/web-push/subscribe/`
+- `/notifications/web-push/unsubscribe/`
+
+The status endpoint is read-only and lets the current browser compare its local PushSubscription with the owner's server-side channel state. Subscribe/unsubscribe mutations remain explicit user actions. These endpoints accept browser-generated PushSubscription material only for the authenticated user. They do not expose the VAPID private key or other notification-channel credentials.

@@ -227,6 +227,83 @@ final class NotificationAdministrationServiceTest extends TestCase
         $service->retryDelivery(20, $deliveryId);
     }
 
+    public function testWebPushReregistrationKeepsChannelAndRules(): void
+    {
+        $channels = new InMemoryNotificationChannelRepository();
+        $rules = new InMemoryNotificationRuleRepository();
+        $service = new NotificationAdministrationService(
+            $channels,
+            $rules,
+            new InMemoryDeviceRepository(),
+            new NotificationConfigCipher(
+                new SecretCipher(self::APP_KEY)
+            ),
+            new InMemoryNotificationDeliveryRepository(),
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
+            new FrozenClock('2026-10-20 10:00:00')
+        );
+        $browserId = '0123456789abcdef0123456789abcdef';
+        $channelId = $service->registerWebPush(
+            10,
+            'https://fcm.googleapis.com/fcm/send/first-token',
+            'BabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-',
+            'abcdefghijklmnop',
+            'aes128gcm',
+            $browserId
+        );
+        $service->createRule(
+            10,
+            $channelId,
+            null,
+            NotificationTrigger::Missed
+        );
+        self::assertTrue(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/first-token'
+            )
+        );
+
+        $service->disableWebPush(
+            10,
+            $browserId,
+            'https://fcm.googleapis.com/fcm/send/first-token'
+        );
+
+        self::assertFalse(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/first-token'
+            )
+        );
+
+        $secondId = $service->registerWebPush(
+            10,
+            'https://fcm.googleapis.com/fcm/send/second-token',
+            'CabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-',
+            'ponmlkjihgfedcba',
+            'aes128gcm',
+            $browserId
+        );
+
+        self::assertSame($channelId, $secondId);
+        self::assertTrue(
+            $channels->findOwnedBy($channelId, 10)?->isActive
+        );
+        self::assertTrue(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/second-token'
+            )
+        );
+        self::assertCount(1, $service->rules(10));
+    }
+
     public function testTestTriggerCannotBecomeRule(): void
     {
         $channels = new InMemoryNotificationChannelRepository();

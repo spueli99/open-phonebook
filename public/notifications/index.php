@@ -39,5 +39,7 @@ echo (new NotificationManagementPage(
     $runtime->translator($user->locale)
 ))->render(
     $user->id,
-    CsrfToken::issue()
+    $user->timezone,
+    CsrfToken::issue(),
+    $runtime->webPushPublicKey()
 );

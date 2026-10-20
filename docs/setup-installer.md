@@ -140,3 +140,22 @@ Disaster recovery must not rerun the web installer against an existing restored 
 Restore the matching code, database, original runtime configuration/application key, and `storage/installed.lock`, then use `php bin/backup-readiness.php` with the fingerprint saved from the backup.
 
 See [Backup and restore](backup-restore.md).
+
+
+## Optional Web Push / PWA setup
+
+Web Push is configured after the base installation because VAPID is a deployment-level server identity, not per-user setup data.
+
+Generate a key pair once:
+
+`php bin/generate-vapid-keys.php`
+
+Store the resulting keys as runtime secrets and configure a stable VAPID subject:
+
+- `OPENPHONEBOOK_WEB_PUSH_SUBJECT=mailto:admin@example.org` or a stable HTTPS URL
+- `OPENPHONEBOOK_WEB_PUSH_PUBLIC_KEY=...`
+- `OPENPHONEBOOK_WEB_PUSH_PRIVATE_KEY=...`
+
+Do not regenerate these keys during ordinary deployments. Existing browser subscriptions are tied to the VAPID identity.
+
+After configuration, authenticated users can enable Web Push for each browser from the Notifications page.
