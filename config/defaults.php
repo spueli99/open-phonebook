@@ -21,6 +21,11 @@ return [
             'client_id' => null,
             'client_secret' => null,
         ],
+        'web_push' => [
+            'subject' => null,
+            'public_key' => null,
+            'private_key' => null,
+        ],
     ],
     'database' => [
         'driver' => 'mysql',
