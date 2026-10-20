@@ -9,4 +9,5 @@ enum NotificationTrigger: string
     case Incoming = 'incoming';
     case Missed = 'missed';
     case Completed = 'completed';
+    case Test = 'test';
 }

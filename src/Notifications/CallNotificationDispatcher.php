@@ -8,6 +8,7 @@ use OpenPhonebook\Calls\CallDirection;
 use OpenPhonebook\Calls\CallEventResult;
 use OpenPhonebook\Calls\CallSessionState;
 use OpenPhonebook\Devices\AuthenticatedDevice;
+use LogicException;
 use OpenPhonebook\Clock\ClockInterface;
 use Throwable;
 
@@ -17,6 +18,7 @@ final class CallNotificationDispatcher
         private readonly NotificationRuleRepositoryInterface $rules,
         private readonly NotificationChannelRepositoryInterface $channels,
         private readonly NotificationDeliveryRepositoryInterface $deliveries,
+        private readonly NotificationMessageCipher $messageCipher,
         private readonly QuietHoursPolicy $quietHours,
         private readonly ClockInterface $clock,
     ) {
@@ -60,6 +62,7 @@ final class CallNotificationDispatcher
                     $channel->id,
                     $trigger,
                     $message,
+                    $this->messageCipher->encrypt($message),
                     $this->clock->now()
                 );
             } catch (Throwable) {
@@ -109,6 +112,9 @@ final class CallNotificationDispatcher
             NotificationTrigger::Completed => new NotificationMessage(
                 'Call completed',
                 'Call with ' . $remote . ' completed'
+            ),
+            NotificationTrigger::Test => throw new LogicException(
+                'Test trigger is not a call event.'
             ),
         };
     }

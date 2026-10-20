@@ -26,6 +26,7 @@ use OpenPhonebook\Exports\YealinkPhonebookExporter;
 use OpenPhonebook\Notifications\CallNotificationDispatcher;
 use OpenPhonebook\Notifications\NotificationChannelRepository;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
+use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
 use OpenPhonebook\Notifications\QuietHoursPolicy;
 use OpenPhonebook\Notifications\UserTimezoneRepository;
@@ -117,6 +118,9 @@ final readonly class DeviceRuntime
                 new NotificationDeliveryRepository(
                     $database,
                     $transactions
+                ),
+                NotificationMessageCipher::fromApplicationKey(
+                    $applicationKey
                 ),
                 new QuietHoursPolicy(
                     $clock,

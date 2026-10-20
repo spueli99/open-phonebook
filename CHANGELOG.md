@@ -45,6 +45,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Per-rule quiet hours evaluated in each user's configured timezone
 - Persistent cron-driven notification delivery queue with bounded retry/backoff and stale-worker recovery
 - Aggregate notification delivery diagnostics in the management UI
+- Owner-scoped recent notification delivery history with localized timestamps
+- Manual retry for failed deliveries using domain-separated encrypted retry payloads
+- Queue-based test sends for active notification channels
 
 ### Security
 
@@ -68,6 +71,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Provider failures are isolated after call-state commit and cannot roll back call history
 - Device-facing call requests never contact external notification providers directly
 - Queue claims are transactionally locked and stale processing jobs are recoverable after ten minutes
+- Delivery history never renders notification content or provider secrets
+- Sent/cancelled jobs erase encrypted retry payloads; failed jobs keep only encrypted retry material for explicit owner retry
+- Test sends and manual retry are authenticated, CSRF-protected, and owner-scoped
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance

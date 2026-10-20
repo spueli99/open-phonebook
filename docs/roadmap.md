@@ -117,12 +117,14 @@ Completed or in active work:
 - persistent cron-driven delivery queue
 - bounded retry/backoff and stale-worker recovery
 - aggregate delivery diagnostics
+- owner-scoped recent delivery history
+- manual retry for failed deliveries
+- queued test-send action
 
 Still planned:
 
-- detailed delivery-history UI and manual retry
+- history filtering/pagination and retention cleanup
 - Web Push/PWA
-- test-send action
 - future additional providers
 
 ## Operations

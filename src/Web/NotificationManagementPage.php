@@ -17,6 +17,7 @@ final class NotificationManagementPage
 
     public function render(
         int $ownerUserId,
+        string $timezone,
         string $csrfToken,
         ?string $notice = null,
         ?string $error = null
@@ -27,6 +28,8 @@ final class NotificationManagementPage
             $this->notifications->rules($ownerUserId),
             $this->notifications->devices($ownerUserId),
             $this->notifications->deliveryCounts($ownerUserId),
+            $this->notifications->deliveryHistory($ownerUserId),
+            $timezone,
             $csrfToken,
             $notice,
             $error

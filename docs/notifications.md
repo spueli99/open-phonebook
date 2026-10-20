@@ -105,9 +105,27 @@ Deleted or inactive channels cancel queued jobs. Missing providers or undecrypta
 
 The management page exposes aggregate delivery counts for pending, processing, sent, failed, and cancelled jobs.
 
-Once a job reaches a terminal state (`sent`, `failed`, or `cancelled`), its rendered title and body are cleared. Status metadata remains available for diagnostics without retaining call-derived message content longer than needed.
+It also shows the 50 most recent delivery records for the current user. The history contains only delivery metadata such as channel, trigger, state, attempt count, created/due/error/sent timestamps, and retry availability. Rendered notification title/body and provider credentials are never shown.
+
+Once a job reaches a terminal state, its rendered title and body are cleared. For `sent` and `cancelled`, the encrypted retry payload is cleared as well. A `failed` job keeps only a separately encrypted retry payload so the owner may explicitly retry the original notification without storing readable call-derived message content.
 
 Delivery is at-least-once within the retry window. A process crash after the external provider accepted a message but before the local `sent` update can result in a duplicate retry; providers without idempotency support cannot eliminate that ambiguity completely.
+
+## Manual retry
+
+Only a failed delivery owned by the current user may be retried.
+
+A retry additionally requires the original channel to still exist and be active. The encrypted retry payload is decrypted only inside the application service, immediately re-encrypted with a fresh nonce, and the same delivery record is reset to `pending` with attempts reset to zero.
+
+The retry payload uses a dedicated HKDF domain separate from provider-secret encryption.
+
+## Test delivery
+
+An active channel can be tested from the management UI.
+
+Test delivery does not contact the provider from the browser request. It creates a normal queue job using the internal `test` trigger, then the cron worker handles transport, retry, failure isolation, and history exactly like a real notification.
+
+The `test` trigger is internal and cannot be configured as a normal call-event rule.
 
 ## Failure isolation
 
@@ -150,9 +168,8 @@ Provider secrets are encrypted at rest and are not written to ordinary applicati
 
 ## Deferred
 
-- detailed per-delivery history view and diagnostics
-- manual retry action
-- test-send action
+- filtering/pagination for larger delivery histories
+- bulk history cleanup/retention policy
 - Web Push/PWA
 - additional providers
 - per-rule custom message templates

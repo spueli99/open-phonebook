@@ -39,6 +39,20 @@ final class SecretCipherTest extends TestCase
         $cipher->decrypt($tampered);
     }
 
+    public function testDifferentContextsCannotDecrypt(): void
+    {
+        $encrypted = (new SecretCipher(
+            str_repeat('a', 64),
+            'context-a'
+        ))->encrypt('retry-payload');
+
+        $this->expectException(RuntimeException::class);
+        (new SecretCipher(
+            str_repeat('a', 64),
+            'context-b'
+        ))->decrypt($encrypted);
+    }
+
     public function testWrongApplicationKeyCannotDecrypt(): void
     {
         $encrypted = (new SecretCipher(

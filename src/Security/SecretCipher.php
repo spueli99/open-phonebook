@@ -15,17 +15,23 @@ final class SecretCipher
 
     private readonly string $key;
 
-    public function __construct(string $applicationKey)
-    {
+    public function __construct(
+        string $applicationKey,
+        string $context = 'open-phonebook/provider-secrets/v1'
+    ) {
         if (strlen($applicationKey) < 32) {
             throw new RuntimeException('Application key is too short.');
+        }
+
+        if ($context === '') {
+            throw new RuntimeException('Secret context must not be empty.');
         }
 
         $this->key = hash_hkdf(
             'sha256',
             $applicationKey,
             32,
-            'open-phonebook/provider-secrets/v1'
+            $context
         );
     }
 

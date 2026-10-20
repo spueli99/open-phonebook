@@ -9,6 +9,7 @@ use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationDeliveryWorker;
 use OpenPhonebook\Notifications\NotificationMessage;
+use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationProviderRegistry;
 use OpenPhonebook\Notifications\NotificationTrigger;
 use OpenPhonebook\Security\SecretCipher;
@@ -37,11 +38,18 @@ final class NotificationDeliveryWorkerTest extends TestCase
             'recording',
             $cipher->encrypt(['target' => 'one'])
         );
+        $message = new NotificationMessage(
+            'Missed call',
+            'Missed call from Alice'
+        );
         $id = $deliveries->enqueue(
             10,
             $channelId,
             NotificationTrigger::Missed,
-            new NotificationMessage('Missed call', 'Missed call from Alice'),
+            $message,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            )->encrypt($message),
             $clock->now()
         );
         $provider = new RecordingNotificationProvider('recording');
@@ -77,11 +85,15 @@ final class NotificationDeliveryWorkerTest extends TestCase
             'recording',
             $cipher->encrypt(['target' => 'one'])
         );
+        $message = new NotificationMessage('Missed call', 'Body');
         $id = $deliveries->enqueue(
             10,
             $channelId,
             NotificationTrigger::Missed,
-            new NotificationMessage('Missed call', 'Body'),
+            $message,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            )->encrypt($message),
             $clock->now()
         );
         $worker = new NotificationDeliveryWorker(
@@ -128,11 +140,15 @@ final class NotificationDeliveryWorkerTest extends TestCase
             'recording',
             $cipher->encrypt(['target' => 'one'])
         );
+        $message = new NotificationMessage('Incoming call', 'Body');
         $id = $deliveries->enqueue(
             10,
             $channelId,
             NotificationTrigger::Incoming,
-            new NotificationMessage('Incoming call', 'Body'),
+            $message,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            )->encrypt($message),
             $clock->now()
         );
         $channels->setActive($channelId, 10, false);

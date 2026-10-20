@@ -86,7 +86,7 @@ A notification rule may reference only:
 - either all of the user's devices or one device owned by that user
 - a supported notification trigger
 
-Quiet-hours settings and delivery diagnostics are scoped to the rule/channel owner as well. Provider configuration is never exposed merely because another account has an administrative role.
+Quiet-hours settings, delivery history, manual retry, and test-send actions are scoped to the rule/channel owner as well. A user may retry only their own failed delivery and only while its original channel still exists and is active. Provider configuration and decrypted retry payloads are never exposed merely because another account has an administrative role.
 
 ## System administrators
 

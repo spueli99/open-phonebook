@@ -11,6 +11,7 @@ use OpenPhonebook\Calls\CallSessionState;
 use OpenPhonebook\Devices\AuthenticatedDevice;
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Notifications\CallNotificationDispatcher;
+use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationTrigger;
 use OpenPhonebook\Notifications\QuietHoursPolicy;
 use OpenPhonebook\Tests\Support\Clock\FrozenClock;
@@ -22,6 +23,9 @@ use PHPUnit\Framework\TestCase;
 
 final class CallNotificationDispatcherTest extends TestCase
 {
+    private const APP_KEY =
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
     public function testIncomingRuleQueuesResolvedCaller(): void
     {
         $channels = new InMemoryNotificationChannelRepository();
@@ -46,6 +50,9 @@ final class CallNotificationDispatcherTest extends TestCase
             $rules,
             $channels,
             $deliveries,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
             $this->quietHours($clock),
             $clock
         );
@@ -99,6 +106,9 @@ final class CallNotificationDispatcherTest extends TestCase
             $rules,
             $channels,
             $deliveries,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
             $this->quietHours($clock),
             $clock
         );
@@ -151,6 +161,9 @@ final class CallNotificationDispatcherTest extends TestCase
             $rules,
             $channels,
             $deliveries,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
             $this->quietHours($clock),
             $clock
         );

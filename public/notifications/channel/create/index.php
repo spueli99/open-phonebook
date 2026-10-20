@@ -74,6 +74,7 @@ try {
     SecurityHeaders::sendHtml();
     echo $page->render(
         $user->id,
+        $user->timezone,
         CsrfToken::rotate(),
         $runtime->translator($user->locale)->get(
             'notifications.updated'
@@ -83,6 +84,7 @@ try {
     SecurityHeaders::sendHtml();
     echo $page->render(
         $user->id,
+        $user->timezone,
         CsrfToken::issue(),
         null,
         $runtime->translator($user->locale)->get(
