@@ -81,11 +81,11 @@ Completed or in active work:
 - JSON exporter
 - CSV exporter
 - Yealink Remote Phone Book exporter
+- credential last-used tracking with owner-visible timestamps
 
 Still planned:
 
 - future Snom, Grandstream, Fanvil and other adapters
-- credential last-used tracking
 
 ## Call events
 
