@@ -8,4 +8,5 @@ enum DeviceCredentialScope: string
 {
     case PhonebookRead = 'phonebook:read';
     case CallEventsWrite = 'call-events:write';
+    case YealinkCallbackWrite = 'yealink-callback:write';
 }
