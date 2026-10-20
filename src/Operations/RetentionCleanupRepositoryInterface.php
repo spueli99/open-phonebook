@@ -9,10 +9,12 @@ use DateTimeImmutable;
 interface RetentionCleanupRepositoryInterface
 {
     public function deleteTerminalCallSessionsBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int;
 
     public function deleteTerminalNotificationDeliveriesBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int;
 }
