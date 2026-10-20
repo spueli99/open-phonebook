@@ -59,15 +59,14 @@ final class NotificationAdministrationService
         return $this->deliveries->countsOwnedBy($ownerUserId);
     }
 
-    /**
-     * @return list<NotificationDeliveryHistoryItem>
-     */
     public function deliveryHistory(
         int $ownerUserId,
+        NotificationDeliveryHistoryFilter $filter,
         int $limit = 50
-    ): array {
-        return $this->deliveries->recentOwnedBy(
+    ): NotificationDeliveryHistoryPage {
+        return $this->deliveries->historyOwnedBy(
             $ownerUserId,
+            $filter,
             $limit
         );
     }
