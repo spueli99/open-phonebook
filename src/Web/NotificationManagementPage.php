@@ -21,9 +21,9 @@ final class NotificationManagementPage
         string $timezone,
         string $csrfToken,
         ?string $webPushPublicKey = null,
-        ?NotificationDeliveryHistoryFilter $historyFilter = null,
         ?string $notice = null,
-        ?string $error = null
+        ?string $error = null,
+        ?NotificationDeliveryHistoryFilter $historyFilter = null
     ): string {
         $historyFilter ??= new NotificationDeliveryHistoryFilter();
         $channels = $this->notifications->channels($ownerUserId);
