@@ -56,5 +56,6 @@ echo DashboardView::render(
     $user,
     CsrfToken::issue(),
     $authorization->allows($user, Permission::ManageUsers),
-    $authorization->allows($user, Permission::ViewOperations)
+    $authorization->allows($user, Permission::ViewOperations),
+    $authorization->allows($user, Permission::ViewAudit)
 );
