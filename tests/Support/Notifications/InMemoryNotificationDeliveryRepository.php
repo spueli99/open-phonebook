@@ -11,8 +11,7 @@ use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationMessage;
 use OpenPhonebook\Notifications\NotificationTrigger;
 
-final class InMemoryNotificationDeliveryRepository
-    implements NotificationDeliveryRepositoryInterface
+final class InMemoryNotificationDeliveryRepository implements NotificationDeliveryRepositoryInterface
 {
     /** @var array<int, NotificationDelivery> */
     private array $deliveries = [];
