@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenPhonebook\Notifications;
 
 use PDO;
+use PDOStatement;
 use RuntimeException;
 
 final class NotificationRuleRepository implements NotificationRuleRepositoryInterface
@@ -22,6 +23,13 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
              WHERE owner_user_id = :owner_user_id
              ORDER BY id ASC'
         );
+
+        if (!$statement instanceof PDOStatement) {
+            throw new RuntimeException(
+                'Notification rule query could not be prepared.'
+            );
+        }
+
         $statement->execute(['owner_user_id' => $ownerUserId]);
 
         return $this->fetchAll($statement);
@@ -42,6 +50,13 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                AND (device_id IS NULL OR device_id = :device_id)
              ORDER BY id ASC'
         );
+
+        if (!$statement instanceof PDOStatement) {
+            throw new RuntimeException(
+                'Notification rule query could not be prepared.'
+            );
+        }
+
         $statement->execute([
             'owner_user_id' => $ownerUserId,
             'trigger_name' => $trigger->value,
