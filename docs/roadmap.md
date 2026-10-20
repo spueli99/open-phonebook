@@ -95,12 +95,12 @@ Completed or in active work:
 - generic JSON call-event API
 - transactional call-session state machine
 - Yealink Action URL normalization adapter
+- secure direct Yealink Action URL callback endpoint with dedicated credential scope
 - scoped caller lookup through assigned/currently-readable address books
 - owner-scoped recent call history web UI with cursor pagination
 
 Still planned:
 
-- secure direct Yealink callback transport/endpoint
 - generic endpoint aliases for intercoms and other known callers
 
 ## Notifications
