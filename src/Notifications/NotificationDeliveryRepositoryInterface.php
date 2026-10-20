@@ -13,6 +13,7 @@ interface NotificationDeliveryRepositoryInterface
         int $channelId,
         NotificationTrigger $trigger,
         NotificationMessage $message,
+        string $encryptedRetryPayload,
         DateTimeImmutable $availableAt
     ): int;
 
@@ -55,4 +56,25 @@ interface NotificationDeliveryRepositoryInterface
      * }
      */
     public function countsOwnedBy(int $ownerUserId): array;
+
+    /**
+     * @return list<NotificationDeliveryHistoryItem>
+     */
+    public function recentOwnedBy(
+        int $ownerUserId,
+        int $limit = 50
+    ): array;
+
+    public function retryCandidateOwnedBy(
+        int $deliveryId,
+        int $ownerUserId
+    ): ?NotificationRetryCandidate;
+
+    public function retryFailedOwnedBy(
+        int $deliveryId,
+        int $ownerUserId,
+        NotificationMessage $message,
+        string $encryptedRetryPayload,
+        DateTimeImmutable $availableAt
+    ): bool;
 }
