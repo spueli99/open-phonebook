@@ -14,6 +14,7 @@ Creating a device initially generates a phonebook credential. Devices can indepe
 
 - `phonebook:read`
 - `call-events:write`
+- `yealink-callback:write`
 
 The plaintext token is shown once immediately after creation or rotation.
 
@@ -35,7 +36,7 @@ Deactivating a device automatically revokes all active device credentials. React
 
 Each credential records `last_used_at` only after a request has authenticated successfully and the protected device operation itself has completed successfully. Invalid tokens, malformed requests, failed phonebook exports, and rejected call events do not update the timestamp. A telemetry write failure never turns an otherwise successful device request into an error.
 
-The device-management page shows the last successful use independently for the active `phonebook:read` and `call-events:write` credentials in the signed-in user's timezone. A newly rotated credential is shown as never used until its first successful request.
+The device-management page shows the last successful use independently for the active `phonebook:read`, `call-events:write`, and `yealink-callback:write` credentials in the signed-in user's timezone. A newly rotated credential is shown as never used until its first successful request.
 
 ## Address-book assignment
 
@@ -56,6 +57,7 @@ Current management operations:
 - activate/deactivate device
 - rotate/revoke phonebook credential
 - rotate/revoke call-event credential
+- rotate/revoke Yealink callback credential
 - assign readable address books
 
 ## Phonebook exports
@@ -74,7 +76,7 @@ One response is limited to 5,000 contacts. The Yealink serializer additionally r
 
 ## Call-event credentials
 
-Call events use the independent `call-events:write` scope. Rotation or revocation of this scope does not affect `phonebook:read`.
+Generic JSON call events use the independent `call-events:write` scope. Direct Yealink Action URL callbacks use the narrower, separately managed `yealink-callback:write` scope and HTTP Basic authentication only. Rotation or revocation of either scope does not affect `phonebook:read` or the other call-event credential.
 
 See [Call events](call-events.md).
 
