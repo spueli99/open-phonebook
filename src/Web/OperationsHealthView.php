@@ -45,7 +45,7 @@ final class OperationsHealthView
             . 'table{border-collapse:collapse;width:100%}'
             . 'th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}'
             . 'code{white-space:nowrap}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main>'
             . '<nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a></nav><h1>'
@@ -94,7 +94,7 @@ final class OperationsHealthView
             . ' · '
             . Html::escape($translator->get('notifications.delivery.failed'))
             . ': ' . $snapshot->notificationQueue['failed']
-            . '</p></section></main></body></html>';
+            . '</p></section></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function schedulerRow(

@@ -45,7 +45,9 @@ final class AuditLogView
             . 'th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd;'
             . 'vertical-align:top}'
             . 'code{white-space:nowrap}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main><nav><a href="/">'
+            . '</style><link rel="stylesheet" href="/assets/app.css">'
+            . '</head><body>' . AppChrome::header()
+            . '<main><nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/admin/operations/">'
             . Html::escape($translator->get('nav.operations'))
@@ -65,7 +67,7 @@ final class AuditLogView
             . Html::escape($translator->get('audit.metadata'))
             . '</th></tr></thead><tbody>'
             . $rows
-            . '</tbody></table></div></main></body></html>';
+            . '</tbody></table></div></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function row(

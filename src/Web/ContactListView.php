@@ -107,7 +107,7 @@ final class ContactListView
             . 'th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left;vertical-align:top}'
             . 'button,a.button{padding:8px 12px}'
             . 'nav{display:flex;gap:16px}</style>'
-            . '<link rel="stylesheet" href="/assets/app.css"></head><body><main><nav>'
+            . '<link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main><nav>'
             . '<a href="/address-books/">'
             . Html::escape(
                 $translator->get('contacts.address_books.title')
@@ -133,7 +133,7 @@ final class ContactListView
             . '</th><th>'
             . Html::escape($translator->get('users.actions'))
             . '</th></tr></thead><tbody>'
-            . $rows . '</tbody></table></main></body></html>';
+            . $rows . '</tbody></table></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private function __construct()

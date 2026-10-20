@@ -51,7 +51,9 @@ final class CallHistoryView
             . 'table{border-collapse:collapse;width:100%}'
             . 'th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd;'
             . 'vertical-align:top}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main><p><a href="/">'
+            . '</style><link rel="stylesheet" href="/assets/app.css">'
+            . '</head><body>' . AppChrome::header()
+            . '<main><p><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a></p><h1>'
             . Html::escape($translator->get('calls.title'))
@@ -73,7 +75,7 @@ final class CallHistoryView
             . $rows
             . '</tbody></table></div>'
             . $older
-            . '</main></body></html>';
+            . '</main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function row(

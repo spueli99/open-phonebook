@@ -246,12 +246,12 @@ final class ContactImportPreviewView
             . 'input,button{padding:8px}'
             . 'table{width:100%;border-collapse:collapse}'
             . 'th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left;vertical-align:top}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>';
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main>';
     }
 
     private static function pageEnd(): string
     {
-        return '</main></body></html>';
+        return '</main>' . AppChrome::footer() . '</body></html>';
     }
 
     private function __construct()
