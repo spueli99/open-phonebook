@@ -90,8 +90,7 @@ final class PasswordResetService
         try {
             $this->mailer->send(
                 $user,
-                $token->plainText,
-                $expiresAt
+                $token->plainText
             );
         } catch (Throwable) {
             try {
