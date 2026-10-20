@@ -104,6 +104,8 @@ Configure the event name to match the corresponding Yealink Action URL setting, 
 
 The token must never be copied into a query-string parameter. If a phone/firmware does not emit HTTP Basic authentication from URI userinfo for Action URLs, Open Phonebook intentionally provides no query-token fallback; use the generic authenticated call-event API or validate another secure transport for that model.
 
+Because Yealink Action URLs are GET requests, optional `local` and `remote` values appear in the request URI and may otherwise be written to web-server or reverse-proxy access logs. Production deployments that include those values must suppress or redact the callback query string in access logging. They may also omit `local`/`remote` entirely when caller lookup and number snapshots are not required.
+
 The callback response is a small `200 OK` text response after the existing transactional call-state service accepts the event. Notification dispatch remains isolated after the call-state commit. Successful callbacks update only the dedicated callback credential's `last_used_at`.
 
 ## Persistence
