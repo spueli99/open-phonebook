@@ -28,6 +28,8 @@ final class DeviceManagementPage
         $assignments = [];
         $phonebookCredentialStates = [];
         $callEventCredentialStates = [];
+        $phonebookLastUsedAt = [];
+        $callEventLastUsedAt = [];
 
         foreach ($devices as $device) {
             $assignments[$device->id] = $this->devices->addressBookIds(
@@ -46,6 +48,18 @@ final class DeviceManagementPage
                     $device->id,
                     DeviceCredentialScope::CallEventsWrite
                 );
+            $phonebookLastUsedAt[$device->id] =
+                $this->devices->activeCredentialLastUsedAt(
+                    $ownerUserId,
+                    $device->id,
+                    DeviceCredentialScope::PhonebookRead
+                );
+            $callEventLastUsedAt[$device->id] =
+                $this->devices->activeCredentialLastUsedAt(
+                    $ownerUserId,
+                    $device->id,
+                    DeviceCredentialScope::CallEventsWrite
+                );
         }
 
         return DeviceManagementView::render(
@@ -55,6 +69,9 @@ final class DeviceManagementPage
             $assignments,
             $phonebookCredentialStates,
             $callEventCredentialStates,
+            $phonebookLastUsedAt,
+            $callEventLastUsedAt,
+            $this->translator,
             $csrfToken,
             $credential,
             $notice,
