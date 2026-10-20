@@ -27,6 +27,11 @@ final class ApplicationKeyFingerprint
         );
     }
 
+    public static function isValid(string $fingerprint): bool
+    {
+        return preg_match('/^[a-f0-9]{24}$/i', $fingerprint) === 1;
+    }
+
     private function __construct()
     {
     }
