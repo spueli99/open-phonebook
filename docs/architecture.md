@@ -98,3 +98,10 @@ Open Phonebook does not provide:
 - PBX functions
 
 It may consume and normalize call events emitted by phones, intercoms, PBXs, or other adapters.
+
+
+## Operations diagnostics
+
+Cron-driven application tasks report aggregate lifecycle heartbeats through a small operations repository. The authenticated operations service maps those heartbeats to healthy, stale, failed, or never-run states using configurable thresholds and combines them with database/query and notification-queue aggregate metrics.
+
+The diagnostics layer is deliberately separate from scheduler business logic and does not persist or display provider exceptions or user-derived content.
