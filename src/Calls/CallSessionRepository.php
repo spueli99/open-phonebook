@@ -13,7 +13,7 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
     {
     }
 
-    public function findByDeviceAndExternalIdForUpdate(
+    public function findOpenByDeviceAndExternalIdForUpdate(
         int $deviceId,
         string $externalCallId
     ): ?CallSession {
@@ -23,6 +23,8 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
              FROM call_sessions
              WHERE device_id = :device_id
                AND external_call_id = :external_call_id
+               AND ended_at IS NULL
+             ORDER BY id DESC
              LIMIT 1
              FOR UPDATE'
         );
