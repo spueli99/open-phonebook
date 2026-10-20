@@ -69,7 +69,25 @@ Der Yealink-Adapter bildet unterstützte Action-URL-Ereignisse auf das neutrale 
 
 SIP-URIs aus Yealink `$local` und `$remote` werden vor der Rufnummernnormalisierung auf den Benutzer-/Rufnummernteil reduziert.
 
-Der Adapter ist absichtlich vom öffentlichen HTTP-Controller getrennt. Ein direkter Yealink-Callback-Endpunkt wird erst aktiviert, wenn ein sicherer Credential-Transport für den Callback dokumentiert und verifiziert ist. Normale Geräte-Tokens dürfen nicht in Callback-URLs stehen.
+Der direkte Callback-Endpunkt lautet:
+
+`GET /api/v1/device/yealink/action-url/`
+
+Er verlangt ein eigenes Credential mit dem Scope `yealink-callback:write`. Dieses Credential wird ausschließlich per HTTP Basic mit dem Benutzernamen `device` akzeptiert. Bearer-Authentifizierung ist für diesen Endpunkt bewusst nicht zugelassen.
+
+Der Endpunkt verlangt HTTPS und akzeptiert niemals Credentials aus Query-Parametern oder Pfadsegmenten. Das Callback-Credential ist von `phonebook:read` und `call-events:write` vollständig getrennt, kann separat rotiert/widerrufen werden und wird beim Deaktivieren des Geräts automatisch ebenfalls widerrufen.
+
+Bei Yealink-Firmware, die URI-Userinfo in HTTP Basic umsetzt, wird der separate Callback-Token als Basic-Passwort in der Action URL verwendet. Beispiel:
+
+```text
+https://device:CALLBACK_TOKEN@phonebook.example/api/v1/device/yealink/action-url/?event=incoming_call&call_id=$call_id&local=$local&remote=$remote
+```
+
+Der Eventname muss zur jeweiligen Yealink-Action-URL-Einstellung passen, z. B. `incoming_call`, `outgoing_call`, `call_established`, `on_hook`, `missed_call`, `cancel_callout`, `remote_busy` oder `call_remote_canceled`.
+
+Der Token darf niemals zusätzlich als Query-Parameter übertragen werden. Falls ein Telefon bzw. eine Firmware bei Action URLs aus URI-Userinfo keine HTTP-Basic-Authentifizierung erzeugt, gibt es bewusst keinen unsicheren Query-Token-Fallback. In diesem Fall ist die generische authentifizierte Call-Event-API oder ein für das konkrete Modell verifizierter anderer sicherer Transport zu verwenden.
+
+Nach erfolgreicher Verarbeitung antwortet der Callback mit einer kleinen `200 OK`-Textantwort. Die bestehende transaktionale Call-State-Logik wird unverändert verwendet; die Notification-Verarbeitung bleibt nach dem Call-State-Commit isoliert. Erfolgreiche Callbacks aktualisieren ausschließlich `last_used_at` des separaten Callback-Credentials.
 
 ## Speicherung
 
