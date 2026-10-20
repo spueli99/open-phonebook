@@ -68,14 +68,27 @@ try {
         $user->id
     );
 
-    $baseUrl = $runtime->config->get('app.base_url', '');
-    if (!is_string($baseUrl) || $baseUrl === '') {
-        throw new RuntimeException('Application base URL is missing.');
+    $mailSent = false;
+    $mailer = $runtime->invitationMailer();
+
+    if ($mailer === null) {
+        $service->revoke($result->id);
+
+        throw new RuntimeException(
+            'Invitation mail configuration is invalid.'
+        );
     }
 
-    $invitationUrl = rtrim($baseUrl, '/')
-        . '/invite/accept/#'
-        . rawurlencode($result->token);
+    try {
+        $mailer->send($result);
+        $mailSent = true;
+    } catch (Throwable) {
+        $service->revoke($result->id);
+
+        throw new RuntimeException(
+            'Invitation email could not be sent.'
+        );
+    }
 } catch (Throwable) {
     http_response_code(400);
     exit;
@@ -87,6 +100,6 @@ SecurityHeaders::sendHtml();
 echo InvitationCreateView::render(
     $translator,
     CsrfToken::issue(),
-    $invitationUrl,
-    null
+    null,
+    $mailSent
 );

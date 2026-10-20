@@ -7,6 +7,7 @@ use OpenPhonebook\Auth\Permission;
 use OpenPhonebook\Auth\Role;
 use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Security\CsrfToken;
+use OpenPhonebook\UserManagement\InvitationAdministrationService;
 use OpenPhonebook\UserManagement\InvitationRepository;
 use OpenPhonebook\UserManagement\InvitationService;
 use OpenPhonebook\UserManagement\UserAdministrationRepository;
@@ -53,7 +54,7 @@ if (!(new Authorization())->allows($user, Permission::InviteUsers)) {
     exit;
 }
 
-$invitationUrl = null;
+$mailSent = false;
 $error = null;
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -75,14 +76,34 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 $user->id
             );
 
-            $baseUrl = $runtime->config->get('app.base_url', '');
-            if (!is_string($baseUrl) || $baseUrl === '') {
-                throw new RuntimeException('Application base URL is missing.');
+            $mailer = $runtime->invitationMailer();
+
+            if ($mailer === null) {
+                (new InvitationAdministrationService(
+                    new InvitationRepository($runtime->database),
+                    new SystemClock(),
+                    $runtime->applicationKey,
+                ))->revoke($result->id);
+
+                throw new RuntimeException(
+                    'Invitation mail configuration is invalid.'
+                );
             }
 
-            $invitationUrl = rtrim($baseUrl, '/')
-                . '/invite/accept/#'
-                . rawurlencode($result->token);
+            try {
+                $mailer->send($result);
+                $mailSent = true;
+            } catch (Throwable) {
+                (new InvitationAdministrationService(
+                    new InvitationRepository($runtime->database),
+                    new SystemClock(),
+                    $runtime->applicationKey,
+                ))->revoke($result->id);
+
+                throw new RuntimeException(
+                    'Invitation email could not be sent.'
+                );
+            }
 
             CsrfToken::rotate();
         } catch (Throwable) {
@@ -96,6 +117,6 @@ SecurityHeaders::sendHtml();
 echo InvitationCreateView::render(
     $translator,
     CsrfToken::issue(),
-    $invitationUrl,
-    $error
+    $error,
+    $mailSent
 );

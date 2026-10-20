@@ -61,7 +61,7 @@ Current rules:
 - invitation tokens are single-use
 - accepted or revoked invitations cannot be reused
 
-The current UI exposes the generated invitation link once so an administrator can send it through an appropriate communication channel. Active invitations are listed in user administration and can be revoked or renewed. Renewing an invitation replaces its token, invalidates the previous link, and starts a fresh three-day validity period. Email delivery will be added later through the notification/mail infrastructure.
+Invitation links are sent directly to the invited address through the shared hardened mail transport and are never rendered back into the administrator browser. Valid HTTPS `app.base_url` and system-mail sender configuration are required for invitation creation and renewal. If mail configuration is invalid or delivery fails after creation or renewal, the newly issued invitation is immediately revoked so no usable but undelivered token remains. Active invitations are listed in user administration and can be revoked or renewed. Renewing an invitation replaces its token, invalidates the previous link, and starts a fresh three-day validity period.
 
 ## Token transport
 
@@ -100,7 +100,6 @@ Completing recovery invalidates all prior browser sessions for that account thro
 
 Not yet included:
 
-- invitation email delivery
 - public registration
 - organization-scoped administration
 - audit-event persistence

@@ -11,20 +11,19 @@ final class InvitationCreateView
     public static function render(
         Translator $translator,
         string $csrfToken,
-        ?string $invitationUrl = null,
-        ?string $error = null
+        ?string $error = null,
+        bool $mailSent = false
     ): string {
         $result = '';
 
-        if ($invitationUrl !== null) {
+        if ($mailSent) {
             $result = '<div class="result" role="status">'
                 . '<p><strong>'
                 . Html::escape($translator->get('users.invite.created'))
                 . '</strong></p>'
-                . '<p class="mono">' . Html::escape($invitationUrl) . '</p>'
-                . '<p>' . Html::escape(
-                    $translator->get('users.invite.copy_once')
-                ) . '</p></div>';
+                . '<p>'
+                . Html::escape($translator->get('users.invite.sent'))
+                . '</p></div>';
         }
 
         $errorHtml = $error === null
@@ -43,7 +42,6 @@ final class InvitationCreateView
             . 'input,select{box-sizing:border-box;width:100%;padding:10px;margin-top:6px}'
             . 'button{margin-top:20px;padding:10px 16px;font-weight:700}'
             . '.error,.result{padding:12px;border:1px solid currentColor;border-radius:6px}'
-            . '.mono{font-family:ui-monospace,monospace;overflow-wrap:anywhere}'
             . '</style></head><body><main>'
             . '<p><a href="/admin/users/">← '
             . Html::escape($translator->get('users.back')) . '</a></p>'
