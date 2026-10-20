@@ -44,6 +44,13 @@ try {
         );
     }
 
+    $database = ConnectionFactory::create($databaseConfig);
+    $heartbeat = new SchedulerHeartbeatRepository($database);
+    $heartbeat->markStarted(
+        SchedulerTask::NotificationDelivery,
+        $clock->now()
+    );
+
     $applicationKey = $config->get('app.key');
 
     if (
@@ -55,12 +62,6 @@ try {
         );
     }
 
-    $database = ConnectionFactory::create($databaseConfig);
-    $heartbeat = new SchedulerHeartbeatRepository($database);
-    $heartbeat->markStarted(
-        SchedulerTask::NotificationDelivery,
-        $clock->now()
-    );
     $transactions = new PdoTransactionManager($database);
     $worker = new NotificationDeliveryWorker(
         new NotificationDeliveryRepository(
