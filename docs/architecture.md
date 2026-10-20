@@ -105,3 +105,12 @@ It may consume and normalize call events emitted by phones, intercoms, PBXs, or 
 Cron-driven application tasks report aggregate lifecycle heartbeats through a small operations repository. The authenticated operations service maps those heartbeats to healthy, stale, failed, or never-run states using configurable thresholds and combines them with database/query and notification-queue aggregate metrics.
 
 The diagnostics layer is deliberately separate from scheduler business logic and does not persist or display provider exceptions or user-derived content.
+
+
+## Backup and restore boundary
+
+Backup/restore uses standard MariaDB/MySQL dumps rather than a proprietary application archive. Open Phonebook provides a server-side readiness/verification layer around that standard process.
+
+The readiness service compares the database migration set with the migrations known by the current code, checks the effective application key and installation lock, reports whether dependency locking is available, and derives a non-secret domain-separated fingerprint for restore verification.
+
+The database and original application key are one logical recovery unit. Cache/log storage is not part of the current persistent domain model.
