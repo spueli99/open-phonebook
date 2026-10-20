@@ -31,11 +31,13 @@ final class BackupReadinessService
         );
         $keyAvailable = is_string($this->applicationKey)
             && strlen($this->applicationKey) >= 32;
-        $fingerprint = $keyAvailable
-            ? ApplicationKeyFingerprint::fromKey(
+        $fingerprint = null;
+
+        if ($keyAvailable && is_string($this->applicationKey)) {
+            $fingerprint = ApplicationKeyFingerprint::fromKey(
                 $this->applicationKey
-            )
-            : null;
+            );
+        }
         $fingerprintMatches = $expectedKeyFingerprint === null
             ? null
             : hash_equals(
