@@ -21,6 +21,7 @@ final readonly class BackupReadinessSnapshot
         public BackupReadinessStatus $status,
         public bool $applicationKeyAvailable,
         public ?string $applicationKeyFingerprint,
+        public ?bool $expectedKeyFingerprintMatched,
         public bool $localConfigPresent,
         public bool $installationLockPresent,
         public array $missingMigrationIds,
