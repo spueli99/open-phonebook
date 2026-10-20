@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use OpenPhonebook\Auth\PasswordResetMailer;
+use OpenPhonebook\Auth\PasswordResetRepository;
+use OpenPhonebook\Auth\PasswordResetService;
 use OpenPhonebook\Auth\UserRepository;
 use OpenPhonebook\Auth\UserSession;
 use OpenPhonebook\Clock\SystemClock;
@@ -28,6 +31,7 @@ use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
+use OpenPhonebook\Notifications\PhpMailTransport;
 use OpenPhonebook\Notifications\WebPushServerConfigurationFactory;
 use OpenPhonebook\Operations\OperationsHealthService;
 use OpenPhonebook\Operations\OperationsMetricsRepository;
@@ -77,6 +81,34 @@ final readonly class WebRuntime
             new UserSession(new UserRepository($database)),
             $applicationKey,
             $projectRoot,
+        );
+    }
+
+    public function passwordResetService(): PasswordResetService
+    {
+        $baseUrl = $this->config->get('app.base_url');
+        $from = $this->config->get('mail.from');
+
+        if (
+            !is_string($baseUrl)
+            || !is_string($from)
+        ) {
+            throw new RuntimeException(
+                'Password reset mail is not configured.'
+            );
+        }
+
+        return new PasswordResetService(
+            new UserRepository($this->database),
+            new PasswordResetRepository($this->database),
+            new PasswordResetMailer(
+                new PhpMailTransport(),
+                $baseUrl,
+                $from
+            ),
+            new PdoTransactionManager($this->database),
+            new SystemClock(),
+            $this->applicationKey
         );
     }
 
