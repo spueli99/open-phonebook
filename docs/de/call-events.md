@@ -79,6 +79,14 @@ Der Adapter ist absichtlich vom öffentlichen HTTP-Controller getrennt. Ein dire
 
 Zeitstempel werden in UTC gespeichert.
 
+## Anrufhistorie für Benutzer
+
+Angemeldete Benutzer können unter `/calls/` die letzten Anrufe ihrer eigenen Geräte einsehen. Die Abfrage wird über `devices.owner_user_id` strikt auf den angemeldeten Benutzer begrenzt; Anrufsitzungen von Geräten anderer Benutzer werden nicht angezeigt.
+
+Pro Seite werden bis zu 50 Anrufe angezeigt. Ältere Einträge werden per Cursor nachgeladen. Angezeigt werden Zeit, Richtung, aktueller bzw. endgültiger Status, Gegenstellen-Rufnummer, der beim Anruf ermittelte Kontaktname als Snapshot sowie der Gerätename. Die technische Folge einzelner Call-Events wird in der normalen Benutzeransicht bewusst nicht dargestellt.
+
+Kontaktname und Rufnummer werden zunächst nicht direkt mit einem Kontakt verlinkt, weil `call_sessions` keine stabile Kontakt-ID speichert. Eine nachträgliche Verknüpfung nur anhand von Name oder Rufnummer könnte nach späteren Änderungen im Adressbuch auf den falschen Kontakt zeigen.
+
 ## Aufbewahrung der Anrufhistorie
 
 Beendete Anrufsitzungen werden standardmäßig 180 Tage aufbewahrt. Die geplante Historienbereinigung löscht ausschließlich Sitzungen, deren `ended_at` älter als der konfigurierte Stichtag ist. Offene, klingelnde oder verbundene Sitzungen werden niemals durch die Retention-Bereinigung ausgewählt. Zugehörige `call_events` werden beim Löschen der beendeten Sitzung über die bestehende Datenbank-Cascade automatisch mit entfernt.

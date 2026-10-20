@@ -96,6 +96,7 @@ Completed or in active work:
 - transactional call-session state machine
 - Yealink Action URL normalization adapter
 - scoped caller lookup through assigned/currently-readable address books
+- owner-scoped recent call history web UI with cursor pagination
 
 Still planned:
 
