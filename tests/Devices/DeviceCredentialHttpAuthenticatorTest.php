@@ -68,6 +68,42 @@ final class DeviceCredentialHttpAuthenticatorTest extends TestCase
         );
     }
 
+    public function testBasicOnlyAuthenticationRejectsBearerTokens(): void
+    {
+        $credentials = new InMemoryDeviceCredentialRepository();
+        $credentials->setOwner(7, 10);
+        $token = DeviceCredentialToken::generate(self::APP_KEY);
+        $credentials->create(
+            7,
+            DeviceCredentialScope::YealinkCallbackWrite,
+            $token->hash
+        );
+        $authentication = new DeviceCredentialHttpAuthenticator(
+            new DeviceCredentialAuthenticator(
+                $credentials,
+                self::APP_KEY
+            )
+        );
+
+        self::assertNull(
+            $authentication->authenticateBasic(
+                ['HTTP_AUTHORIZATION' => 'Bearer ' . $token->plainText],
+                DeviceCredentialScope::YealinkCallbackWrite
+            )
+        );
+
+        self::assertNotNull(
+            $authentication->authenticateBasic(
+                [
+                    'HTTP_AUTHORIZATION' => 'Basic ' . base64_encode(
+                        'device:' . $token->plainText
+                    ),
+                ],
+                DeviceCredentialScope::YealinkCallbackWrite
+            )
+        );
+    }
+
     public function testCredentialsAreNeverAcceptedFromOtherInputs(): void
     {
         $credentials = new InMemoryDeviceCredentialRepository();
