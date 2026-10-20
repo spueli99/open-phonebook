@@ -36,7 +36,7 @@ The first step checks:
 - writable `storage/`
 - HTTPS
 
-HTTPS is treated as a requirement rather than a cosmetic warning because setup submits database and administrator credentials.
+HTTPS is treated as a requirement rather than a cosmetic warning because setup submits database and administrator credentials. The requirement is enforced before a setup session starts and before any setup step is served, so direct navigation to later steps cannot bypass transport security.
 
 ## Database credentials
 
@@ -115,6 +115,12 @@ The setup UI provides:
 - restrictive Content Security Policy
 - noindex/nofollow
 - generic public error messages
+
+## Filesystem preflight
+
+Before migrations or first-administrator creation begin, the installer verifies that the local configuration path and installation-lock path can be written. Predictable filesystem permission errors therefore fail before database changes start.
+
+The actual `config/local.php` file and `storage/installed.lock` are still written only after the database work succeeds.
 
 ## Installation lock
 
