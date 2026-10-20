@@ -27,6 +27,7 @@ use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
+use OpenPhonebook\Notifications\WebPushServerConfigurationFactory;
 use OpenPhonebook\Operations\OperationsHealthService;
 use OpenPhonebook\Operations\OperationsMetricsRepository;
 use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
@@ -159,6 +160,13 @@ final readonly class WebRuntime
             new SystemClock(),
             $validated
         );
+    }
+
+    public function webPushPublicKey(): ?string
+    {
+        return WebPushServerConfigurationFactory::fromConfig(
+            $this->config
+        )?->publicKey;
     }
 
     public function secretCipher(): SecretCipher
