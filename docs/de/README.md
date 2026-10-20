@@ -16,6 +16,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Google Kontakte](google-contacts.md)
 - [Geräte](devices.md)
 - [Anrufereignisse](call-events.md)
+- [Benachrichtigungen](notifications.md)
 
 ## Grundprinzipien
 
