@@ -25,6 +25,9 @@ final class AuthorizationTest extends TestCase
         self::assertTrue(
             $authorization->allows($user, Permission::ViewOperations)
         );
+        self::assertTrue(
+            $authorization->allows($user, Permission::ViewAudit)
+        );
     }
 
     public function testMemberCannotManageUsers(): void
@@ -40,6 +43,9 @@ final class AuthorizationTest extends TestCase
         );
         self::assertFalse(
             $authorization->allows($user, Permission::ViewOperations)
+        );
+        self::assertFalse(
+            $authorization->allows($user, Permission::ViewAudit)
         );
     }
 

@@ -31,6 +31,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - System-level user administration foundation
 - Explicit user-management permissions
 - Persistent typed audit events for user administration and the invitation lifecycle
+- System-admin read-only audit log UI with dedicated permission and timezone-aware rendering
 - Secure invitation creation and acceptance flow
 - System email delivery for invitations without exposing plaintext invitation tokens in administrator HTML
 - Active invitation listing, revocation, and token-safe renewal
@@ -72,6 +73,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Audit log UI is authenticated, system-admin-only, read-only, bounded to the latest 100 events, and HTML-escapes all dynamic values
 - Update readiness and migration execution block databases containing migration IDs unknown to the deployed code
 - Production update guidance requires a verified backup before schema migration and defines restore-based rollback when older code no longer understands the schema
 - Administrative user/invitation mutations persist audit events in the same database transaction; audit failure rolls back the state change

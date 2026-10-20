@@ -14,7 +14,8 @@ final class DashboardView
         AuthenticatedUser $user,
         string $csrfToken,
         bool $canManageUsers,
-        bool $canViewOperations
+        bool $canViewOperations,
+        bool $canViewAudit
     ): string {
         $name = Html::escape($user->displayName);
         $adminLink = $canManageUsers
@@ -36,6 +37,11 @@ final class DashboardView
                 . Html::escape($translator->get('nav.operations'))
                 . '</a></p>'
             : '';
+        $auditLink = $canViewAudit
+            ? '<p><a href="/admin/audit/">'
+                . Html::escape($translator->get('nav.audit'))
+                . '</a></p>'
+            : '';
 
         return '<!doctype html>'
             . '<html lang="' . Html::escape($translator->locale) . '">'
@@ -53,6 +59,7 @@ final class DashboardView
             . $devicesLink
             . $notificationsLink
             . $operationsLink
+            . $auditLink
             . $adminLink
             . '<form method="post" action="/logout/">'
             . '<input type="hidden" name="_csrf" value="'

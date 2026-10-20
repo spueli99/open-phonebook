@@ -55,6 +55,8 @@ Der Einladungsversand erfolgt erst nach der Erstellungs-/Erneuerungstransaktion.
 
 ## Lesen der Audit-Ereignisse
 
-Das Repository unterstützt bereits das begrenzte Laden der neuesten Ereignisse für spätere Administrations-/Betriebsfunktionen. Dieser Meilenstein führt zunächst nur die Persistenz ein und stellt noch keine Audit-Log-Ansicht in der Weboberfläche bereit.
+Angemeldete Systemadministratoren mit der eigenen Berechtigung `view_audit` können das schreibgeschützte Audit-Protokoll unter `/admin/audit/` öffnen. Die Oberfläche zeigt die neuesten 100 Ereignisse, formatiert Zeitstempel in der eingestellten Zeitzone des Administrators und stellt ausschließlich Actor-/Target-IDs sowie die bereits zentral validierten begrenzten Metadaten dar. Alle dynamischen Werte werden HTML-escaped.
+
+Die Audit-Oberfläche besitzt bewusst keine Suche über Kontaktinhalte, keinen Massenexport, keine Änderungsfunktionen und kein Protokollieren gewöhnlicher Kontaktzugriffe.
 
 Spätere Erweiterungen sollen dieselben typisierten Ereignis- und Metadaten-Grenzen für Geräte-Credentials, OAuth-/Provider-Verbindungen, Importe, destruktive Aktionen, Organisationsverwaltung und ausgewählte Authentifizierungs-/Security-Ereignisse wiederverwenden.

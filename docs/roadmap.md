@@ -23,6 +23,7 @@ Completed or in active foundation work:
 - email-based password reset/recovery with global session invalidation
 - system email delivery for invitations
 - persistent security/admin audit events
+- authenticated read-only audit log UI
 
 Still planned in the foundation area:
 
