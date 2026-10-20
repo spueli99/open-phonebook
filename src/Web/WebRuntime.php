@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenPhonebook\Web;
 
 use OpenPhonebook\Auth\UserSession;
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\LibPhoneNumberNormalizer;
 use OpenPhonebook\Contacts\PhoneNumberNormalizerInterface;
@@ -24,6 +25,7 @@ use OpenPhonebook\Notifications\NotificationAdministrationService;
 use OpenPhonebook\Notifications\NotificationChannelRepository;
 use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
+use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
@@ -115,7 +117,11 @@ final readonly class WebRuntime
             new NotificationDeliveryRepository(
                 $this->database,
                 $transactions
-            )
+            ),
+            NotificationMessageCipher::fromApplicationKey(
+                $this->applicationKey
+            ),
+            new SystemClock()
         );
     }
 
