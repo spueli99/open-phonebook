@@ -20,6 +20,13 @@ interface NotificationRuleRepositoryInterface
         NotificationTrigger $trigger
     ): array;
 
+    public function exists(
+        int $ownerUserId,
+        int $channelId,
+        ?int $deviceId,
+        NotificationTrigger $trigger
+    ): bool;
+
     public function create(
         int $ownerUserId,
         int $channelId,
