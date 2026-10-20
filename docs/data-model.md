@@ -116,3 +116,12 @@ Persist timestamps in UTC. Convert to the user's configured timezone for display
 Contacts and address books should support soft deletion where practical.
 
 Call history uses configurable retention and may be disabled entirely.
+
+
+### scheduler_heartbeats
+
+One technical heartbeat row per supported cron task.
+
+The schema stores the task name, last started/succeeded/failed UTC timestamps, last status, aggregate attempted/succeeded/failed counts, and update timestamp.
+
+No user content, provider credentials, exception messages, source identifiers, phone numbers, or notification payloads are stored in this table.
