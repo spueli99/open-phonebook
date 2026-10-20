@@ -21,6 +21,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Backup und Wiederherstellung](backup-restore.md)
 - [Release und Updates](update-release.md)
 - [Audit-Ereignisse](audit.md)
+- [HTTP-API-Referenz](api.md)
 
 ## Grundprinzipien
 

@@ -147,10 +147,10 @@ Completed or in active work:
 - explicit release/version identity
 - update-readiness CLI and explicit migration CLI
 - documented release/update and rollback process
+- public device HTTP API reference in English and German
 
 Still planned:
 - Docker deployment option
-- API documentation
 - optional external monitoring integration
 
 ## Explicit non-goals

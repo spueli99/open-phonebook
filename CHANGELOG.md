@@ -22,6 +22,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Update-readiness CLI with machine-readable JSON output and migration compatibility checks
 - Explicit migration CLI for production updates with unknown-schema downgrade protection
 - English and German release/update/rollback runbooks
+- English and German public device HTTP API reference with authentication, formats, limits, examples, and status codes
 - Secure web setup installer and versioned migration foundation
 - Local email/password authentication foundation
 - Email-based password reset/recovery with 30-minute single-use fragment tokens
