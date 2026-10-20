@@ -26,7 +26,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - English and German authentication localization
 - System-level user administration foundation
 - Explicit user-management permissions
-- Persistent typed audit events for user and invitation administration
+- Persistent typed audit events for user administration and the invitation lifecycle
 - Secure invitation creation and acceptance flow
 - System email delivery for invitations without exposing plaintext invitation tokens in administrator HTML
 - Active invitation listing, revocation, and token-safe renewal
