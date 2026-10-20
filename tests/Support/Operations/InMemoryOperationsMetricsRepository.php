@@ -6,8 +6,7 @@ namespace OpenPhonebook\Tests\Support\Operations;
 
 use OpenPhonebook\Operations\OperationsMetricsRepositoryInterface;
 
-final class InMemoryOperationsMetricsRepository
-    implements OperationsMetricsRepositoryInterface
+final class InMemoryOperationsMetricsRepository implements OperationsMetricsRepositoryInterface
 {
     /**
      * @param array{
