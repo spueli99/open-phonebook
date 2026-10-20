@@ -45,6 +45,13 @@ try {
         );
     }
 
+    $database = ConnectionFactory::create($databaseConfig);
+    $heartbeat = new SchedulerHeartbeatRepository($database);
+    $heartbeat->markStarted(
+        SchedulerTask::GoogleContactsSync,
+        $clock->now()
+    );
+
     $applicationKey = $config->get('app.key');
 
     if (
@@ -80,12 +87,6 @@ try {
         );
     }
 
-    $database = ConnectionFactory::create($databaseConfig);
-    $heartbeat = new SchedulerHeartbeatRepository($database);
-    $heartbeat->markStarted(
-        SchedulerTask::GoogleContactsSync,
-        $clock->now()
-    );
     $sources = new ContactSourceRepository($database);
     $http = new CurlHttpClient();
 
