@@ -9,8 +9,7 @@ use PDOStatement;
 use RuntimeException;
 use Throwable;
 
-final class OperationsMetricsRepository
-    implements OperationsMetricsRepositoryInterface
+final class OperationsMetricsRepository implements OperationsMetricsRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
