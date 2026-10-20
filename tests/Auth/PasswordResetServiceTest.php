@@ -74,11 +74,13 @@ final class PasswordResetServiceTest extends TestCase
     {
         $clock = new FrozenClock('2026-10-20 10:00:00');
 
-        foreach ([
-            null,
-            $this->user(isActive: false),
-            $this->user(isDeleted: true),
-        ] as $record) {
+        foreach (
+            [
+                null,
+                $this->user(isActive: false),
+                $this->user(isDeleted: true),
+            ] as $record
+        ) {
             $resets = new InMemoryPasswordResetRepository();
             $mail = new RecordingMailTransport();
             $service = $this->service(
