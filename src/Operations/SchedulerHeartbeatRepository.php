@@ -10,8 +10,7 @@ use PDO;
 use PDOStatement;
 use RuntimeException;
 
-final class SchedulerHeartbeatRepository
-    implements SchedulerHeartbeatRepositoryInterface
+final class SchedulerHeartbeatRepository implements SchedulerHeartbeatRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
