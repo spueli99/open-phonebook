@@ -26,6 +26,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - English and German authentication localization
 - System-level user administration foundation
 - Explicit user-management permissions
+- Persistent typed audit events for user and invitation administration
 - Secure invitation creation and acceptance flow
 - System email delivery for invitations without exposing plaintext invitation tokens in administrator HTML
 - Active invitation listing, revocation, and token-safe renewal
@@ -67,6 +68,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Administrative user/invitation mutations persist audit events in the same database transaction; audit failure rolls back the state change
+- Audit metadata is bounded and rejects sensitive key classes such as passwords, tokens, sessions, email/phone/contact data, secrets, content, and authorization material
 - Operations diagnostics are authenticated, permission-gated, no-store, and aggregate-only
 - Scheduler heartbeats never persist exception text, contact/source identifiers, notification content, provider credentials, or secrets
 - Backup readiness reports never expose the application key or runtime/provider secrets
