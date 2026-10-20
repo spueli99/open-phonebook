@@ -86,6 +86,17 @@ final class NotificationDeliveryWorker
                 );
                 $this->deliveries->markSent($delivery->id, $now);
                 $sent++;
+            } catch (ExpiredNotificationChannelException) {
+                $this->channels->setActive(
+                    $channel->id,
+                    $delivery->ownerUserId,
+                    false
+                );
+                $this->deliveries->markCancelled(
+                    $delivery->id,
+                    $now
+                );
+                $cancelled++;
             } catch (Throwable) {
                 if ($delivery->attempts >= self::MAX_ATTEMPTS) {
                     $this->deliveries->markFailed(
