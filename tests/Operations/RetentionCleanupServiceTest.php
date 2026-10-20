@@ -14,7 +14,10 @@ final class RetentionCleanupServiceTest extends TestCase
 {
     public function testUsesConfiguredCutoffsAndReturnsCounts(): void
     {
-        $repository = new InMemoryRetentionCleanupRepository(3, 4);
+        $repository = new InMemoryRetentionCleanupRepository(
+            [3],
+            [4]
+        );
         $service = new RetentionCleanupService(
             $repository,
             180,
@@ -31,6 +34,8 @@ final class RetentionCleanupServiceTest extends TestCase
             $result->deletedNotificationDeliveries
         );
         self::assertSame(7, $result->deletedTotal());
+        self::assertSame(500, $repository->callLimit);
+        self::assertSame(500, $repository->notificationLimit);
         self::assertSame(
             '2026-04-23 12:00:00',
             $repository->callCutoff?->format('Y-m-d H:i:s')
@@ -43,9 +48,35 @@ final class RetentionCleanupServiceTest extends TestCase
         );
     }
 
+    public function testContinuesWhenBatchIsFull(): void
+    {
+        $repository = new InMemoryRetentionCleanupRepository(
+            [500, 500, 2],
+            [500, 1]
+        );
+        $service = new RetentionCleanupService(
+            $repository,
+            180,
+            90
+        );
+
+        $result = $service->run(
+            new DateTimeImmutable('2026-10-20 12:00:00 UTC')
+        );
+
+        self::assertSame(1002, $result->deletedCallSessions);
+        self::assertSame(
+            501,
+            $result->deletedNotificationDeliveries
+        );
+    }
+
     public function testZeroDisablesRetentionArea(): void
     {
-        $repository = new InMemoryRetentionCleanupRepository(3, 4);
+        $repository = new InMemoryRetentionCleanupRepository(
+            [3],
+            [4]
+        );
         $service = new RetentionCleanupService(
             $repository,
             0,
