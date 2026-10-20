@@ -180,7 +180,11 @@ final class NotificationAdministrationService
                 continue;
             }
 
-            if (($existing['browser_id'] ?? '') !== $browserId) {
+            if (
+                ($existing['browser_id'] ?? '') !== $browserId
+                && ($existing['endpoint'] ?? '')
+                    !== $subscription->endpoint
+            ) {
                 continue;
             }
 
