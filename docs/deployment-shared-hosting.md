@@ -43,3 +43,16 @@ Do not point a domain at the repository root.
 Do not place runtime configuration, OAuth credentials, device tokens, or database backups below `public/`.
 
 The installer will verify common deployment mistakes before allowing installation to complete.
+
+
+## Web Push / PWA
+
+Web Push requires the application itself to be served over HTTPS and the PHP runtime to allow outbound HTTPS requests to browser push services.
+
+Generate VAPID keys once with:
+
+`php bin/generate-vapid-keys.php`
+
+Store the private VAPID key in the hosting provider's secret/environment configuration or protected `config/local.php`. Never expose the private key under the document root.
+
+The service worker does not require a long-running PHP process. Actual push delivery continues to use the existing cron-driven notification worker.
