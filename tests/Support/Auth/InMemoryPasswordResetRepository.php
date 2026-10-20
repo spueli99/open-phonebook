@@ -114,4 +114,17 @@ final class InMemoryPasswordResetRepository implements PasswordResetRepositoryIn
     {
         return count($this->requests);
     }
+
+    public function usedCount(): int
+    {
+        $count = 0;
+
+        foreach ($this->requests as $item) {
+            if ($item['request']->usedAt !== null) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
 }
