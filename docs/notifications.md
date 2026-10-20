@@ -105,6 +105,8 @@ Deleted or inactive channels cancel queued jobs. Missing providers or undecrypta
 
 The management page exposes aggregate delivery counts for pending, processing, sent, failed, and cancelled jobs.
 
+Once a job reaches a terminal state (`sent`, `failed`, or `cancelled`), its rendered title and body are cleared. Status metadata remains available for diagnostics without retaining call-derived message content longer than needed.
+
 Delivery is at-least-once within the retry window. A process crash after the external provider accepted a message but before the local `sent` update can result in a duplicate retry; providers without idempotency support cannot eliminate that ambiguity completely.
 
 ## Failure isolation
