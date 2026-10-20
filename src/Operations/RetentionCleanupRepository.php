@@ -17,12 +17,17 @@ final class RetentionCleanupRepository implements RetentionCleanupRepositoryInte
     }
 
     public function deleteTerminalCallSessionsBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int {
+        self::validateLimit($limit);
+
         $statement = $this->prepare(
             'DELETE FROM call_sessions
              WHERE ended_at IS NOT NULL
-               AND ended_at < :cutoff'
+               AND ended_at < :cutoff
+             ORDER BY ended_at ASC, id ASC
+             LIMIT ' . $limit
         );
         $statement->execute(['cutoff' => self::format($cutoff)]);
 
@@ -30,12 +35,17 @@ final class RetentionCleanupRepository implements RetentionCleanupRepositoryInte
     }
 
     public function deleteTerminalNotificationDeliveriesBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int {
+        self::validateLimit($limit);
+
         $statement = $this->prepare(
             'DELETE FROM notification_deliveries
              WHERE status IN (:sent, :failed, :cancelled)
-               AND updated_at < :cutoff'
+               AND updated_at < :cutoff
+             ORDER BY updated_at ASC, id ASC
+             LIMIT ' . $limit
         );
         $statement->execute([
             'sent' => 'sent',
@@ -45,6 +55,15 @@ final class RetentionCleanupRepository implements RetentionCleanupRepositoryInte
         ]);
 
         return $statement->rowCount();
+    }
+
+    private static function validateLimit(int $limit): void
+    {
+        if ($limit < 1 || $limit > 1000) {
+            throw new RuntimeException(
+                'Retention cleanup batch limit is invalid.'
+            );
+        }
     }
 
     private function prepare(string $sql): PDOStatement
