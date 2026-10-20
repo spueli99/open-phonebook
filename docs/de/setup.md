@@ -50,6 +50,16 @@ Während des Setups werden unter anderem eingesetzt:
 
 Nach erfolgreicher Installation wird `storage/installed.lock` angelegt. Danach ist der Installer gesperrt.
 
+## Geplante Jobs nach der Einrichtung
+
+Für den normalen Betrieb sollten die für die aktivierten Funktionen benötigten Cronjobs eingerichtet werden:
+
+- Benachrichtigungszustellung normalerweise jede Minute: `php bin/notification-deliveries.php`
+- Google-Kontakte-Synchronisierung bei aktivierter Google-Anbindung beispielsweise alle fünf Minuten: `php bin/google-contacts-sync.php`
+- Historienbereinigung normalerweise einmal täglich: `php bin/history-retention-cleanup.php`
+
+Der Retention-Job kann auch dann gefahrlos geplant werden, wenn ein Aufbewahrungsbereich mit `0` deaktiviert ist. Der Zustand der geplanten Hintergrundjobs wird Systemadministratoren in der Betriebsdiagnose angezeigt.
+
 ## Nicht Bestandteil der Erstinstallation
 
 Google Contacts, Pushover, SMTP, Telefone und weitere Integrationen werden später innerhalb der angemeldeten Anwendung eingerichtet. Dadurch bleibt die Grundinstallation unabhängig von einzelnen Diensten oder Herstellern.
