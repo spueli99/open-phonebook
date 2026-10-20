@@ -221,6 +221,7 @@ return [
     'users.invite.title' => 'Invite user',
     'users.invite.create' => 'Create invitation',
     'users.invite.created' => 'Invitation created.',
+    'users.invite.sent' => 'The invitation link was sent by system email. The token is not displayed in the browser.',
     'users.invite.copy_once' => 'Copy this invitation link now and send it securely to the recipient.',
     'users.invitation.expires' => 'Expires',
     'users.invitation.renew' => 'Renew',
