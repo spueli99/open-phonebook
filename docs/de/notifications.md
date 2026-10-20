@@ -176,7 +176,7 @@ Der Private Key ist ein Runtime-Secret und wird niemals an den Browser ausgegebe
 
 Browser-Subscriptions können nur über authentifizierte, CSRF-geschützte POST-Anfragen registriert werden. Der Server akzeptiert nur HTTPS-Endpoints bekannter Browser-Push-Dienste, damit die Push-Funktion nicht als authentifizierter SSRF-Kanal zu beliebigen Hosts missbraucht werden kann.
 
-Eine zufällige lokale Browser-ID ermöglicht es, eine erneuerte Subscription im bestehenden Kanal zu aktualisieren, ohne Regeln zu verlieren. Wurde LocalStorage gelöscht, wird zusätzlich ein identischer Endpoint wiederverwendet.
+Eine zufällige lokale Browser-ID ermöglicht die Zuordnung zum bestehenden Kanal. Die Verwaltungsseite prüft den aktuellen Browserzustand gegen den Server, ohne ihn dabei zu verändern; eine Aktivierung bleibt eine ausdrückliche Benutzeraktion. Bei erneuter Aktivierung wird eine erneuerte Subscription im bestehenden Kanal aktualisiert, ohne Regeln zu verlieren. Wurde LocalStorage gelöscht, wird zusätzlich ein identischer Endpoint wiederverwendet.
 
 Die Zustellung läuft vollständig über die bestehende persistente Notification-Queue. Abgelaufene Subscriptions, die der Push-Dienst mit HTTP 404/410 meldet, werden automatisch deaktiviert; der betreffende Job endet als `cancelled` und wird nicht weiter retryt.
 
