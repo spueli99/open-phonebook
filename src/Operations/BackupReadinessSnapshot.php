@@ -8,6 +8,7 @@ final readonly class BackupReadinessSnapshot
 {
     /**
      * @param list<string> $missingMigrationIds
+     * @param list<string> $unknownMigrationIds
      * @param array{
      *     contact_sources: int,
      *     notification_channels: int,
@@ -23,6 +24,7 @@ final readonly class BackupReadinessSnapshot
         public bool $localConfigPresent,
         public bool $installationLockPresent,
         public array $missingMigrationIds,
+        public array $unknownMigrationIds,
         public array $keyDependentRecords,
     ) {
     }
