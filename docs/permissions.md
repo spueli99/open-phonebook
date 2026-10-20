@@ -86,10 +86,9 @@ A notification rule may reference only:
 - either all of the user's devices or one device owned by that user
 - a supported notification trigger
 
-Provider configuration is never exposed merely because another account has an administrative role.
+Quiet-hours settings and delivery diagnostics are scoped to the rule/channel owner as well. Provider configuration is never exposed merely because another account has an administrative role.
 
 ## System administrators
-
 
 System administration should focus on platform operations. The UI should avoid exposing private user contacts merely because an account has administrative privileges, even though server operators inherently control the underlying infrastructure.
 
