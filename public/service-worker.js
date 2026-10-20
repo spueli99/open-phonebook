@@ -25,6 +25,7 @@ self.addEventListener('push', (event) => {
         : '';
     const url = typeof payload.url === 'string'
         && payload.url.startsWith('/')
+        && !payload.url.startsWith('//')
         ? payload.url
         : '/';
 
@@ -46,7 +47,12 @@ self.addEventListener('notificationclick', (event) => {
         : '/';
 
     event.waitUntil((async () => {
-        const target = new URL(path, self.location.origin);
+        let target = new URL(path, self.location.origin);
+
+        if (target.origin !== self.location.origin) {
+            target = new URL('/', self.location.origin);
+        }
+
         const windows = await self.clients.matchAll({
             type: 'window',
             includeUncontrolled: true,
