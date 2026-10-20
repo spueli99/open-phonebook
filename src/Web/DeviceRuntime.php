@@ -18,6 +18,8 @@ use OpenPhonebook\Devices\DeviceAddressBookRepository;
 use OpenPhonebook\Devices\DeviceCredentialAuthenticator;
 use OpenPhonebook\Devices\DeviceCredentialHttpAuthenticator;
 use OpenPhonebook\Devices\DeviceCredentialRepository;
+use OpenPhonebook\Devices\DeviceRequestAttemptRepository;
+use OpenPhonebook\Devices\DeviceRequestThrottle;
 use OpenPhonebook\Exports\CsvPhonebookExporter;
 use OpenPhonebook\Exports\DevicePhonebookService;
 use OpenPhonebook\Exports\JsonPhonebookExporter;
@@ -38,6 +40,7 @@ final readonly class DeviceRuntime
     private function __construct(
         public PDO $database,
         public DeviceCredentialHttpAuthenticator $authentication,
+        public DeviceRequestThrottle $throttle,
         public DevicePhonebookService $phonebooks,
         public PhonebookExporterRegistry $exporters,
         public CallEventService $callEvents,
@@ -91,6 +94,11 @@ final readonly class DeviceRuntime
                     new DeviceCredentialRepository($database),
                     $applicationKey
                 )
+            ),
+            new DeviceRequestThrottle(
+                new DeviceRequestAttemptRepository($database),
+                $applicationKey,
+                $clock
             ),
             new DevicePhonebookService(
                 $assignments,

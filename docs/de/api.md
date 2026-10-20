@@ -78,6 +78,19 @@ curl --fail-with-body \
 
 Nur ein erfolgreich abgeschlossener geschützter Gerätezugriff aktualisiert `last_used_at` des konkret verwendeten Credentials. Eine erfolgreiche Token-Prüfung allein reicht nicht; abgewiesene Requests oder fehlgeschlagene Funktionen zählen nicht als erfolgreiche Nutzung.
 
+### Drosselung fehlgeschlagener Authentifizierung
+
+Öffentliche Geräteendpunkte begrenzen fehlgeschlagene Credential-Prüfungen getrennt nach Endpoint und Client-IP.
+
+Aktuelle Regel:
+
+- 20 fehlgeschlagene Credential-Prüfungen innerhalb von 15 Minuten
+- danach 15 Minuten Sperre
+- gesperrte Requests liefern `429 Too Many Requests`
+- zusätzlich wird `Retry-After: 900` gesendet
+- eine erfolgreiche Authentifizierung löscht nur den zugehörigen Endpoint-/IP-Bucket
+- gespeichert wird nur ein domain-separierter HMAC aus Endpoint + Client-IP, niemals Credential, Authorization-Header oder Rufnummer im Klartext
+
 ## Allgemeines Antwortverhalten
 
 Private Geräteantworten verwenden No-Store-Header. Erfolgreiche Phonebook- und Call-Event-Antworten enthalten:
@@ -253,6 +266,7 @@ Struktur:
 - `200 OK`: Export erfolgreich erzeugt
 - `400 Bad Request`: ungültige `format`-Syntax
 - `401 Unauthorized`: Credential fehlt, ist fehlerhaft, ungültig, widerrufen, besitzt den falschen Scope oder Gerät/Besitzer sind nicht aktiv
+- `429 Too Many Requests`: wiederholte fehlgeschlagene Credential-Prüfungen haben die Endpoint-/IP-Drossel ausgelöst
 - `404 Not Found`: syntaktisch gültiges, aber nicht unterstütztes Exportformat
 - `405 Method Not Allowed`: Methode ist nicht GET
 - `500 Internal Server Error`: Exporterzeugung fehlgeschlagen
@@ -420,6 +434,7 @@ curl --fail-with-body \
 - `400 Bad Request`: ungültiges JSON, fehlerhafte/fehlende Felder, unbekannter Wert oder ungültiger Zustandsübergang
 - `401 Unauthorized`: Credential fehlt, ist fehlerhaft, ungültig, widerrufen, besitzt den falschen Scope oder Gerät/Besitzer sind nicht aktiv
 - `405 Method Not Allowed`: Methode ist nicht POST
+- `429 Too Many Requests`: wiederholte fehlgeschlagene Credential-Prüfungen haben die Endpoint-/IP-Drossel ausgelöst
 - `413 Content Too Large`: Request-Body größer als 16 KiB
 - `415 Unsupported Media Type`: Content-Type beginnt nicht mit `application/json`
 - `503 Service Unavailable`: Anwendungslaufzeit konnte nicht gestartet werden
@@ -468,7 +483,7 @@ Unterstützte Adapter-Mappings unter anderem:
 - `remote_busy` -> `idle`
 - `call_remote_canceled` -> `idle`
 
-Erfolgreiche Callbacks liefern `200 OK` mit einer kleinen Textantwort. Ungültige Credentials liefern `401`, fehlerhafte oder nicht unterstützte Events `400`, andere HTTP-Methoden `405`; nicht per HTTPS eingehende Requests werden mit `400` abgewiesen.
+Erfolgreiche Callbacks liefern `200 OK` mit einer kleinen Textantwort. Ungültige Credentials liefern `401`, fehlerhafte oder nicht unterstützte Events `400`, andere HTTP-Methoden `405`, wiederholt fehlgeschlagene Credential-Prüfungen `429`; nicht per HTTPS eingehende Requests werden mit `400` abgewiesen.
 
 Ein normales `phonebook:read`- oder `call-events:write`-Credential darf für diesen Endpunkt niemals wiederverwendet werden. Das separate Callback-Credential kann unabhängig rotiert oder widerrufen werden.
 

@@ -121,6 +121,12 @@ Google Contacts uses only the `contacts.readonly` OAuth scope. The flow validate
 
 Google OAuth client credentials remain in runtime configuration and are not stored in the database. The database stores only encrypted refresh tokens. Google synchronization performs an initial complete paginated snapshot and then uses encrypted People API sync tokens for incremental updates. Delta responses only delete local source contacts when Google explicitly reports `metadata.deleted=true`; absence from a delta is never interpreted as deletion. Expired sync tokens trigger a fresh full snapshot. Each batch and its replacement sync token are committed transactionally. Only contacts mapped to that source are eligible for source-driven deletion.
 
+## Device endpoint throttling
+
+The public device phonebook, generic call-event, and Yealink Action URL endpoints throttle failed credential checks independently per endpoint and client IP address. Twenty failures within 15 minutes block that endpoint/IP bucket for 15 minutes. Successful authentication clears only that bucket.
+
+Throttle subjects are stored only as a domain-separated HMAC of endpoint + client IP using the application key. Device tokens, Authorization headers, phone numbers, and callback query values are never persisted by the throttle. Old attempt rows are opportunistically removed after 24 hours.
+
 ## Device credentials
 
 Device credentials are independent from human authentication. Implemented scopes are `phonebook:read`, `call-events:write`, and `yealink-callback:write`. Tokens are 256-bit random values displayed only once; the database stores only a domain-separated HMAC-SHA-256 hash keyed by the application key. Rotation and revocation are scope-specific. Device deactivation revokes all scopes. Device authentication additionally requires an active device and an active, non-deleted owner account.

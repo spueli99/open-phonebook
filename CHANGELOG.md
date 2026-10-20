@@ -79,6 +79,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Public device phonebook, call-event, and Yealink callback endpoints now throttle failed credential checks per endpoint/client IP and return `429` after repeated failures
 - Sensitive device, Web Push, and OAuth callback responses now apply a shared no-store/no-referrer baseline on both success and early error paths
 - Removed unused session-cookie security defaults so fixed HttpOnly/SameSite protections are not misrepresented as operator-tunable settings
 - Web setup enforces HTTPS before every setup step/session and preflights config/install-lock writability before database changes

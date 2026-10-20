@@ -10,7 +10,7 @@ Open Phonebook handles personal contact data, OAuth credentials, device credenti
 - CSRF protection for state-changing web requests
 - secure, HttpOnly, SameSite cookies
 - session fixation protection
-- rate limiting for authentication, device, webhook, and export endpoints
+- rate limiting for authentication and public device/export callback endpoints
 - scoped and revocable device credentials
 - provider tokens encrypted at rest where practical
 - encryption keys stored outside the database
