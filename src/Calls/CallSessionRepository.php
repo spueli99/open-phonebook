@@ -33,7 +33,17 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
 
         $row = $statement->fetch();
 
-        return $row === false ? null : $this->hydrate($row);
+        if ($row === false) {
+            return null;
+        }
+
+        if (!is_array($row)) {
+            throw new RuntimeException(
+                'Unexpected call session query result.'
+            );
+        }
+
+        return $this->hydrate($row);
     }
 
     public function create(
@@ -125,6 +135,12 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
 
         if ($row === false) {
             throw new RuntimeException('Call session could not be loaded.');
+        }
+
+        if (!is_array($row)) {
+            throw new RuntimeException(
+                'Unexpected call session query result.'
+            );
         }
 
         return $this->hydrate($row);
