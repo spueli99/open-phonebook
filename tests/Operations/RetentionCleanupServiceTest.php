@@ -71,6 +71,27 @@ final class RetentionCleanupServiceTest extends TestCase
         );
     }
 
+    public function testStopsAfterMaximumBatchesPerArea(): void
+    {
+        $repository = new InMemoryRetentionCleanupRepository(
+            array_fill(0, 101, 500),
+            [0]
+        );
+        $service = new RetentionCleanupService(
+            $repository,
+            180,
+            0
+        );
+
+        $result = $service->run(
+            new DateTimeImmutable('2026-10-20 12:00:00 UTC')
+        );
+
+        self::assertSame(50000, $result->deletedCallSessions);
+        self::assertSame(100, $repository->callDeleteCalls);
+        self::assertSame(0, $repository->notificationDeleteCalls);
+    }
+
     public function testZeroDisablesRetentionArea(): void
     {
         $repository = new InMemoryRetentionCleanupRepository(
