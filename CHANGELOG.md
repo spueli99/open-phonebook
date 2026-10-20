@@ -62,6 +62,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Per-scope device credential `last_used_at` tracking with owner-visible timestamps
 - Generic JSON call-event API with transactional call-session state machine
 - Yealink Action URL normalization adapter and scoped caller lookup
+- HTTPS-only Yealink Action URL callback endpoint with dedicated `yealink-callback:write` credential and Basic-only authentication
 - User-owned encrypted notification channels with Pushover and email providers
 - Call notification rules for incoming, missed, and completed calls with optional device scoping
 - Per-rule quiet hours evaluated in each user's configured timezone
@@ -78,6 +79,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Direct Yealink callbacks use a separate revocable credential scope, reject Bearer/query-token authentication, require HTTPS, and whitelist only documented callback parameters
 - Device credential last-used timestamps are updated only after successful authenticated device operations; invalid or rejected requests do not count as credential use
 - Recent-call history is scoped through device ownership and never exposes another user's call sessions
 - Retention cleanup never deletes open call sessions or pending/processing notification jobs; only terminal records older than configured cutoffs are eligible
