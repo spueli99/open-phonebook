@@ -6,6 +6,7 @@ namespace OpenPhonebook\Calls;
 
 use OpenPhonebook\Database\TransactionManagerInterface;
 use OpenPhonebook\Devices\AuthenticatedDevice;
+use OpenPhonebook\Devices\DeviceCredentialScope;
 use RuntimeException;
 
 final class CallEventService
@@ -21,6 +22,12 @@ final class CallEventService
         AuthenticatedDevice $device,
         NormalizedCallEvent $event
     ): CallEventResult {
+        if ($device->scope !== DeviceCredentialScope::CallEventsWrite) {
+            throw new RuntimeException(
+                'Device credential scope cannot write call events.'
+            );
+        }
+
         $this->validate($event);
 
         return $this->transactions->transactional(
