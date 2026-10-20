@@ -88,6 +88,12 @@ A notification rule may reference only:
 
 Quiet-hours settings, delivery history, manual retry, and test-send actions are scoped to the rule/channel owner as well. A user may retry only their own failed delivery and only while its original channel still exists and is active. Provider configuration and decrypted retry payloads are never exposed merely because another account has an administrative role.
 
+## Operations diagnostics
+
+The `view_operations` permission grants access to technical scheduler and queue diagnostics.
+
+It is initially granted only to system administrators. The diagnostics expose aggregate technical metadata only and do not reveal contacts, notification content, retry payloads, provider configuration, or secrets.
+
 ## System administrators
 
 System administration should focus on platform operations. The UI should avoid exposing private user contacts merely because an account has administrative privileges, even though server operators inherently control the underlying infrastructure.
