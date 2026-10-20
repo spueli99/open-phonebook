@@ -55,6 +55,8 @@ Invitation delivery happens after the creation/renewal transaction. If mail conf
 
 ## Reading audit events
 
-The repository supports bounded recent-event retrieval for future administration/operations tooling. This milestone intentionally adds persistence first and does not expose an audit-log browser in the web UI yet.
+Authenticated system administrators with the dedicated `view_audit` permission can open the read-only audit log at `/admin/audit/`. The UI shows the latest 100 events, formats timestamps in the administrator's configured timezone, and renders only actor/target IDs plus the already validated bounded metadata. All dynamic values are HTML-escaped.
+
+The audit UI intentionally has no contact-content search, bulk export, mutation controls, or ordinary contact-access tracking.
 
 Future audit expansion should reuse the same typed event and metadata boundaries for device credentials, OAuth/provider connections, imports, destructive operations, organization administration, and selected authentication/security changes.
