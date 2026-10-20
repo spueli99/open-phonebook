@@ -22,7 +22,7 @@ final class SecurityHeaders
         header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
         header(
             "Content-Security-Policy: default-src 'none'; "
-            . "style-src 'unsafe-inline'; "
+            . "style-src 'self' 'unsafe-inline'; "
             . "script-src 'self'; "
             . "worker-src 'self'; "
             . "connect-src 'self'; "
