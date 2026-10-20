@@ -6,15 +6,30 @@ namespace OpenPhonebook\Tests\Support\Notifications;
 
 use DateTimeImmutable;
 use OpenPhonebook\Notifications\NotificationDelivery;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryItem;
 use OpenPhonebook\Notifications\NotificationDeliveryRepositoryInterface;
 use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationMessage;
+use OpenPhonebook\Notifications\NotificationRetryCandidate;
 use OpenPhonebook\Notifications\NotificationTrigger;
 
-final class InMemoryNotificationDeliveryRepository implements NotificationDeliveryRepositoryInterface
+final class InMemoryNotificationDeliveryRepository
+    implements NotificationDeliveryRepositoryInterface
 {
     /** @var array<int, NotificationDelivery> */
     private array $deliveries = [];
+
+    /** @var array<int, string> */
+    private array $retryPayloads = [];
+
+    /** @var array<int, DateTimeImmutable> */
+    private array $createdAt = [];
+
+    /** @var array<int, DateTimeImmutable> */
+    private array $lastErrorAt = [];
+
+    /** @var array<int, DateTimeImmutable> */
+    private array $sentAt = [];
 
     private int $nextId = 1;
 
@@ -23,6 +38,7 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         int $channelId,
         NotificationTrigger $trigger,
         NotificationMessage $message,
+        string $encryptedRetryPayload,
         DateTimeImmutable $availableAt
     ): int {
         $id = $this->nextId++;
@@ -37,6 +53,8 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
             0,
             $availableAt
         );
+        $this->retryPayloads[$id] = $encryptedRetryPayload;
+        $this->createdAt[$id] = $availableAt;
 
         return $id;
     }
@@ -78,9 +96,11 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         int $deliveryId,
         DateTimeImmutable $now
     ): void {
+        $this->sentAt[$deliveryId] = $now;
         $this->withStatus(
             $deliveryId,
-            NotificationDeliveryStatus::Sent
+            NotificationDeliveryStatus::Sent,
+            true
         );
     }
 
@@ -90,6 +110,7 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         DateTimeImmutable $errorAt
     ): void {
         $delivery = $this->deliveries[$deliveryId];
+        $this->lastErrorAt[$deliveryId] = $errorAt;
         $this->deliveries[$deliveryId] = new NotificationDelivery(
             $delivery->id,
             $delivery->ownerUserId,
@@ -107,9 +128,11 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         int $deliveryId,
         DateTimeImmutable $errorAt
     ): void {
+        $this->lastErrorAt[$deliveryId] = $errorAt;
         $this->withStatus(
             $deliveryId,
-            NotificationDeliveryStatus::Failed
+            NotificationDeliveryStatus::Failed,
+            false
         );
     }
 
@@ -119,7 +142,8 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
     ): void {
         $this->withStatus(
             $deliveryId,
-            NotificationDeliveryStatus::Cancelled
+            NotificationDeliveryStatus::Cancelled,
+            true
         );
     }
 
@@ -144,6 +168,110 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         return $counts;
     }
 
+    public function recentOwnedBy(
+        int $ownerUserId,
+        int $limit = 50
+    ): array {
+        $ids = array_keys($this->deliveries);
+        rsort($ids);
+        $history = [];
+
+        foreach ($ids as $id) {
+            $delivery = $this->deliveries[$id];
+
+            if ($delivery->ownerUserId !== $ownerUserId) {
+                continue;
+            }
+
+            $history[] = new NotificationDeliveryHistoryItem(
+                $delivery->id,
+                $delivery->channelId,
+                $delivery->channelId === null
+                    ? null
+                    : 'Channel ' . $delivery->channelId,
+                $delivery->trigger,
+                $delivery->status,
+                $delivery->attempts,
+                $delivery->availableAt,
+                $this->lastErrorAt[$id] ?? null,
+                $this->sentAt[$id] ?? null,
+                $this->createdAt[$id],
+                $delivery->status === NotificationDeliveryStatus::Failed
+                    && isset($this->retryPayloads[$id])
+                    && $delivery->channelId !== null
+            );
+
+            if (count($history) >= max(1, min(100, $limit))) {
+                break;
+            }
+        }
+
+        return $history;
+    }
+
+    public function retryCandidateOwnedBy(
+        int $deliveryId,
+        int $ownerUserId
+    ): ?NotificationRetryCandidate {
+        $delivery = $this->deliveries[$deliveryId] ?? null;
+
+        if (
+            $delivery === null
+            || $delivery->ownerUserId !== $ownerUserId
+            || $delivery->status !== NotificationDeliveryStatus::Failed
+            || !isset($this->retryPayloads[$deliveryId])
+        ) {
+            return null;
+        }
+
+        return new NotificationRetryCandidate(
+            $delivery->id,
+            $delivery->ownerUserId,
+            $delivery->channelId,
+            $delivery->trigger,
+            $this->retryPayloads[$deliveryId]
+        );
+    }
+
+    public function retryFailedOwnedBy(
+        int $deliveryId,
+        int $ownerUserId,
+        NotificationMessage $message,
+        string $encryptedRetryPayload,
+        DateTimeImmutable $availableAt
+    ): bool {
+        $delivery = $this->deliveries[$deliveryId] ?? null;
+
+        if (
+            $delivery === null
+            || $delivery->ownerUserId !== $ownerUserId
+            || $delivery->status !== NotificationDeliveryStatus::Failed
+            || $delivery->channelId === null
+            || !isset($this->retryPayloads[$deliveryId])
+        ) {
+            return false;
+        }
+
+        $this->deliveries[$deliveryId] = new NotificationDelivery(
+            $delivery->id,
+            $delivery->ownerUserId,
+            $delivery->channelId,
+            $delivery->trigger,
+            $message->title,
+            $message->body,
+            NotificationDeliveryStatus::Pending,
+            0,
+            $availableAt
+        );
+        $this->retryPayloads[$deliveryId] = $encryptedRetryPayload;
+        unset(
+            $this->lastErrorAt[$deliveryId],
+            $this->sentAt[$deliveryId]
+        );
+
+        return true;
+    }
+
     public function get(int $id): NotificationDelivery
     {
         return $this->deliveries[$id];
@@ -151,7 +279,8 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
 
     private function withStatus(
         int $id,
-        NotificationDeliveryStatus $status
+        NotificationDeliveryStatus $status,
+        bool $clearRetryPayload
     ): void {
         $delivery = $this->deliveries[$id];
         $this->deliveries[$id] = new NotificationDelivery(
@@ -165,5 +294,9 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
             $delivery->attempts,
             $delivery->availableAt
         );
+
+        if ($clearRetryPayload) {
+            unset($this->retryPayloads[$id]);
+        }
     }
 }
