@@ -80,6 +80,21 @@
 
         return navigator.serviceWorker.ready;
     };
+    const syncSubscription = async (subscription) => {
+        const serialized = subscription.toJSON();
+        const keys = serialized.keys || {};
+        const encodings =
+            PushManager.supportedContentEncodings || [];
+
+        await post('/notifications/web-push/subscribe/', {
+            _csrf: root.dataset.csrfToken || '',
+            endpoint: serialized.endpoint || '',
+            p256dh: keys.p256dh || '',
+            auth: keys.auth || '',
+            content_encoding: encodings[0] || 'aes128gcm',
+            browser_id: browserId(),
+        });
+    };
     const refresh = async () => {
         if (!supported()) {
             setStatus(label('labelUnsupported'));
@@ -99,6 +114,10 @@
             const current = await (await registration())
                 .pushManager
                 .getSubscription();
+            if (current !== null) {
+                await syncSubscription(current);
+            }
+
             setStatus(
                 current === null
                     ? label('labelDisabled')
@@ -138,20 +157,7 @@
                 });
             }
 
-            const serialized = subscription.toJSON();
-            const keys = serialized.keys || {};
-            const encodings =
-                PushManager.supportedContentEncodings || [];
-
-            await post('/notifications/web-push/subscribe/', {
-                _csrf: root.dataset.csrfToken || '',
-                endpoint: serialized.endpoint || '',
-                p256dh: keys.p256dh || '',
-                auth: keys.auth || '',
-                content_encoding:
-                    encodings[0] || 'aes128gcm',
-                browser_id: browserId(),
-            });
+            await syncSubscription(subscription);
 
             await refresh();
         } catch {
