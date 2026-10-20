@@ -40,6 +40,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - Independent `call-events:write` device credentials with owner-managed rotation and revocation
 - Generic JSON call-event API with transactional call-session state machine
 - Yealink Action URL normalization adapter and scoped caller lookup
+- User-owned encrypted notification channels with Pushover and email providers
+- Call notification rules for incoming, missed, and completed calls with optional device scoping
 
 ### Security
 
@@ -58,6 +60,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Call-event credentials are scope-isolated from phonebook credentials; device deactivation revokes both
 - Call-event requests are body-size limited, sessionless, and require explicit `call-events:write` authorization
 - Caller lookup is limited to device-assigned address books the owner can still read
+- Notification provider secrets are encrypted at rest and never rendered back into the management UI
+- Notification changes require authenticated, CSRF-protected owner-scoped requests
+- Provider failures are isolated after call-state commit and cannot roll back call history
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
