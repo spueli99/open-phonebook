@@ -12,6 +12,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Persistent aggregate heartbeats for Google Contacts sync and notification delivery cron jobs
 - Configurable scheduler stale thresholds with environment overrides
 - Dedicated `view_operations` permission
+- Server-side backup/restore readiness CLI with JSON manifest output
+- Domain-separated application-key fingerprint verification for disaster recovery
+- English and German backup/restore runbooks for database, secrets, install lock, and code/dependency recovery
 - Secure web setup installer and versioned migration foundation
 - Local email/password authentication foundation
 - Secure authenticated browser sessions
@@ -57,6 +60,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 - Operations diagnostics are authenticated, permission-gated, no-store, and aggregate-only
 - Scheduler heartbeats never persist exception text, contact/source identifiers, notification content, provider credentials, or secrets
+- Backup readiness reports never expose the application key or runtime/provider secrets
+- Restore verification fails on wrong key fingerprints, missing/unknown migrations, or missing installation lock
 - Ambiguous local phone numbers are never assigned a country without explicit region configuration
 - Shared address books retain owner-only metadata and sharing administration
 - Contact import preview validates untrusted uploads before any persistence and requires write access plus CSRF protection
