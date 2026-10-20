@@ -21,7 +21,7 @@ final class InMemoryCallSessionRepository implements CallSessionRepositoryInterf
 
     private int $nextId = 1;
 
-    public function findByDeviceAndExternalIdForUpdate(
+    public function findOpenByDeviceAndExternalIdForUpdate(
         int $deviceId,
         string $externalCallId
     ): ?CallSession {
@@ -29,6 +29,7 @@ final class InMemoryCallSessionRepository implements CallSessionRepositoryInterf
             if (
                 $session->deviceId === $deviceId
                 && $session->externalCallId === $externalCallId
+                && !$session->state->isTerminal()
             ) {
                 return $session;
             }
