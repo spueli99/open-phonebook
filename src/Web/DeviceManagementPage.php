@@ -19,6 +19,7 @@ final class DeviceManagementPage
 
     public function render(
         int $ownerUserId,
+        string $timezone,
         string $csrfToken,
         ?DeviceCredentialCreationResult $credential = null,
         ?string $notice = null,
@@ -71,7 +72,7 @@ final class DeviceManagementPage
             $callEventCredentialStates,
             $phonebookLastUsedAt,
             $callEventLastUsedAt,
-            $this->translator,
+            $timezone,
             $csrfToken,
             $credential,
             $notice,
