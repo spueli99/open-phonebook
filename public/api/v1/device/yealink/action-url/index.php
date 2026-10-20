@@ -68,7 +68,7 @@ foreach (['call_id', 'local', 'remote'] as $key) {
 
     if (!is_string($_GET[$key])) {
         http_response_code(400);
-                exit;
+        exit;
     }
 
     $parameters[$key] = $_GET[$key];
