@@ -10,9 +10,23 @@ use RuntimeException;
 
 final class NotificationMessageCipher
 {
-    public function __construct(
+    private const CONTEXT =
+        'open-phonebook/notification-retry-payload/v1';
+
+    private function __construct(
         private readonly SecretCipher $cipher
     ) {
+    }
+
+    public static function fromApplicationKey(
+        string $applicationKey
+    ): self {
+        return new self(
+            new SecretCipher(
+                $applicationKey,
+                self::CONTEXT
+            )
+        );
     }
 
     public function encrypt(NotificationMessage $message): string
