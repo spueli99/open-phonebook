@@ -24,6 +24,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         int $channelId,
         NotificationTrigger $trigger,
         NotificationMessage $message,
+        string $encryptedRetryPayload,
         DateTimeImmutable $availableAt
     ): int {
         $statement = $this->prepare(
@@ -33,6 +34,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
                 trigger_name,
                 title,
                 body,
+                encrypted_retry_payload,
                 status,
                 attempts,
                 available_at,
@@ -44,6 +46,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
                 :trigger_name,
                 :title,
                 :body,
+                :encrypted_retry_payload,
                 :status,
                 0,
                 :available_at,
@@ -57,6 +60,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
             'trigger_name' => $trigger->value,
             'title' => $message->title,
             'body' => $message->body,
+            'encrypted_retry_payload' => $encryptedRetryPayload,
             'status' => NotificationDeliveryStatus::Pending->value,
             'available_at' => self::format($availableAt),
         ]);
@@ -234,6 +238,161 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         return $counts;
     }
 
+    public function recentOwnedBy(
+        int $ownerUserId,
+        int $limit = 50
+    ): array {
+        $limit = max(1, min(100, $limit));
+        $statement = $this->prepare(
+            'SELECT d.id, d.channel_id, c.name AS channel_name,
+                    d.trigger_name, d.status, d.attempts,
+                    d.available_at, d.last_error_at, d.sent_at,
+                    d.created_at, d.encrypted_retry_payload
+             FROM notification_deliveries d
+             LEFT JOIN notification_channels c
+               ON c.id = d.channel_id
+              AND c.owner_user_id = d.owner_user_id
+             WHERE d.owner_user_id = :owner_user_id
+             ORDER BY d.created_at DESC, d.id DESC
+             LIMIT ' . $limit
+        );
+        $statement->execute(['owner_user_id' => $ownerUserId]);
+
+        $history = [];
+
+        while (($row = $statement->fetch()) !== false) {
+            if (!is_array($row)) {
+                throw new RuntimeException(
+                    'Unexpected notification history query result.'
+                );
+            }
+
+            $status = NotificationDeliveryStatus::from(
+                (string) $row['status']
+            );
+
+            $history[] = new NotificationDeliveryHistoryItem(
+                (int) $row['id'],
+                $row['channel_id'] === null
+                    ? null
+                    : (int) $row['channel_id'],
+                $row['channel_name'] === null
+                    ? null
+                    : (string) $row['channel_name'],
+                NotificationTrigger::from(
+                    (string) $row['trigger_name']
+                ),
+                $status,
+                (int) $row['attempts'],
+                self::parseUtc((string) $row['available_at']),
+                $row['last_error_at'] === null
+                    ? null
+                    : self::parseUtc((string) $row['last_error_at']),
+                $row['sent_at'] === null
+                    ? null
+                    : self::parseUtc((string) $row['sent_at']),
+                self::parseUtc((string) $row['created_at']),
+                $status === NotificationDeliveryStatus::Failed
+                    && $row['channel_id'] !== null
+                    && is_string($row['encrypted_retry_payload'])
+                    && $row['encrypted_retry_payload'] !== ''
+            );
+        }
+
+        return $history;
+    }
+
+    public function retryCandidateOwnedBy(
+        int $deliveryId,
+        int $ownerUserId
+    ): ?NotificationRetryCandidate {
+        $statement = $this->prepare(
+            'SELECT id, owner_user_id, channel_id, trigger_name,
+                    encrypted_retry_payload
+             FROM notification_deliveries
+             WHERE id = :id
+               AND owner_user_id = :owner_user_id
+               AND status = :status
+               AND encrypted_retry_payload IS NOT NULL
+             LIMIT 1'
+        );
+        $statement->execute([
+            'id' => $deliveryId,
+            'owner_user_id' => $ownerUserId,
+            'status' => NotificationDeliveryStatus::Failed->value,
+        ]);
+
+        $row = $statement->fetch();
+
+        if ($row === false) {
+            return null;
+        }
+
+        if (!is_array($row)) {
+            throw new RuntimeException(
+                'Unexpected notification retry query result.'
+            );
+        }
+
+        $payload = $row['encrypted_retry_payload'];
+
+        if (!is_string($payload) || $payload === '') {
+            return null;
+        }
+
+        return new NotificationRetryCandidate(
+            (int) $row['id'],
+            (int) $row['owner_user_id'],
+            $row['channel_id'] === null
+                ? null
+                : (int) $row['channel_id'],
+            NotificationTrigger::from(
+                (string) $row['trigger_name']
+            ),
+            $payload
+        );
+    }
+
+    public function retryFailedOwnedBy(
+        int $deliveryId,
+        int $ownerUserId,
+        NotificationMessage $message,
+        string $encryptedRetryPayload,
+        DateTimeImmutable $availableAt
+    ): bool {
+        $statement = $this->prepare(
+            'UPDATE notification_deliveries
+             SET title = :title,
+                 body = :body,
+                 encrypted_retry_payload = :encrypted_retry_payload,
+                 status = :pending,
+                 attempts = 0,
+                 available_at = :available_at,
+                 locked_at = NULL,
+                 last_error_at = NULL,
+                 sent_at = NULL,
+                 updated_at = :updated_at
+             WHERE id = :id
+               AND owner_user_id = :owner_user_id
+               AND status = :failed
+               AND channel_id IS NOT NULL
+               AND encrypted_retry_payload IS NOT NULL'
+        );
+        $statement->execute([
+            'title' => $message->title,
+            'body' => $message->body,
+            'encrypted_retry_payload' => $encryptedRetryPayload,
+            'pending' => NotificationDeliveryStatus::Pending->value,
+            'available_at' => self::format($availableAt),
+            'updated_at' => self::format($availableAt),
+            'id' => $deliveryId,
+            'owner_user_id' => $ownerUserId,
+            'failed' => NotificationDeliveryStatus::Failed->value,
+        ]);
+
+        return $statement->rowCount() === 1;
+    }
+
     private function releaseStaleLocks(DateTimeImmutable $now): void
     {
         $stale = $now->modify('-10 minutes');
@@ -265,6 +424,7 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
              SET status = :status,
                  title = \'\',
                  body = \'\',
+                 encrypted_retry_payload = NULL,
                  locked_at = NULL,
                  sent_at = :sent_at,
                  updated_at = :updated_at
@@ -316,6 +476,14 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         }
 
         return $statement;
+    }
+
+    private static function parseUtc(string $value): DateTimeImmutable
+    {
+        return new DateTimeImmutable(
+            $value,
+            new DateTimeZone('UTC')
+        );
     }
 
     private static function format(DateTimeImmutable $time): string
