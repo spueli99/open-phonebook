@@ -24,6 +24,7 @@ The core understands:
 - exports
 - call sessions and events
 - notification channels and rules
+- security/admin audit events
 
 It does not understand vendor-specific concepts directly.
 
@@ -71,7 +72,9 @@ Invitation services are separate from authentication. Invitation tokens create a
 
 Devices never reuse human sessions or human passwords. Each initial device belongs to one user and authenticates with separately scoped and revocable credentials. `phonebook:read` and `call-events:write` are independent. Device-to-address-book assignments are explicit. Phonebook exports run through a vendor-neutral exporter interface and a sessionless device runtime; every request revalidates the owner's current address-book access so stale assignments cannot preserve revoked access. Call events enter through a generic normalized application boundary, are persisted through a transactional state machine, and vendor-specific Action URL values are translated by adapters before they reach the core. Notification evaluation is a post-commit application step. Matching rules outside quiet hours create persistent delivery jobs; external provider adapters run only from the cron-compatible delivery worker. Provider latency and failures therefore never participate in the call-state transaction or device request. Delivery history is metadata-only in the UI. Failed jobs may retain a separately encrypted retry payload; manual retry decrypts it only inside the application service and requeues the same owner-scoped job. Test sends use the same queue/worker path rather than bypassing delivery infrastructure.
 
-See [Authentication](authentication.md), [Permissions](permissions.md), and [User Management](user-management.md).
+Security-sensitive administrative changes persist typed audit events through the same PDO transaction as the protected state mutation. Audit storage is intentionally separate from contact-access telemetry and accepts only bounded non-sensitive metadata.
+
+See [Authentication](authentication.md), [Permissions](permissions.md), [User Management](user-management.md), and [Audit Events](audit.md).
 
 ## Deployment
 
