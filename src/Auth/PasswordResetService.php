@@ -17,7 +17,7 @@ final class PasswordResetService
     public function __construct(
         private readonly UserRepositoryInterface $users,
         private readonly PasswordResetRepositoryInterface $resets,
-        private readonly PasswordResetMailer $mailer,
+        private readonly ?PasswordResetMailer $mailer,
         private readonly TransactionManagerInterface $transactions,
         private readonly ClockInterface $clock,
         private readonly string $applicationKey,
@@ -28,7 +28,10 @@ final class PasswordResetService
     {
         $email = strtolower(trim($email));
 
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        if (
+            $this->mailer === null
+            || filter_var($email, FILTER_VALIDATE_EMAIL) === false
+        ) {
             return;
         }
 
