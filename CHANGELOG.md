@@ -56,6 +56,10 @@ The project is currently in the pre-release architecture and foundation phase.
 - Owner-scoped recent notification delivery history with localized timestamps
 - Manual retry for failed deliveries using domain-separated encrypted retry payloads
 - Queue-based test sends for active notification channels
+- Web Push notification provider integrated into the existing queue/rule/history model
+- Browser subscription lifecycle with stable browser identifiers and encrypted subscription storage
+- Minimal installable PWA manifest and push-only service worker
+- VAPID key generation CLI and environment-based Web Push configuration
 
 ### Security
 
@@ -87,6 +91,10 @@ The project is currently in the pre-release architecture and foundation phase.
 - Delivery history never renders notification content or provider secrets
 - Sent/cancelled jobs erase encrypted retry payloads; failed jobs keep only encrypted retry material for explicit owner retry
 - Test sends and manual retry are authenticated, CSRF-protected, and owner-scoped
+- Web Push subscriptions require authenticated CSRF-protected registration and allowlisted HTTPS push-service endpoints
+- Web Push VAPID private keys remain server-side; only the public key is exposed to authenticated browser clients
+- The PWA service worker has no fetch handler or private offline cache
+- Expired Web Push subscriptions are automatically disabled on push-service 404/410 responses
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
