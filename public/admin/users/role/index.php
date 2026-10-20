@@ -55,7 +55,9 @@ if (!CsrfToken::verify(Request::postString('_csrf'))) {
 try {
     $role = Role::from(Request::postString('role'));
     $service = new UserAdministrationService(
-        new UserAdministrationRepository($runtime->database)
+        new UserAdministrationRepository($runtime->database),
+        $runtime->auditEventRepository(),
+        $runtime->transactionManager()
     );
     $service->setRole(
         (int) Request::postString('user_id'),
