@@ -6,6 +6,7 @@ Open Phonebook besitzt cron-gesteuerte Hintergrundaufgaben für:
 
 - Google-Kontakte-Synchronisierung
 - Benachrichtigungszustellung
+- Historienbereinigung
 
 Die Betriebsdiagnose zeigt minimal und technisch, ob diese Aufgaben planmäßig laufen. Zusätzlich wird die installierte Open-Phonebook-Version aus der eingecheckten `VERSION`-Datei angezeigt.
 
@@ -77,6 +78,12 @@ Google-Kontakte-Synchronisierung beispielsweise alle fünf Minuten:
 
 `php bin/google-contacts-sync.php`
 
+Die Historienbereinigung sollte normalerweise einmal täglich laufen:
+
+`php bin/history-retention-cleanup.php`
+
+Die Standard-Stale-Grenze für die Bereinigung beträgt 129600 Sekunden (36 Stunden), damit ein täglicher Job auch mit üblichen Hosting-/Scheduler-Verzögerungen noch als gesund gilt. Anpassung über `OPENPHONEBOOK_RETENTION_CLEANUP_STALE_SECONDS` oder `operations.scheduler_stale_after_seconds.retention_cleanup`.
+
 Bei abweichenden Cron-Intervallen sollte die jeweilige Stale-Zeitgrenze passend angepasst werden.
 
 ## Queue-Metriken
@@ -114,8 +121,11 @@ Heartbeat-Einträge speichern bewusst keine Exception-Texte, da diese sensible P
 
 Siehe [Backup und Wiederherstellung](backup-restore.md) für Recovery-Satz, Readiness-CLI, Key-Fingerprint-Prüfung, Datenbankexport/-import und Funktionstests nach Restore.
 
+## Historienaufbewahrung
+
+Standardmäßig werden beendete Anrufsitzungen 180 Tage und abgeschlossene Benachrichtigungszustellungen 90 Tage aufbewahrt. Beide Fristen sind unabhängig konfigurierbar und können mit `0` deaktiviert werden. Die Bereinigung läuft bewusst per Cron und nicht innerhalb normaler Web-Requests, damit Benutzeranfragen niemals größere Löschvorgänge ausführen.
+
 ## Spätere Operations-Themen
 
-- optionale Aufbewahrungs-/Bereinigungsregeln
 - Docker-Betrieb
 - bei Bedarf externe Monitoring-Integration
