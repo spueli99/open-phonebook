@@ -267,7 +267,7 @@ final class NotificationManagementView
             . 'input,select,button{padding:8px}'
             . '.inline{display:inline-block;margin-right:8px}'
             . '.notice,.error{padding:10px;border:1px solid currentColor}'
-            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main>'
             . '<nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a><a href="/devices/">'
@@ -365,7 +365,7 @@ final class NotificationManagementView
             )
             . '</button></form></div></div>'
             . $historyHtml
-            . '</main></body></html>';
+            . '</main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function webPushSetup(
