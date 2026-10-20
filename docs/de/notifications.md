@@ -180,7 +180,7 @@ Eine zufällige lokale Browser-ID ermöglicht es, eine erneuerte Subscription im
 
 Die Zustellung läuft vollständig über die bestehende persistente Notification-Queue. Abgelaufene Subscriptions, die der Push-Dienst mit HTTP 404/410 meldet, werden automatisch deaktiviert; der betreffende Job endet als `cancelled` und wird nicht weiter retryt.
 
-Der Push-Payload enthält nur gerenderten Titel/Nachrichtentext und einen internen Same-Origin-Zielpfad. Der Service Worker akzeptiert für Notification-Klicks ausschließlich relative Ziele innerhalb der Anwendung.
+Der Push-Payload enthält nur gerenderten Titel/Nachrichtentext und einen internen Same-Origin-Zielpfad. Der Service Worker normalisiert das Ziel und prüft vor der Navigation zusätzlich die Origin; protokollrelative oder fremde Ziele fallen auf die Anwendungswurzel zurück.
 
 ## Sicherheit
 
