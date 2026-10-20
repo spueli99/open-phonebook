@@ -7,8 +7,7 @@ namespace OpenPhonebook\Notifications;
 use PDO;
 use RuntimeException;
 
-final class NotificationRuleRepository
-    implements NotificationRuleRepositoryInterface
+final class NotificationRuleRepository implements NotificationRuleRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
