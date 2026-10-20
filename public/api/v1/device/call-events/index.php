@@ -90,6 +90,12 @@ try {
     // Notification failures must not change the accepted call event.
 }
 
+try {
+    $runtime->authentication->markUsed($device);
+} catch (Throwable) {
+    // Usage telemetry must not break an accepted call event.
+}
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 header('Pragma: no-cache');
