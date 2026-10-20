@@ -24,8 +24,7 @@ final class AuditMetadataTest extends TestCase
     public function testRejectsSensitiveMetadataKeys(): void
     {
         foreach (
-            ['password_hash', 'reset_token', 'session_id', 'email_address']
-            as $key
+            ['password_hash', 'reset_token', 'session_id', 'email_address'] as $key
         ) {
             try {
                 AuditMetadata::validate([$key => 'sensitive']);
