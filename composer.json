@@ -40,10 +40,12 @@
     "lint": "phpcs",
     "analyse": "phpstan analyse --memory-limit=512M",
     "test": "phpunit",
+    "audit": "composer audit --locked --no-interaction",
     "check": [
       "@lint",
       "@analyse",
-      "@test"
+      "@test",
+      "@audit"
     ]
   },
   "config": {
