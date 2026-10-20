@@ -61,6 +61,11 @@ final class BackupReadinessRepository implements BackupReadinessRepositoryInterf
                  AND revoked_at IS NULL
                  AND expires_at > UTC_TIMESTAMP()'
             ),
+            'active_password_resets' => $this->countIfAvailable(
+                'password_reset_requests',
+                'used_at IS NULL
+                 AND expires_at > UTC_TIMESTAMP()'
+            ),
         ];
     }
 
