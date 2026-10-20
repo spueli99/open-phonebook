@@ -45,7 +45,8 @@ if (!CsrfToken::verify(Request::postString('_csrf'))) {
 try {
     $runtime->notificationAdministrationService()->disableWebPush(
         $user->id,
-        Request::postString('browser_id')
+        Request::postString('browser_id'),
+        Request::postString('endpoint')
     );
 } catch (Throwable) {
     http_response_code(400);
