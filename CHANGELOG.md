@@ -16,6 +16,10 @@ The project is currently in the pre-release architecture and foundation phase.
 - Committed Composer dependency lock for reproducible development, CI, deployment, and disaster recovery
 - Domain-separated application-key fingerprint verification for disaster recovery
 - English and German backup/restore runbooks for database, secrets, install lock, and code/dependency recovery
+- Explicit semantic application version identity with Operations-page display
+- Update-readiness CLI with machine-readable JSON output and migration compatibility checks
+- Explicit migration CLI for production updates with unknown-schema downgrade protection
+- English and German release/update/rollback runbooks
 - Secure web setup installer and versioned migration foundation
 - Local email/password authentication foundation
 - Email-based password reset/recovery with 30-minute single-use fragment tokens
@@ -68,6 +72,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Update readiness and migration execution block databases containing migration IDs unknown to the deployed code
+- Production update guidance requires a verified backup before schema migration and defines restore-based rollback when older code no longer understands the schema
 - Administrative user/invitation mutations persist audit events in the same database transaction; audit failure rolls back the state change
 - Audit metadata is bounded and rejects sensitive key classes such as passwords, tokens, sessions, email/phone/contact data, secrets, content, and authorization material
 - Operations diagnostics are authenticated, permission-gated, no-store, and aggregate-only
