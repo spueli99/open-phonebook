@@ -6,7 +6,7 @@ namespace OpenPhonebook\Calls;
 
 interface CallSessionRepositoryInterface
 {
-    public function findByDeviceAndExternalIdForUpdate(
+    public function findOpenByDeviceAndExternalIdForUpdate(
         int $deviceId,
         string $externalCallId
     ): ?CallSession;
