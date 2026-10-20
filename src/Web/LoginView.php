@@ -30,7 +30,7 @@ final class LoginView
             . 'input{box-sizing:border-box;width:100%;padding:10px;margin-top:6px}'
             . 'button{margin-top:20px;padding:10px 16px;font-weight:700}'
             . '.error{padding:10px;border:1px solid currentColor;border-radius:6px}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<h1>' . self::escape($translator->get('auth.login.title')) . '</h1>'
             . $errorHtml
             . '<form method="post" autocomplete="on">'
