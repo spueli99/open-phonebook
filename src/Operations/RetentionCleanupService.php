@@ -9,6 +9,8 @@ use RuntimeException;
 
 final class RetentionCleanupService
 {
+    private const BATCH_SIZE = 500;
+
     public function __construct(
         private readonly RetentionCleanupRepositoryInterface $repository,
         private readonly int $callHistoryDays,
@@ -22,20 +24,51 @@ final class RetentionCleanupService
     {
         $calls = $this->callHistoryDays === 0
             ? 0
-            : $this->repository->deleteTerminalCallSessionsBefore(
+            : $this->deleteCalls(
                 $now->modify('-' . $this->callHistoryDays . ' days')
             );
 
         $notifications = $this->notificationHistoryDays === 0
             ? 0
-            : $this->repository
-                ->deleteTerminalNotificationDeliveriesBefore(
-                    $now->modify(
-                        '-' . $this->notificationHistoryDays . ' days'
-                    )
-                );
+            : $this->deleteNotifications(
+                $now->modify(
+                    '-' . $this->notificationHistoryDays . ' days'
+                )
+            );
 
         return new RetentionCleanupResult($calls, $notifications);
+    }
+
+    private function deleteCalls(DateTimeImmutable $cutoff): int
+    {
+        $deleted = 0;
+
+        do {
+            $batch = $this->repository
+                ->deleteTerminalCallSessionsBefore(
+                    $cutoff,
+                    self::BATCH_SIZE
+                );
+            $deleted += $batch;
+        } while ($batch === self::BATCH_SIZE);
+
+        return $deleted;
+    }
+
+    private function deleteNotifications(DateTimeImmutable $cutoff): int
+    {
+        $deleted = 0;
+
+        do {
+            $batch = $this->repository
+                ->deleteTerminalNotificationDeliveriesBefore(
+                    $cutoff,
+                    self::BATCH_SIZE
+                );
+            $deleted += $batch;
+        } while ($batch === self::BATCH_SIZE);
+
+        return $deleted;
     }
 
     private static function validateDays(int $days): void
