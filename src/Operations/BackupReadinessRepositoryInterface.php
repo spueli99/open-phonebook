@@ -17,7 +17,8 @@ interface BackupReadinessRepositoryInterface
      *     notification_channels: int,
      *     notification_retry_payloads: int,
      *     device_credentials: int,
-     *     active_invitations: int
+     *     active_invitations: int,
+     *     active_password_resets: int
      * }
      */
     public function keyDependentRecordCounts(): array;

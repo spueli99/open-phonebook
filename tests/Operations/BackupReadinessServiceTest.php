@@ -214,6 +214,7 @@ final class BackupReadinessServiceTest extends TestCase
                     'notification_retry_payloads' => 1,
                     'device_credentials' => 4,
                     'active_invitations' => 1,
+                    'active_password_resets' => 2,
                 ]
             ),
             $key,

@@ -108,6 +108,7 @@ final class AuthenticationServiceTest extends TestCase
             'admin@example.com',
             'Administrator',
             $passwordHash,
+            1,
             'system_admin',
             'en',
             'UTC',

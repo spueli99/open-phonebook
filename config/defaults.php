@@ -16,6 +16,9 @@ return [
     'contacts' => [
         'default_region' => null,
     ],
+    'mail' => [
+        'from' => null,
+    ],
     'providers' => [
         'google' => [
             'client_id' => null,

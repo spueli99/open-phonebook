@@ -106,6 +106,11 @@ final class Config
         );
         self::assign(
             $values,
+            ['mail', 'from'],
+            Environment::get('OPENPHONEBOOK_MAIL_FROM')
+        );
+        self::assign(
+            $values,
             ['providers', 'google', 'client_id'],
             Environment::get('OPENPHONEBOOK_GOOGLE_CLIENT_ID')
         );

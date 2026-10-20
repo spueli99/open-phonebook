@@ -11,6 +11,7 @@ final readonly class UserRecord
         public string $email,
         public string $displayName,
         public string $passwordHash,
+        public int $authRevision,
         public string $role,
         public string $locale,
         public string $timezone,
@@ -28,6 +29,7 @@ final readonly class UserRecord
             $this->role,
             $this->locale,
             $this->timezone,
+            $this->authRevision,
         );
     }
 }

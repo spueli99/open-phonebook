@@ -8,6 +8,8 @@ This document defines the initial conceptual model. The physical schema will be 
 
 Individual accounts.
 
+The physical schema includes an `auth_revision` counter. Browser sessions store the revision seen at authentication time and are rejected when it changes, allowing password recovery to invalidate all existing sessions without persisting individual session records.
+
 ### organizations
 
 Optional containers for teams, companies, families, communities, or other shared contexts.
@@ -17,6 +19,12 @@ A user can operate without an organization.
 ### organization_members
 
 Membership and role assignment.
+
+### password_reset_requests
+
+Short-lived local account-recovery capabilities.
+
+The physical schema stores the target user, a domain-separated HMAC token hash, expiry, used timestamp, and request timestamp. Plaintext reset tokens are never persisted. Reset tokens expire after 30 minutes and successful password reset consumes the token before updating the password inside one transaction.
 
 ## Contacts
 

@@ -11,6 +11,11 @@ final class UserSession
 {
     private const KEY = '_open_phonebook_user';
 
+    public function __construct(
+        private readonly ?UserRepositoryInterface $users = null
+    ) {
+    }
+
     public function login(AuthenticatedUser $user): void
     {
         $this->requireSession();
@@ -23,6 +28,7 @@ final class UserSession
             'role' => $user->role,
             'locale' => $user->locale,
             'timezone' => $user->timezone,
+            'auth_revision' => $user->authRevision,
             'authenticated_at' => time(),
         ];
     }
@@ -36,21 +42,51 @@ final class UserSession
             return null;
         }
 
-        $required = ['id', 'email', 'display_name', 'role', 'locale', 'timezone'];
+        $required = [
+            'id',
+            'email',
+            'display_name',
+            'role',
+            'locale',
+            'timezone',
+            'auth_revision',
+        ];
         foreach ($required as $key) {
             if (!array_key_exists($key, $value)) {
+                $this->invalidate();
+
                 return null;
             }
         }
 
-        return new AuthenticatedUser(
+        $sessionUser = new AuthenticatedUser(
             (int) $value['id'],
             (string) $value['email'],
             (string) $value['display_name'],
             (string) $value['role'],
             (string) $value['locale'],
             (string) $value['timezone'],
+            (int) $value['auth_revision'],
         );
+
+        if ($this->users === null) {
+            return $sessionUser;
+        }
+
+        $current = $this->users->findById($sessionUser->id);
+
+        if (
+            $current === null
+            || !$current->isActive
+            || $current->isDeleted
+            || $current->authRevision !== $sessionUser->authRevision
+        ) {
+            $this->invalidate();
+
+            return null;
+        }
+
+        return $current->toAuthenticatedUser();
     }
 
     public function isAuthenticated(): bool
@@ -61,6 +97,11 @@ final class UserSession
     public function logout(): void
     {
         $this->requireSession();
+        $this->invalidate();
+    }
+
+    private function invalidate(): void
+    {
         unset($_SESSION[self::KEY]);
         Session::regenerate();
     }

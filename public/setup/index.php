@@ -172,6 +172,7 @@ if ($step === 'application') {
         $defaultPhoneRegion = strtoupper(
             SetupRequest::postString('default_phone_region')
         );
+        $mailFrom = SetupRequest::postString('mail_from');
         $adminEmail = SetupRequest::postString('admin_email');
         $adminName = SetupRequest::postString('admin_name');
         $adminPassword = SetupRequest::postPassword('admin_password');
@@ -205,6 +206,10 @@ if ($step === 'application') {
             $errors[] = 'Enter a valid ISO country code for phone numbers.';
         }
 
+        if (!filter_var($mailFrom, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'System mail sender must be a valid email address.';
+        }
+
         if ($adminPassword !== $adminPasswordConfirm) {
             $errors[] = 'Administrator passwords do not match.';
         }
@@ -234,6 +239,7 @@ if ($step === 'application') {
                     $defaultPhoneRegion === ''
                         ? null
                         : $defaultPhoneRegion,
+                    $mailFrom,
                     $adminEmail,
                     $adminName,
                     $adminPassword
@@ -301,6 +307,12 @@ if ($step === 'application') {
         . 'placeholder="DE" autocomplete="country"></label>'
         . '<p class="muted">Leave empty to avoid interpreting local '
         . 'phone numbers without an explicit country context.</p>'
+        . '<label>System mail sender'
+        . '<input type="email" name="mail_from" required '
+        . 'placeholder="phonebook@example.com" autocomplete="email">'
+        . '</label>'
+        . '<p class="muted">Used for password-reset and other '
+        . 'system-generated email.</p>'
         . '<label>Administrator name'
         . '<input name="admin_name" required autocomplete="name">'
         . '</label>'

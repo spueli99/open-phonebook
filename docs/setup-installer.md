@@ -159,3 +159,16 @@ Store the resulting keys as runtime secrets and configure a stable VAPID subject
 Do not regenerate these keys during ordinary deployments. Existing browser subscriptions are tied to the VAPID identity.
 
 After configuration, authenticated users can enable Web Push for each browser from the Notifications page.
+
+
+## System mail sender
+
+Fresh installations require a valid system mail sender address during the application setup step.
+
+The value is stored as `mail.from` in runtime configuration and is used for password-reset email and future system-generated mail.
+
+Environment-managed deployments may instead set:
+
+`OPENPHONEBOOK_MAIL_FROM`
+
+Password reset also requires the configured `app.base_url` to be a valid HTTPS URL because recovery links are generated from that base URL.

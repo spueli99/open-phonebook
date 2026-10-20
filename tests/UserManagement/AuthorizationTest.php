@@ -52,6 +52,7 @@ final class AuthorizationTest extends TestCase
             $role,
             'en',
             'UTC',
+            1,
         );
     }
 }

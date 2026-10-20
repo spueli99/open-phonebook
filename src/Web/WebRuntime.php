@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use OpenPhonebook\Auth\PasswordResetMailer;
+use OpenPhonebook\Auth\PasswordResetRepository;
+use OpenPhonebook\Auth\PasswordResetService;
+use OpenPhonebook\Auth\UserRepository;
 use OpenPhonebook\Auth\UserSession;
 use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Config\Config;
@@ -27,6 +31,7 @@ use OpenPhonebook\Notifications\NotificationConfigCipher;
 use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
+use OpenPhonebook\Notifications\PhpMailTransport;
 use OpenPhonebook\Notifications\WebPushServerConfigurationFactory;
 use OpenPhonebook\Operations\OperationsHealthService;
 use OpenPhonebook\Operations\OperationsMetricsRepository;
@@ -68,12 +73,43 @@ final readonly class WebRuntime
             throw new RuntimeException('Application key is missing or invalid.');
         }
 
+        $database = ConnectionFactory::create($databaseConfig);
+
         return new self(
             $config,
-            ConnectionFactory::create($databaseConfig),
-            new UserSession(),
+            $database,
+            new UserSession(new UserRepository($database)),
             $applicationKey,
             $projectRoot,
+        );
+    }
+
+    public function passwordResetService(): PasswordResetService
+    {
+        $baseUrl = $this->config->get('app.base_url');
+        $from = $this->config->get('mail.from');
+
+        $mailer = null;
+
+        if (is_string($baseUrl) && is_string($from)) {
+            try {
+                $mailer = new PasswordResetMailer(
+                    new PhpMailTransport(),
+                    $baseUrl,
+                    $from
+                );
+            } catch (RuntimeException) {
+                $mailer = null;
+            }
+        }
+
+        return new PasswordResetService(
+            new UserRepository($this->database),
+            new PasswordResetRepository($this->database),
+            $mailer,
+            new PdoTransactionManager($this->database),
+            new SystemClock(),
+            $this->applicationKey
         );
     }
 

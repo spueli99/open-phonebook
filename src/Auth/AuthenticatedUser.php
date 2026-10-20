@@ -13,6 +13,7 @@ final readonly class AuthenticatedUser
         public string $role,
         public string $locale,
         public string $timezone,
+        public int $authRevision,
     ) {
     }
 }

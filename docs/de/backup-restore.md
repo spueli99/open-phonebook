@@ -98,6 +98,7 @@ Besonders wichtig:
 
 - `OPENPHONEBOOK_APP_KEY` / `app.key`
 - Google-OAuth-Client-Zugangsdaten, falls genutzt
+- Konfiguration des System-Mail-Absenders für Passwort-Recovery
 - Web-Push-VAPID-Subject/Public-/Private-Key, falls genutzt
 - Datenbankzugang bzw. die Informationen zu dessen Wiederherstellung
 - relevante Base-URL-, Rufnummernregions- und Operations-Einstellungen
@@ -139,6 +140,7 @@ Der Readiness-Report zählt ohne Inhaltsausgabe:
 - verschlüsselte Notification-Retry-Payloads
 - aktive Gerätezugänge mit key-basierten Token-Hashes
 - aktive Einladungen mit key-basierten Token-Hashes
+- aktive Passwort-Reset-Tokens mit domain-separierten, vom Application Key abgeleiteten Hashes
 
 Login-Throttling-HMACs gelten bewusst nicht als recovery-kritische Benutzerdaten. Ein Key-Wechsel macht alte Rate-Limit-Buckets gegebenenfalls irrelevant, zerstört aber keine Kontakte, Accounts oder Integrations-Secrets.
 
