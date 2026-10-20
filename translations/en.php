@@ -130,6 +130,7 @@ return [
     'operations.status.never_run' => 'Never run',
     'operations.task.google_contacts_sync' => 'Google Contacts sync',
     'operations.task.notification_delivery' => 'Notification delivery',
+    'operations.task.retention_cleanup' => 'History retention cleanup',
     'audit.title' => 'Audit log',
     'audit.help' => 'Recent security-sensitive administrative events. Ordinary contact browsing is not logged.',
     'audit.time' => 'Time',
