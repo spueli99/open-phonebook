@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Devices;
 
+use DateTimeImmutable;
+
 interface DeviceCredentialRepositoryInterface
 {
     public function create(
@@ -26,4 +28,11 @@ interface DeviceCredentialRepositoryInterface
         string $tokenHash,
         DeviceCredentialScope $scope
     ): ?AuthenticatedDevice;
+
+    public function markLastUsed(int $credentialId): void;
+
+    public function activeLastUsedAt(
+        int $deviceId,
+        DeviceCredentialScope $scope
+    ): ?DateTimeImmutable;
 }
