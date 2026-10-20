@@ -6,13 +6,19 @@ namespace OpenPhonebook\Web;
 
 final class SecurityHeaders
 {
+    public static function sendPrivate(): void
+    {
+        header('Cache-Control: no-store, private');
+        header('Pragma: no-cache');
+        header('X-Content-Type-Options: nosniff');
+        header('Referrer-Policy: no-referrer');
+    }
+
     public static function sendHtml(): void
     {
+        self::sendPrivate();
         header('Content-Type: text/html; charset=utf-8');
-        header('Cache-Control: no-store');
-        header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
-        header('Referrer-Policy: no-referrer');
         header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
         header(
             "Content-Security-Policy: default-src 'none'; "
