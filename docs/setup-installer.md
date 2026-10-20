@@ -131,3 +131,12 @@ Google Contacts, SMTP, Pushover, device credentials, address books, and call-eve
 For Google Contacts, configure `OPENPHONEBOOK_GOOGLE_CLIENT_ID` and `OPENPHONEBOOK_GOOGLE_CLIENT_SECRET` (or the equivalent `providers.google` values in `config/local.php`) after installation. The application `base_url` must be HTTPS and the OAuth redirect URI is `<base_url>/sources/google/callback/`.
 
 This keeps installation provider-neutral and allows Open Phonebook to operate without Google or any specific phone vendor.
+
+
+## Restore is not setup
+
+Disaster recovery must not rerun the web installer against an existing restored database.
+
+Restore the matching code, database, original runtime configuration/application key, and `storage/installed.lock`, then use `php bin/backup-readiness.php` with the fingerprint saved from the backup.
+
+See [Backup and restore](backup-restore.md).
