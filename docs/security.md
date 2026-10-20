@@ -35,6 +35,12 @@ Runtime secret configuration must be excluded from Git.
 
 The setup process generates an application key outside the database. It is currently used for keyed security hashes such as login-throttling subjects and invitation-token hashes. Future cryptographic features must define appropriate key derivation or separate keys.
 
+## Setup and installation
+
+The web installer requires HTTPS before any setup session starts or any setup step is served. Direct navigation to later setup steps cannot bypass this transport requirement.
+
+Before schema migrations or first-administrator creation, the installer preflights writability of the local configuration path and installation-lock path. Predictable filesystem permission failures therefore occur before database changes begin.
+
 ## Authentication
 
 Initial authentication uses local email/password accounts created by administrators or setup.
