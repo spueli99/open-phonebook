@@ -20,8 +20,10 @@ final class DeviceManagementView
      * @param array<int, list<int>> $assignments
      * @param array<int, bool> $phonebookCredentialStates
      * @param array<int, bool> $callEventCredentialStates
+     * @param array<int, bool> $yealinkCallbackCredentialStates
      * @param array<int, ?DateTimeImmutable> $phonebookLastUsedAt
      * @param array<int, ?DateTimeImmutable> $callEventLastUsedAt
+     * @param array<int, ?DateTimeImmutable> $yealinkCallbackLastUsedAt
      */
     public static function render(
         Translator $translator,
@@ -30,8 +32,10 @@ final class DeviceManagementView
         array $assignments,
         array $phonebookCredentialStates,
         array $callEventCredentialStates,
+        array $yealinkCallbackCredentialStates,
         array $phonebookLastUsedAt,
         array $callEventLastUsedAt,
+        array $yealinkCallbackLastUsedAt,
         string $timezone,
         string $csrfToken,
         ?DeviceCredentialCreationResult $credential = null,
@@ -86,6 +90,8 @@ final class DeviceManagementView
                 $phonebookCredentialStates[$device->id] ?? false;
             $hasCallEventCredential =
                 $callEventCredentialStates[$device->id] ?? false;
+            $hasYealinkCallbackCredential =
+                $yealinkCallbackCredentialStates[$device->id] ?? false;
             $statusKey = $device->isActive
                 ? 'devices.status.active'
                 : 'devices.status.inactive';
@@ -93,6 +99,9 @@ final class DeviceManagementView
                 ? 'devices.credential.active'
                 : 'devices.credential.none';
             $callEventCredentialKey = $hasCallEventCredential
+                ? 'devices.credential.active'
+                : 'devices.credential.none';
+            $yealinkCallbackCredentialKey = $hasYealinkCallbackCredential
                 ? 'devices.credential.active'
                 : 'devices.credential.none';
             $phonebookLastUsed = self::lastUsedLabel(
@@ -105,6 +114,12 @@ final class DeviceManagementView
                 $translator,
                 $callEventLastUsedAt[$device->id] ?? null,
                 $hasCallEventCredential,
+                $timezone
+            );
+            $yealinkCallbackLastUsed = self::lastUsedLabel(
+                $translator,
+                $yealinkCallbackLastUsedAt[$device->id] ?? null,
+                $hasYealinkCallbackCredential,
                 $timezone
             );
 
@@ -179,6 +194,17 @@ final class DeviceManagementView
                 )
                 . '<br><small>'
                 . Html::escape($callEventLastUsed)
+                . '</small></dd>'
+                . '<dt>'
+                . Html::escape(
+                    $translator->get('devices.credential.yealink_callback')
+                )
+                . '</dt><dd>'
+                . Html::escape(
+                    $translator->get($yealinkCallbackCredentialKey)
+                )
+                . '<br><small>'
+                . Html::escape($yealinkCallbackLastUsed)
                 . '</small></dd></dl>'
                 . '<form method="post" action="/devices/update/" '
                 . 'class="identity">'
@@ -240,6 +266,22 @@ final class DeviceManagementView
                     $csrfToken,
                     $translator->get(
                         'devices.call_events.revoke'
+                    )
+                )
+                . self::actionForm(
+                    '/devices/yealink-callback/credential/rotate/',
+                    $device->id,
+                    $csrfToken,
+                    $translator->get(
+                        'devices.yealink_callback.rotate'
+                    )
+                )
+                . self::actionForm(
+                    '/devices/yealink-callback/credential/revoke/',
+                    $device->id,
+                    $csrfToken,
+                    $translator->get(
+                        'devices.yealink_callback.revoke'
                     )
                 )
                 . '</div>'
