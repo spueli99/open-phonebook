@@ -21,8 +21,7 @@ final class BackupReadinessService
 
     public function snapshot(
         ?string $expectedKeyFingerprint = null
-    ): BackupReadinessSnapshot
-    {
+    ): BackupReadinessSnapshot {
         $applied = $this->repository->appliedMigrationIds();
         $missing = array_values(
             array_diff($this->expectedMigrationIds, $applied)
