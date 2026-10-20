@@ -384,6 +384,26 @@ final class NotificationManagementView
             . Html::escape($publicKey)
             . '" data-csrf-token="'
             . Html::escape($csrfToken)
+            . '" data-label-enabled="'
+            . Html::escape(
+                $translator->get('notifications.web_push.enabled')
+            )
+            . '" data-label-disabled="'
+            . Html::escape(
+                $translator->get('notifications.web_push.disabled')
+            )
+            . '" data-label-unsupported="'
+            . Html::escape(
+                $translator->get('notifications.web_push.unsupported')
+            )
+            . '" data-label-denied="'
+            . Html::escape(
+                $translator->get('notifications.web_push.denied')
+            )
+            . '" data-label-error="'
+            . Html::escape(
+                $translator->get('notifications.web_push.error')
+            )
             . '"><h2>Web Push</h2><p id="web-push-status">'
             . Html::escape(
                 $translator->get('notifications.web_push.checking')
