@@ -7,8 +7,7 @@ namespace OpenPhonebook\Tests\Support\Notifications;
 use OpenPhonebook\Notifications\NotificationChannel;
 use OpenPhonebook\Notifications\NotificationChannelRepositoryInterface;
 
-final class InMemoryNotificationChannelRepository
-    implements NotificationChannelRepositoryInterface
+final class InMemoryNotificationChannelRepository implements NotificationChannelRepositoryInterface
 {
     /** @var array<int, NotificationChannel> */
     private array $channels = [];
