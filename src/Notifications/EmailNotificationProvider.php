@@ -6,8 +6,7 @@ namespace OpenPhonebook\Notifications;
 
 use RuntimeException;
 
-final class EmailNotificationProvider
-    implements NotificationProviderInterface
+final class EmailNotificationProvider implements NotificationProviderInterface
 {
     public function __construct(
         private readonly MailTransportInterface $transport
