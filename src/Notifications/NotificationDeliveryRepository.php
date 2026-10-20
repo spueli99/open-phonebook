@@ -263,8 +263,8 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         $statement = $this->prepare(
             'UPDATE notification_deliveries
              SET status = :status,
-                 title = '',
-                 body = '',
+                 title = \'\',
+                 body = \'\',
                  locked_at = NULL,
                  sent_at = :sent_at,
                  updated_at = :updated_at
