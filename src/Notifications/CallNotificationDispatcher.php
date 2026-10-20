@@ -8,6 +8,7 @@ use OpenPhonebook\Calls\CallDirection;
 use OpenPhonebook\Calls\CallEventResult;
 use OpenPhonebook\Calls\CallSessionState;
 use OpenPhonebook\Devices\AuthenticatedDevice;
+use OpenPhonebook\Clock\ClockInterface;
 use Throwable;
 
 final class CallNotificationDispatcher
@@ -15,8 +16,9 @@ final class CallNotificationDispatcher
     public function __construct(
         private readonly NotificationRuleRepositoryInterface $rules,
         private readonly NotificationChannelRepositoryInterface $channels,
-        private readonly NotificationProviderRegistry $providers,
-        private readonly NotificationConfigCipher $configCipher,
+        private readonly NotificationDeliveryRepositoryInterface $deliveries,
+        private readonly QuietHoursPolicy $quietHours,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -49,19 +51,16 @@ final class CallNotificationDispatcher
                     continue;
                 }
 
-                $provider = $this->providers->get(
-                    $channel->provider
-                );
-
-                if ($provider === null) {
+                if ($this->quietHours->isQuiet($rule)) {
                     continue;
                 }
 
-                $provider->send(
-                    $this->configCipher->decrypt(
-                        $channel->encryptedConfig
-                    ),
-                    $message
+                $this->deliveries->enqueue(
+                    $device->ownerUserId,
+                    $channel->id,
+                    $trigger,
+                    $message,
+                    $this->clock->now()
                 );
             } catch (Throwable) {
                 continue;
