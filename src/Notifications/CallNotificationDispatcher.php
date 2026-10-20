@@ -8,6 +8,7 @@ use OpenPhonebook\Calls\CallDirection;
 use OpenPhonebook\Calls\CallEventResult;
 use OpenPhonebook\Calls\CallSessionState;
 use OpenPhonebook\Devices\AuthenticatedDevice;
+use LogicException;
 use OpenPhonebook\Clock\ClockInterface;
 use Throwable;
 
@@ -111,6 +112,9 @@ final class CallNotificationDispatcher
             NotificationTrigger::Completed => new NotificationMessage(
                 'Call completed',
                 'Call with ' . $remote . ' completed'
+            ),
+            NotificationTrigger::Test => throw new LogicException(
+                'Test trigger is not a call event.'
             ),
         };
     }
