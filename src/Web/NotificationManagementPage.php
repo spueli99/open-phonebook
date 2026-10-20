@@ -6,6 +6,7 @@ namespace OpenPhonebook\Web;
 
 use OpenPhonebook\I18n\Translator;
 use OpenPhonebook\Notifications\NotificationAdministrationService;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryFilter;
 
 final class NotificationManagementPage
 {
@@ -20,16 +21,24 @@ final class NotificationManagementPage
         string $timezone,
         string $csrfToken,
         ?string $webPushPublicKey = null,
+        ?NotificationDeliveryHistoryFilter $historyFilter = null,
         ?string $notice = null,
         ?string $error = null
     ): string {
+        $historyFilter ??= new NotificationDeliveryHistoryFilter();
+        $channels = $this->notifications->channels($ownerUserId);
+
         return NotificationManagementView::render(
             $this->translator,
-            $this->notifications->channels($ownerUserId),
+            $channels,
             $this->notifications->rules($ownerUserId),
             $this->notifications->devices($ownerUserId),
             $this->notifications->deliveryCounts($ownerUserId),
-            $this->notifications->deliveryHistory($ownerUserId),
+            $this->notifications->deliveryHistory(
+                $ownerUserId,
+                $historyFilter
+            ),
+            $historyFilter,
             $timezone,
             $csrfToken,
             $webPushPublicKey,
