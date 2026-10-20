@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Auth;
 
-use DateTimeImmutable;
 use OpenPhonebook\Notifications\MailTransportInterface;
 use RuntimeException;
 
@@ -28,8 +27,7 @@ final class PasswordResetMailer
 
     public function send(
         UserRecord $user,
-        string $plainToken,
-        DateTimeImmutable $expiresAt
+        string $plainToken
     ): void {
         $link = rtrim($this->baseUrl, '/')
             . '/password-reset/#'
