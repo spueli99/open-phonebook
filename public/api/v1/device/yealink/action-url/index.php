@@ -21,6 +21,9 @@ require $autoload;
 
 SecurityHeaders::sendPrivate();
 
+$clientIp = Request::clientIp();
+$throttleEndpoint = 'yealink-action-url';
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     http_response_code(405);
     header('Allow: GET');
@@ -39,18 +42,30 @@ try {
     exit;
 }
 
+if ($runtime->throttle->isBlocked($throttleEndpoint, $clientIp)) {
+    http_response_code(429);
+    header('Retry-After: 900');
+    exit;
+}
+
 $device = $runtime->authentication->authenticateBasic(
     $_SERVER,
     DeviceCredentialScope::YealinkCallbackWrite
 );
 
 if ($device === null) {
+    $runtime->throttle->registerFailure(
+        $throttleEndpoint,
+        $clientIp
+    );
     http_response_code(401);
     header(
         'WWW-Authenticate: Basic realm="Open Phonebook Yealink callback"'
     );
     exit;
 }
+
+$runtime->throttle->clear($throttleEndpoint, $clientIp);
 
 $eventName = $_GET['event'] ?? null;
 
