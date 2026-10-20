@@ -54,7 +54,6 @@ if (!(new Authorization())->allows($user, Permission::InviteUsers)) {
     exit;
 }
 
-$invitationUrl = null;
 $mailSent = false;
 $error = null;
 
@@ -79,30 +78,31 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
             $mailer = $runtime->invitationMailer();
 
-            if ($mailer !== null) {
-                try {
-                    $mailer->send($result);
-                    $mailSent = true;
-                } catch (Throwable) {
-                    (new InvitationAdministrationService(
-                        new InvitationRepository($runtime->database),
-                        new SystemClock(),
-                        $runtime->applicationKey,
-                    ))->revoke($result->id);
+            if ($mailer === null) {
+                (new InvitationAdministrationService(
+                    new InvitationRepository($runtime->database),
+                    new SystemClock(),
+                    $runtime->applicationKey,
+                ))->revoke($result->id);
 
-                    throw new RuntimeException(
-                        'Invitation email could not be sent.'
-                    );
-                }
-            } else {
-                $baseUrl = $runtime->config->get('app.base_url', '');
-                if (!is_string($baseUrl) || $baseUrl === '') {
-                    throw new RuntimeException('Application base URL is missing.');
-                }
+                throw new RuntimeException(
+                    'Invitation mail configuration is invalid.'
+                );
+            }
 
-                $invitationUrl = rtrim($baseUrl, '/')
-                    . '/invite/accept/#'
-                    . rawurlencode($result->token);
+            try {
+                $mailer->send($result);
+                $mailSent = true;
+            } catch (Throwable) {
+                (new InvitationAdministrationService(
+                    new InvitationRepository($runtime->database),
+                    new SystemClock(),
+                    $runtime->applicationKey,
+                ))->revoke($result->id);
+
+                throw new RuntimeException(
+                    'Invitation email could not be sent.'
+                );
             }
 
             CsrfToken::rotate();
@@ -117,7 +117,7 @@ SecurityHeaders::sendHtml();
 echo InvitationCreateView::render(
     $translator,
     CsrfToken::issue(),
-    $invitationUrl,
+    null,
     $error,
     $mailSent
 );
