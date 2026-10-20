@@ -8,8 +8,7 @@ use JsonException;
 use OpenPhonebook\Http\HttpClientInterface;
 use RuntimeException;
 
-final class PushoverNotificationProvider
-    implements NotificationProviderInterface
+final class PushoverNotificationProvider implements NotificationProviderInterface
 {
     private const ENDPOINT = 'https://api.pushover.net/1/messages.json';
 
