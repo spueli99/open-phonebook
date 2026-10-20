@@ -14,7 +14,8 @@ final readonly class BackupReadinessSnapshot
      *     notification_channels: int,
      *     notification_retry_payloads: int,
      *     device_credentials: int,
-     *     active_invitations: int
+     *     active_invitations: int,
+     *     active_password_resets: int
      * } $keyDependentRecords
      */
     public function __construct(
