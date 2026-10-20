@@ -59,7 +59,7 @@ final class DashboardView
             . '<title>' . Html::escape($translator->get('dashboard.title'))
             . ' · Open Phonebook</title>'
             . '<link rel="stylesheet" href="/assets/app.css">'
-            . '</head><body><main class="dashboard-shell">'
+            . '</head><body>' . AppChrome::header() . '<main class="dashboard-shell">'
             . '<header class="dashboard-header">'
             . '<div><h1>'
             . Html::escape($translator->get('dashboard.title'))
@@ -78,7 +78,7 @@ final class DashboardView
             . '">'
             . implode('', $links)
             . '</nav>'
-            . '</main></body></html>';
+            . '</main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function card(string $href, string $label): string
