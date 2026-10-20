@@ -33,7 +33,7 @@ final class BackupReadinessService
             && strlen($this->applicationKey) >= 32;
         $fingerprint = null;
 
-        if ($keyAvailable && is_string($this->applicationKey)) {
+        if ($keyAvailable) {
             $fingerprint = ApplicationKeyFingerprint::fromKey(
                 $this->applicationKey
             );
