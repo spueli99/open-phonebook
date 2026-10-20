@@ -40,7 +40,11 @@ final class LoginView
             . '<label>' . self::escape($translator->get('auth.login.password'))
             . '<input type="password" name="password" required autocomplete="current-password"></label>'
             . '<button type="submit">' . self::escape($translator->get('auth.login.submit'))
-            . '</button></form></main></body></html>';
+            . '</button></form><p><a href="/password-reset/request/">'
+            . self::escape(
+                $translator->get('auth.password_reset.forgot')
+            )
+            . '</a></p></main></body></html>';
     }
 
     private static function escape(string $value): string
