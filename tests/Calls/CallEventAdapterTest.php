@@ -43,8 +43,19 @@ final class CallEventAdapterTest extends TestCase
 
         self::assertSame(CallEventType::Ringing, $incoming->type);
         self::assertSame(CallDirection::Incoming, $incoming->direction);
+        self::assertSame('100', $incoming->localNumber);
+        self::assertSame('+49123', $incoming->remoteNumber);
         self::assertSame(CallEventType::Connected, $connected->type);
         self::assertNull($connected->direction);
+    }
+
+    public function testJsonParserRejectsUnknownDirection(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new JsonCallEventParser())->parse(
+            '{"event":"ringing","call_id":"abc","direction":"sideways"}'
+        );
     }
 
     public function testYealinkAdapterRejectsUnknownEvents(): void
