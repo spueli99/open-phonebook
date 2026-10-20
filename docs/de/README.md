@@ -17,6 +17,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Geräte](devices.md)
 - [Anrufereignisse](call-events.md)
 - [Benachrichtigungen](notifications.md)
+- [Betrieb und Systemdiagnose](operations.md)
 
 ## Grundprinzipien
 
