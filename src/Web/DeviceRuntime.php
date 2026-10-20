@@ -7,6 +7,7 @@ namespace OpenPhonebook\Web;
 use OpenPhonebook\Calls\CallEventService;
 use OpenPhonebook\Calls\CallerLookupService;
 use OpenPhonebook\Calls\CallSessionRepository;
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
@@ -23,15 +24,11 @@ use OpenPhonebook\Exports\JsonPhonebookExporter;
 use OpenPhonebook\Exports\PhonebookExporterRegistry;
 use OpenPhonebook\Exports\YealinkPhonebookExporter;
 use OpenPhonebook\Notifications\CallNotificationDispatcher;
-use OpenPhonebook\Notifications\EmailNotificationProvider;
 use OpenPhonebook\Notifications\NotificationChannelRepository;
-use OpenPhonebook\Notifications\NotificationConfigCipher;
-use OpenPhonebook\Notifications\NotificationProviderRegistry;
+use OpenPhonebook\Notifications\NotificationDeliveryRepository;
 use OpenPhonebook\Notifications\NotificationRuleRepository;
-use OpenPhonebook\Notifications\PhpMailTransport;
-use OpenPhonebook\Notifications\PushoverNotificationProvider;
-use OpenPhonebook\Security\SecretCipher;
-use OpenPhonebook\Http\CurlHttpClient;
+use OpenPhonebook\Notifications\QuietHoursPolicy;
+use OpenPhonebook\Notifications\UserTimezoneRepository;
 use PDO;
 use RuntimeException;
 
@@ -84,6 +81,7 @@ final readonly class DeviceRuntime
         $access = new AddressBookAccessService(
             new AddressBookAccessRepository($database)
         );
+        $clock = new SystemClock();
 
         return new self(
             $database,
@@ -116,17 +114,15 @@ final readonly class DeviceRuntime
             new CallNotificationDispatcher(
                 new NotificationRuleRepository($database),
                 new NotificationChannelRepository($database),
-                new NotificationProviderRegistry([
-                    new PushoverNotificationProvider(
-                        new CurlHttpClient()
-                    ),
-                    new EmailNotificationProvider(
-                        new PhpMailTransport()
-                    ),
-                ]),
-                new NotificationConfigCipher(
-                    new SecretCipher($applicationKey)
-                )
+                new NotificationDeliveryRepository(
+                    $database,
+                    $transactions
+                ),
+                new QuietHoursPolicy(
+                    $clock,
+                    new UserTimezoneRepository($database)
+                ),
+                $clock
             )
         );
     }

@@ -56,12 +56,19 @@ if ($trigger === null || ($deviceValue !== '' && $deviceId === 0)) {
     exit;
 }
 
+$quietStartValue = Request::postString('quiet_start');
+$quietEndValue = Request::postString('quiet_end');
+$quietStart = $quietStartValue === '' ? null : $quietStartValue;
+$quietEnd = $quietEndValue === '' ? null : $quietEndValue;
+
 try {
     $runtime->notificationAdministrationService()->createRule(
         $user->id,
         Request::postPositiveInt('channel_id'),
         $deviceId,
-        $trigger
+        $trigger,
+        $quietStart,
+        $quietEnd
     );
 } catch (Throwable) {
     http_response_code(400);

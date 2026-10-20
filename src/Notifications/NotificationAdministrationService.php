@@ -14,6 +14,7 @@ final class NotificationAdministrationService
         private readonly NotificationRuleRepositoryInterface $rules,
         private readonly DeviceRepositoryInterface $devices,
         private readonly NotificationConfigCipher $configCipher,
+        private readonly NotificationDeliveryRepositoryInterface $deliveries,
     ) {
     }
 
@@ -39,6 +40,20 @@ final class NotificationAdministrationService
     public function rules(int $ownerUserId): array
     {
         return $this->rules->allOwnedBy($ownerUserId);
+    }
+
+    /**
+     * @return array{
+     *     pending: int,
+     *     processing: int,
+     *     sent: int,
+     *     failed: int,
+     *     cancelled: int
+     * }
+     */
+    public function deliveryCounts(int $ownerUserId): array
+    {
+        return $this->deliveries->countsOwnedBy($ownerUserId);
     }
 
     /**
@@ -101,8 +116,12 @@ final class NotificationAdministrationService
         int $ownerUserId,
         int $channelId,
         ?int $deviceId,
-        NotificationTrigger $trigger
+        NotificationTrigger $trigger,
+        ?string $quietStart = null,
+        ?string $quietEnd = null
     ): int {
+        QuietHoursPolicy::validateWindow($quietStart, $quietEnd);
+
         $channel = $this->channels->findOwnedBy(
             $channelId,
             $ownerUserId
@@ -141,7 +160,9 @@ final class NotificationAdministrationService
             $ownerUserId,
             $channelId,
             $deviceId,
-            $trigger
+            $trigger,
+            $quietStart,
+            $quietEnd
         );
     }
 

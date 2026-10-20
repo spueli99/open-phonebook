@@ -26,6 +26,7 @@ final class NotificationManagementPage
             $this->notifications->channels($ownerUserId),
             $this->notifications->rules($ownerUserId),
             $this->notifications->devices($ownerUserId),
+            $this->notifications->deliveryCounts($ownerUserId),
             $csrfToken,
             $notice,
             $error

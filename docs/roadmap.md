@@ -113,11 +113,14 @@ Completed or in active work:
 - call-event notification rules for incoming, missed, and completed calls
 - optional per-device rule scoping
 - provider-failure isolation after call-state commit
+- per-rule quiet hours in the user's timezone
+- persistent cron-driven delivery queue
+- bounded retry/backoff and stale-worker recovery
+- aggregate delivery diagnostics
 
 Still planned:
 
-- quiet hours
-- retry/backoff queue and delivery diagnostics
+- detailed delivery-history UI and manual retry
 - Web Push/PWA
 - test-send action
 - future additional providers

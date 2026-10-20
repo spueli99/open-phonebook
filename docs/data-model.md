@@ -97,7 +97,15 @@ User-owned provider endpoints. The physical schema stores a display name, provid
 
 Owner-scoped conditions connecting one notification channel to a trigger. A rule may optionally target one device owned by the same user; a null device applies to all of that user's devices.
 
-Current triggers are incoming, missed, and completed call notifications.
+Current triggers are incoming, missed, and completed call notifications. Rules may also store a quiet-hours start/end pair interpreted in the owner's timezone.
+
+### notification_deliveries
+
+Persistent outbound delivery jobs created after call-state commit and quiet-hours evaluation.
+
+The physical schema stores owner/channel references, trigger, rendered title/body, status, attempt count, next-available time, worker lock timestamp, last-error timestamp, sent timestamp, and UTC audit timestamps.
+
+Current delivery states are pending, processing, sent, failed, and cancelled.
 
 ## Time
 

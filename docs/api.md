@@ -73,8 +73,9 @@ Call-event notification dispatch occurs after a successful call-state commit. Cu
 
 Current providers are Pushover and email.
 
-## Exports
+Call-event requests do not contact external notification providers. Matching rules outside quiet hours create persistent delivery jobs; the cron worker performs provider delivery and retries independently.
 
+## Exports
 
 Device phonebook output is generated through exporter interfaces rather than embedding vendor XML in controllers.
 

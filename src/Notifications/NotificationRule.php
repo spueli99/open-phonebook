@@ -12,6 +12,8 @@ final readonly class NotificationRule
         public int $channelId,
         public ?int $deviceId,
         public NotificationTrigger $trigger,
+        public ?string $quietStart,
+        public ?string $quietEnd,
         public bool $isActive,
     ) {
     }

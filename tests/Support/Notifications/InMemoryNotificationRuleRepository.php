@@ -70,7 +70,9 @@ final class InMemoryNotificationRuleRepository implements NotificationRuleReposi
         int $ownerUserId,
         int $channelId,
         ?int $deviceId,
-        NotificationTrigger $trigger
+        NotificationTrigger $trigger,
+        ?string $quietStart,
+        ?string $quietEnd
     ): int {
         $id = $this->nextId++;
         $this->rules[$id] = new NotificationRule(
@@ -79,6 +81,8 @@ final class InMemoryNotificationRuleRepository implements NotificationRuleReposi
             $channelId,
             $deviceId,
             $trigger,
+            $quietStart,
+            $quietEnd,
             true
         );
 
