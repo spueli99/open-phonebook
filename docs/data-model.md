@@ -26,6 +26,12 @@ Short-lived local account-recovery capabilities.
 
 The physical schema stores the target user, a domain-separated HMAC token hash, expiry, used timestamp, and request timestamp. Plaintext reset tokens are never persisted. Reset tokens expire after 30 minutes and successful password reset consumes the token before updating the password inside one transaction.
 
+### audit_events
+
+Append-only security/admin audit records.
+
+The physical schema stores a typed event identifier, optional actor user reference, target type and ID, validated bounded JSON metadata, and UTC creation time. Actor deletion sets the reference to null rather than deleting historical audit records. Ordinary contact reads are deliberately not represented.
+
 ## Contacts
 
 ### address_books
