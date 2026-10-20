@@ -57,13 +57,11 @@ interface NotificationDeliveryRepositoryInterface
      */
     public function countsOwnedBy(int $ownerUserId): array;
 
-    /**
-     * @return list<NotificationDeliveryHistoryItem>
-     */
-    public function recentOwnedBy(
+    public function historyOwnedBy(
         int $ownerUserId,
+        NotificationDeliveryHistoryFilter $filter,
         int $limit = 50
-    ): array;
+    ): NotificationDeliveryHistoryPage;
 
     public function retryCandidateOwnedBy(
         int $deliveryId,
