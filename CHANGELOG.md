@@ -58,6 +58,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Device phonebook exporter interface with JSON, CSV, and Yealink XML adapters
 - Sessionless device-facing phonebook endpoint with export-time access revalidation
 - Independent `call-events:write` device credentials with owner-managed rotation and revocation
+- Per-scope device credential `last_used_at` tracking with owner-visible timestamps
 - Generic JSON call-event API with transactional call-session state machine
 - Yealink Action URL normalization adapter and scoped caller lookup
 - User-owned encrypted notification channels with Pushover and email providers
@@ -75,6 +76,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Device credential last-used timestamps are updated only after successful authenticated device operations; invalid or rejected requests do not count as credential use
 - Recent-call history is scoped through device ownership and never exposes another user's call sessions
 - Retention cleanup never deletes open call sessions or pending/processing notification jobs; only terminal records older than configured cutoffs are eligible
 - Audit log UI is authenticated, system-admin-only, read-only, bounded to the latest 100 events, and HTML-escapes all dynamic values
