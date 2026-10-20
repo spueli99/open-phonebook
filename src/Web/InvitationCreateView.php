@@ -42,7 +42,7 @@ final class InvitationCreateView
             . 'input,select{box-sizing:border-box;width:100%;padding:10px;margin-top:6px}'
             . 'button{margin-top:20px;padding:10px 16px;font-weight:700}'
             . '.error,.result{padding:12px;border:1px solid currentColor;border-radius:6px}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<p><a href="/admin/users/">← '
             . Html::escape($translator->get('users.back')) . '</a></p>'
             . '<h1>' . Html::escape($translator->get('users.invite.title')) . '</h1>'
