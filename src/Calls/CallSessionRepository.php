@@ -22,8 +22,7 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
                     local_number, remote_number, contact_name
              FROM call_sessions
              WHERE device_id = :device_id
-               AND external_call_id = :external_call_id
-               AND ended_at IS NULL
+               AND active_external_call_id = :external_call_id
              ORDER BY id DESC
              LIMIT 1
              FOR UPDATE'
@@ -61,6 +60,7 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
             'INSERT INTO call_sessions (
                 device_id,
                 external_call_id,
+                active_external_call_id,
                 direction,
                 state,
                 local_number,
@@ -71,6 +71,7 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
              ) VALUES (
                 :device_id,
                 :external_call_id,
+                :active_external_call_id,
                 :direction,
                 :state,
                 :local_number,
@@ -83,6 +84,7 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
         $statement->execute([
             'device_id' => $deviceId,
             'external_call_id' => $externalCallId,
+            'active_external_call_id' => $externalCallId,
             'direction' => $direction->value,
             'state' => $state->value,
             'local_number' => $localNumber,
@@ -115,6 +117,10 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
                  ended_at = CASE
                      WHEN :terminal = 1 THEN UTC_TIMESTAMP()
                      ELSE ended_at
+                 END,
+                 active_external_call_id = CASE
+                     WHEN :terminal = 1 THEN NULL
+                     ELSE active_external_call_id
                  END
              WHERE id = :id'
         );
