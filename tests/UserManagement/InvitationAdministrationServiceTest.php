@@ -58,7 +58,7 @@ final class InvitationAdministrationServiceTest extends TestCase
             $clock,
             str_repeat('a', 64),
         );
-        $service->revoke($created->id);
+        $service->revoke($created->id, 1);
 
         self::assertSame([], $service->allUsable());
         self::assertNull($creation->resolve($created->token));
