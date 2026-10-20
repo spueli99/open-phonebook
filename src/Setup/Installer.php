@@ -27,6 +27,7 @@ final class Installer
         string $timezone,
         string $locale,
         ?string $defaultPhoneRegion,
+        string $mailFrom,
         string $adminEmail,
         string $adminName,
         string $adminPassword
@@ -65,6 +66,9 @@ final class Installer
             ],
             'contacts' => [
                 'default_region' => $defaultPhoneRegion,
+            ],
+            'mail' => [
+                'from' => $mailFrom,
             ],
             'database' => $databaseConfig,
         ]);
