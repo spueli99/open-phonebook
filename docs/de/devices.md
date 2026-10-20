@@ -33,6 +33,10 @@ Ein Widerruf lässt das Gerät bestehen, entfernt aber den nutzbaren Zugang.
 
 Beim Deaktivieren eines Geräts werden alle aktiven Geräte-Credentials widerrufen. Eine spätere Reaktivierung erzeugt bewusst keine neuen Tokens; der Besitzer muss die benötigten Scopes ausdrücklich rotieren.
 
+Für jedes Credential wird `last_used_at` erst dann aktualisiert, wenn die Authentifizierung erfolgreich war und auch die geschützte Gerätefunktion selbst erfolgreich abgeschlossen wurde. Ungültige Tokens, fehlerhafte Requests, fehlgeschlagene Telefonbuch-Exporte und abgewiesene Call-Events aktualisieren den Zeitstempel nicht. Ein Fehler beim reinen Telemetrie-Update macht einen ansonsten erfolgreichen Geräte-Request nicht nachträglich fehlerhaft.
+
+Die Geräteverwaltung zeigt die letzte erfolgreiche Nutzung getrennt für die aktiven Scopes `phonebook:read` und `call-events:write` in der Zeitzone des angemeldeten Benutzers an. Ein neu rotiertes Credential wird bis zum ersten erfolgreichen Request als noch nie verwendet angezeigt.
+
 ## Adressbuchzuordnung
 
 Einem Gerät dürfen nur Adressbücher zugewiesen werden, die sein Besitzer aktuell lesen darf.
@@ -77,5 +81,4 @@ Siehe [Anrufereignisse](call-events.md).
 ## Später
 
 - organisationsweite Geräte
-- Last-used-Aktualisierung im Authentifizierungspfad
 - weitere Hersteller-Exporter

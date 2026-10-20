@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use OpenPhonebook\Contacts\AddressBookAccess;
 use OpenPhonebook\Devices\Device;
 use OpenPhonebook\Devices\DeviceCredentialCreationResult;
 use OpenPhonebook\I18n\Translator;
+use Throwable;
 
 final class DeviceManagementView
 {
@@ -17,6 +20,8 @@ final class DeviceManagementView
      * @param array<int, list<int>> $assignments
      * @param array<int, bool> $phonebookCredentialStates
      * @param array<int, bool> $callEventCredentialStates
+     * @param array<int, ?DateTimeImmutable> $phonebookLastUsedAt
+     * @param array<int, ?DateTimeImmutable> $callEventLastUsedAt
      */
     public static function render(
         Translator $translator,
@@ -25,6 +30,9 @@ final class DeviceManagementView
         array $assignments,
         array $phonebookCredentialStates,
         array $callEventCredentialStates,
+        array $phonebookLastUsedAt,
+        array $callEventLastUsedAt,
+        string $timezone,
         string $csrfToken,
         ?DeviceCredentialCreationResult $credential = null,
         ?string $notice = null,
@@ -87,6 +95,18 @@ final class DeviceManagementView
             $callEventCredentialKey = $hasCallEventCredential
                 ? 'devices.credential.active'
                 : 'devices.credential.none';
+            $phonebookLastUsed = self::lastUsedLabel(
+                $translator,
+                $phonebookLastUsedAt[$device->id] ?? null,
+                $hasPhonebookCredential,
+                $timezone
+            );
+            $callEventLastUsed = self::lastUsedLabel(
+                $translator,
+                $callEventLastUsedAt[$device->id] ?? null,
+                $hasCallEventCredential,
+                $timezone
+            );
 
             $bookOptions = '';
 
@@ -146,7 +166,9 @@ final class DeviceManagementView
                 . Html::escape(
                     $translator->get($phonebookCredentialKey)
                 )
-                . '</dd>'
+                . '<br><small>'
+                . Html::escape($phonebookLastUsed)
+                . '</small></dd>'
                 . '<dt>'
                 . Html::escape(
                     $translator->get('devices.credential.call_events')
@@ -155,7 +177,9 @@ final class DeviceManagementView
                 . Html::escape(
                     $translator->get($callEventCredentialKey)
                 )
-                . '</dd></dl>'
+                . '<br><small>'
+                . Html::escape($callEventLastUsed)
+                . '</small></dd></dl>'
                 . '<form method="post" action="/devices/update/" '
                 . 'class="identity">'
                 . '<input type="hidden" name="_csrf" value="'
@@ -301,6 +325,33 @@ final class DeviceManagementView
             . '</button></form>'
             . $deviceHtml
             . '</main></body></html>';
+    }
+
+    private static function lastUsedLabel(
+        Translator $translator,
+        ?DateTimeImmutable $lastUsedAt,
+        bool $hasActiveCredential,
+        string $timezone
+    ): string {
+        if (!$hasActiveCredential) {
+            return $translator->get('devices.credential.last_used.none');
+        }
+
+        if ($lastUsedAt === null) {
+            return $translator->get('devices.credential.last_used.never');
+        }
+
+        try {
+            $zone = new DateTimeZone($timezone);
+        } catch (Throwable) {
+            $zone = new DateTimeZone('UTC');
+        }
+
+        return $translator->get('devices.credential.last_used')
+            . ': '
+            . $lastUsedAt
+                ->setTimezone($zone)
+                ->format('Y-m-d H:i:s T');
     }
 
     private static function actionForm(

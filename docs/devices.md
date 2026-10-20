@@ -33,6 +33,10 @@ Revoking a credential leaves the device configured but without a usable token.
 
 Deactivating a device automatically revokes all active device credentials. Reactivating a device does not silently create new credentials; the owner must explicitly rotate each required scope.
 
+Each credential records `last_used_at` only after a request has authenticated successfully and the protected device operation itself has completed successfully. Invalid tokens, malformed requests, failed phonebook exports, and rejected call events do not update the timestamp. A telemetry write failure never turns an otherwise successful device request into an error.
+
+The device-management page shows the last successful use independently for the active `phonebook:read` and `call-events:write` credentials in the signed-in user's timezone. A newly rotated credential is shown as never used until its first successful request.
+
 ## Address-book assignment
 
 A device may be assigned only address books that its owner can currently read.
@@ -77,5 +81,4 @@ See [Call events](call-events.md).
 ## Deferred
 
 - organization-owned devices
-- last-used tracking in the authentication path
 - additional vendor exporters

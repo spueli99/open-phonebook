@@ -59,6 +59,7 @@ final class CallerLookupServiceTest extends TestCase
         );
         $device = new AuthenticatedDevice(
             1,
+            1,
             10,
             DeviceCredentialScope::CallEventsWrite
         );

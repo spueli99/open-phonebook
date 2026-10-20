@@ -219,6 +219,7 @@ final class CallEventServiceTest extends TestCase
     {
         return new AuthenticatedDevice(
             1,
+            1,
             10,
             DeviceCredentialScope::CallEventsWrite
         );

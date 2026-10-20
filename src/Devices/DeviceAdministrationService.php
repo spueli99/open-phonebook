@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Devices;
 
+use DateTimeImmutable;
 use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Database\TransactionManagerInterface;
 use RuntimeException;
@@ -286,6 +287,19 @@ final class DeviceAdministrationService
         $this->requireOwnedDevice($ownerUserId, $deviceId);
 
         return $this->credentials->hasActive(
+            $deviceId,
+            $scope
+        );
+    }
+
+    public function activeCredentialLastUsedAt(
+        int $ownerUserId,
+        int $deviceId,
+        DeviceCredentialScope $scope
+    ): ?DateTimeImmutable {
+        $this->requireOwnedDevice($ownerUserId, $deviceId);
+
+        return $this->credentials->activeLastUsedAt(
             $deviceId,
             $scope
         );

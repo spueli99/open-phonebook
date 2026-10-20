@@ -28,4 +28,9 @@ final class DeviceCredentialAuthenticator
             $scope
         );
     }
+
+    public function markUsed(AuthenticatedDevice $device): void
+    {
+        $this->credentials->markLastUsed($device->credentialId);
+    }
 }

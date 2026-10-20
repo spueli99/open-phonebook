@@ -50,6 +50,22 @@ final class DeviceCredentialHttpAuthenticatorTest extends TestCase
         self::assertNotNull($basic);
         self::assertSame(7, $bearer->deviceId);
         self::assertSame(7, $basic->deviceId);
+
+        self::assertNull(
+            $credentials->activeLastUsedAt(
+                7,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+
+        $authentication->markUsed($bearer);
+
+        self::assertNotNull(
+            $credentials->activeLastUsedAt(
+                7,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
     }
 
     public function testCredentialsAreNeverAcceptedFromOtherInputs(): void

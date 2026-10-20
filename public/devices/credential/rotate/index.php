@@ -60,6 +60,7 @@ try {
     SecurityHeaders::sendHtml();
     echo $page->render(
         $user->id,
+        $user->timezone,
         $csrfToken,
         $credential
     );
@@ -67,6 +68,7 @@ try {
     SecurityHeaders::sendHtml();
     echo $page->render(
         $user->id,
+        $user->timezone,
         CsrfToken::issue(),
         null,
         null,
