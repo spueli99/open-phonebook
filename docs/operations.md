@@ -121,7 +121,7 @@ See [Backup and restore](backup-restore.md) for the recovery set, readiness CLI,
 
 ## History retention
 
-Default retention periods are 180 days for terminal call sessions and 90 days for terminal notification deliveries. Both are configurable independently and can be disabled with `0`. Cleanup is intentionally cron-driven rather than request-driven so user-facing requests never perform bulk deletion work.
+Default retention periods are 180 days for terminal call sessions and 90 days for terminal notification deliveries. Both are configurable independently and can be disabled with `0`. Cleanup is intentionally cron-driven rather than request-driven so user-facing requests never perform bulk deletion work. Deletes run in batches of 500 and each area is capped at 100 batches per cron run, so large backlogs are reduced over multiple runs instead of causing one unbounded delete job.
 
 ## Future operations work
 
