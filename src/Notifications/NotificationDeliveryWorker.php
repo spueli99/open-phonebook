@@ -35,6 +35,12 @@ final class NotificationDeliveryWorker
         foreach ($jobs as $delivery) {
             $now = $this->clock->now();
 
+            if ($delivery->attempts > self::MAX_ATTEMPTS) {
+                $this->deliveries->markFailed($delivery->id, $now);
+                $failed++;
+                continue;
+            }
+
             if ($delivery->channelId === null) {
                 $this->deliveries->markCancelled($delivery->id, $now);
                 $cancelled++;
