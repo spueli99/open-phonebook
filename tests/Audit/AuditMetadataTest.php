@@ -23,6 +23,8 @@ final class AuditMetadataTest extends TestCase
 
     public function testRejectsSensitiveMetadataKeys(): void
     {
+        $rejected = 0;
+
         foreach (
             ['password_hash', 'reset_token', 'session_id', 'email_address'] as $key
         ) {
@@ -30,9 +32,11 @@ final class AuditMetadataTest extends TestCase
                 AuditMetadata::validate([$key => 'sensitive']);
                 self::fail('Sensitive audit metadata key was accepted.');
             } catch (InvalidArgumentException) {
-                self::assertTrue(true);
+                $rejected++;
             }
         }
+
+        self::assertSame(4, $rejected);
     }
 
     public function testRejectsUnsupportedValueTypes(): void
