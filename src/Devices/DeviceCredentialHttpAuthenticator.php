@@ -6,6 +6,8 @@ namespace OpenPhonebook\Devices;
 
 final class DeviceCredentialHttpAuthenticator
 {
+    private const BASIC_USERNAME = 'device';
+
     public function __construct(
         private readonly DeviceCredentialAuthenticator $authenticator
     ) {
@@ -22,39 +24,46 @@ final class DeviceCredentialHttpAuthenticator
             ?? $server['REDIRECT_HTTP_AUTHORIZATION']
             ?? null;
 
-        if (!is_string($authorization) || $authorization === '') {
-            return null;
+        if (is_string($authorization) && $authorization !== '') {
+            $token = $this->tokenFromAuthorization($authorization);
+
+            return $token === null
+                ? null
+                : $this->authenticator->authenticate($token, $scope);
         }
 
-        $token = $this->bearerToken($authorization)
-            ?? $this->basicToken($authorization);
+        $username = $server['PHP_AUTH_USER'] ?? null;
+        $password = $server['PHP_AUTH_PW'] ?? null;
 
-        return $token === null
-            ? null
-            : $this->authenticator->authenticate($token, $scope);
-    }
-
-    private function bearerToken(string $authorization): ?string
-    {
         if (
-            preg_match(
-                '/^Bearer ([a-f0-9]{64})$/',
-                $authorization,
-                $matches
-            ) !== 1
+            $username !== self::BASIC_USERNAME
+            || !is_string($password)
         ) {
             return null;
         }
 
-        return $matches[1];
+        return $this->authenticator->authenticate(
+            $password,
+            $scope
+        );
     }
 
-    private function basicToken(string $authorization): ?string
+    private function tokenFromAuthorization(string $value): ?string
     {
         if (
             preg_match(
+                '/^Bearer ([a-f0-9]{64})$/',
+                $value,
+                $matches
+            ) === 1
+        ) {
+            return $matches[1];
+        }
+
+        if (
+            preg_match(
                 '/^Basic ([A-Za-z0-9+\/=]+)$/',
-                $authorization,
+                $value,
                 $matches
             ) !== 1
         ) {
@@ -69,7 +78,7 @@ final class DeviceCredentialHttpAuthenticator
 
         [$username, $token] = explode(':', $decoded, 2);
 
-        if ($username !== 'device') {
+        if ($username !== self::BASIC_USERNAME) {
             return null;
         }
 
