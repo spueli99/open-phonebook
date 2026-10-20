@@ -110,9 +110,12 @@ Die Diagnoseseite:
 
 Heartbeat-Einträge speichern bewusst keine Exception-Texte, da diese sensible Provider- oder Kontoinformationen enthalten könnten.
 
+## Backup und Wiederherstellung
+
+Siehe [Backup und Wiederherstellung](backup-restore.md) für Recovery-Satz, Readiness-CLI, Key-Fingerprint-Prüfung, Datenbankexport/-import und Funktionstests nach Restore.
+
 ## Spätere Operations-Themen
 
-- Backup-/Restore-Dokumentation
 - optionale Aufbewahrungs-/Bereinigungsregeln
 - Docker-Betrieb
 - Release-/Update-Prozess
