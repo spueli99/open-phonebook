@@ -46,9 +46,7 @@ Einladungen:
 - können nicht für bereits vorhandene Benutzer erstellt werden
 - werden für dieselbe E-Mail-Adresse nicht mehrfach parallel aktiv angelegt
 
-Der erzeugte Link wird dem Administrator aktuell einmal angezeigt und kann anschließend über einen geeigneten Kanal an den Empfänger gesendet werden. Aktive Einladungen werden in der Benutzerverwaltung angezeigt und können widerrufen oder erneuert werden. Beim Erneuern wird der bisherige Token ungültig, ein neuer Token erzeugt und die Gültigkeit erneut auf drei Tage gesetzt.
-
-Ein automatischer E-Mail-Versand folgt später zusammen mit der Mail-/Benachrichtigungs-Infrastruktur.
+Ist die System-Mail-Konfiguration gültig, wird der Einladungslink direkt über den gemeinsam genutzten gehärteten Mail-Transport an die eingeladene Adresse gesendet und nicht mehr im Browser des Administrators angezeigt. Für bestehende Installationen ohne gültige System-Mail-Konfiguration bleibt aus Kompatibilitätsgründen die einmalige manuelle Anzeige des Links erhalten. Schlägt der Mailversand nach Erstellung oder Erneuerung fehl, wird die neu ausgestellte Einladung sofort widerrufen, damit kein gültiger, aber nie zugestellter Token bestehen bleibt. Aktive Einladungen werden in der Benutzerverwaltung angezeigt und können widerrufen oder erneuert werden. Beim Erneuern wird der bisherige Token ungültig, ein neuer Token erzeugt und die Gültigkeit erneut auf drei Tage gesetzt.
 
 ## Schutz des Einladungs-Tokens
 
