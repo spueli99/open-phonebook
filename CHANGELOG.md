@@ -27,7 +27,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - System-level user administration foundation
 - Explicit user-management permissions
 - Secure invitation creation and acceptance flow
-- System email delivery for invitations with token-safe legacy manual fallback
+- System email delivery for invitations without exposing plaintext invitation tokens in administrator HTML
 - Active invitation listing, revocation, and token-safe renewal
 - Guarded platform role management for members and system administrators
 - English and German user-management documentation
