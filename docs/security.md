@@ -137,11 +137,15 @@ Password-reset tokens are not persisted in plaintext.
 
 Users should eventually be able to export and delete their own application data.
 
-## Logging
+## Audit and logging
 
-Audit administrative and security actions without turning the audit log into contact-access surveillance.
+Security-sensitive administrative user and invitation changes are persisted as typed audit events. The event stores actor ID, target type/ID, UTC time, and only small validated metadata. Normal contact browsing is deliberately not audited.
 
-Authentication logs must not include plaintext passwords, provider secrets, session identifiers, invitation tokens, or unnecessary personal data.
+Audit metadata keys are centrally restricted and reject sensitive concepts such as passwords, tokens, secrets, sessions, email addresses, phone/contact data, message content, or authorization material. Current metadata values are bounded internal role/reason identifiers only. Administrative state changes and their audit records use the same PDO transaction; audit failure rolls back the protected mutation.
+
+Authentication logs and future audit expansion must not include plaintext passwords, provider secrets, session identifiers, invitation/reset tokens, arbitrary exception text, notification payloads, or unnecessary personal data.
+
+See [Audit Events](audit.md).
 
 
 ## Operations diagnostics
