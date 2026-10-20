@@ -45,7 +45,7 @@ final class OperationsHealthView
             . 'table{border-collapse:collapse;width:100%}'
             . 'th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}'
             . 'code{white-space:nowrap}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<nav><a href="/">'
             . Html::escape($translator->get('nav.dashboard'))
             . '</a></nav><h1>'
