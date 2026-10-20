@@ -124,6 +124,19 @@ final class NotificationAdministrationService
             throw new RuntimeException('Device not found.');
         }
 
+        if (
+            $this->rules->exists(
+                $ownerUserId,
+                $channelId,
+                $deviceId,
+                $trigger
+            )
+        ) {
+            throw new RuntimeException(
+                'Notification rule already exists.'
+            );
+        }
+
         return $this->rules->create(
             $ownerUserId,
             $channelId,
