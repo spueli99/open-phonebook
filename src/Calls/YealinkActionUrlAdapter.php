@@ -45,9 +45,37 @@ final class YealinkActionUrlAdapter
             $this->required($parameters, 'call_id', 191),
             $type,
             $direction,
-            $this->optional($parameters, 'local', 120),
-            $this->optional($parameters, 'remote', 120),
+            $this->phoneValue($parameters, 'local'),
+            $this->phoneValue($parameters, 'remote'),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function phoneValue(
+        array $parameters,
+        string $key
+    ): ?string {
+        $value = $this->optional($parameters, $key, 120);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (
+            str_starts_with(strtolower($value), 'sip:')
+            || str_starts_with(strtolower($value), 'sips:')
+        ) {
+            $value = substr($value, strpos($value, ':') + 1);
+            $at = strpos($value, '@');
+
+            if ($at !== false) {
+                $value = substr($value, 0, $at);
+            }
+        }
+
+        return $value === '' ? null : $value;
     }
 
     /**
