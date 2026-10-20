@@ -9,6 +9,7 @@ Die ersten dauerhaft gespeicherten Ereignistypen umfassen:
 - Aktivieren und Deaktivieren von Benutzern
 - Änderungen der Plattformrolle
 - Erstellen von Einladungen
+- Annehmen von Einladungen
 - Erneuern von Einladungen
 - Widerrufen von Einladungen
 
