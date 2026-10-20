@@ -75,7 +75,7 @@ Explicit many-to-many assignment between devices and address books. Assignment c
 
 ### call_sessions
 
-One derived call lifecycle per device and external call ID.
+One derived call lifecycle per call occurrence. Open sessions are looked up by device and external call ID; external IDs may be reused after a terminal session.
 
 The physical schema stores direction, current state, local/remote numbers, optional resolved contact name, and UTC lifecycle timestamps.
 
