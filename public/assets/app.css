@@ -351,3 +351,115 @@ body > main > p > a:not(.button) {
     width: 100%;
   }
 }
+
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+form.share,
+form.create,
+form.identity {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+form.share {
+  grid-template-columns: 2fr 1fr auto;
+}
+
+form.create {
+  margin-bottom: 28px;
+}
+
+form.identity {
+  margin: 16px 0;
+}
+
+.phone {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+fieldset {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.device,
+.secret {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.secret pre {
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  gap: 8px 14px;
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  margin: 0;
+}
+
+.books {
+  margin-top: 16px;
+}
+
+.book {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+  font-weight: 500;
+}
+
+.book input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.login-shell {
+  max-width: 460px;
+  margin-top: 10vh;
+}
+
+@media (max-width: 760px) {
+  form.share,
+  form.create,
+  form.identity,
+  .phone,
+  dl {
+    grid-template-columns: 1fr;
+  }
+
+  .login-shell {
+    margin-top: 10px;
+  }
+}
