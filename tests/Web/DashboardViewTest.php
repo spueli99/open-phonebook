@@ -54,6 +54,7 @@ final class DashboardViewTest extends TestCase
                 'Member User',
                 'member',
                 'en',
+                'Europe/Berlin',
                 1
             ),
             'csrf',
