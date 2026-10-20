@@ -100,7 +100,9 @@ System administration should focus on platform operations. The UI should avoid e
 
 ## Audit
 
-Audit security-sensitive actions such as:
+The first persistent audit milestone records user activation/deactivation, platform-role changes, and invitation creation/acceptance/renewal/revocation. These writes are transactionally coupled to the protected administrative state change and store only bounded non-sensitive metadata.
+
+Future expansion should audit security-sensitive actions such as:
 
 - authentication changes
 - user/organization administration
@@ -108,4 +110,4 @@ Audit security-sensitive actions such as:
 - OAuth/provider connection changes
 - imports and destructive operations
 
-Do not create invasive logs of ordinary contact browsing.
+Do not create invasive logs of ordinary contact browsing. See [Audit Events](audit.md).

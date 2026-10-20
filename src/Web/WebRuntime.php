@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use OpenPhonebook\Audit\AuditEventRepository;
 use OpenPhonebook\Auth\PasswordResetMailer;
 use OpenPhonebook\Auth\PasswordResetRepository;
 use OpenPhonebook\Auth\PasswordResetService;
@@ -109,6 +110,16 @@ final readonly class WebRuntime
         } catch (RuntimeException) {
             return null;
         }
+    }
+
+    public function auditEventRepository(): AuditEventRepository
+    {
+        return new AuditEventRepository($this->database);
+    }
+
+    public function transactionManager(): PdoTransactionManager
+    {
+        return new PdoTransactionManager($this->database);
     }
 
     public function passwordResetService(): PasswordResetService

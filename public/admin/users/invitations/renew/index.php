@@ -62,6 +62,8 @@ try {
         new InvitationRepository($runtime->database),
         new SystemClock(),
         $runtime->applicationKey,
+        $runtime->auditEventRepository(),
+        $runtime->transactionManager(),
     );
     $result = $service->renew(
         (int) Request::postString('invitation_id'),
@@ -72,7 +74,7 @@ try {
     $mailer = $runtime->invitationMailer();
 
     if ($mailer === null) {
-        $service->revoke($result->id);
+        $service->revoke($result->id, $user->id, 'mail_configuration_invalid');
 
         throw new RuntimeException(
             'Invitation mail configuration is invalid.'
@@ -83,7 +85,7 @@ try {
         $mailer->send($result);
         $mailSent = true;
     } catch (Throwable) {
-        $service->revoke($result->id);
+        $service->revoke($result->id, $user->id, 'mail_delivery_failed');
 
         throw new RuntimeException(
             'Invitation email could not be sent.'

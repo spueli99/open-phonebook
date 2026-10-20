@@ -19,6 +19,7 @@ Open Phonebook befindet sich in der Foundation-Phase. Es gibt noch keine stabile
 - [Benachrichtigungen](notifications.md)
 - [Betrieb und Systemdiagnose](operations.md)
 - [Backup und Wiederherstellung](backup-restore.md)
+- [Audit-Ereignisse](audit.md)
 
 ## Grundprinzipien
 

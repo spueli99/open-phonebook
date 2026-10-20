@@ -56,7 +56,9 @@ $active = Request::postString('active') === '1';
 
 try {
     $service = new UserAdministrationService(
-        new UserAdministrationRepository($runtime->database)
+        new UserAdministrationRepository($runtime->database),
+        $runtime->auditEventRepository(),
+        $runtime->transactionManager()
     );
     $service->setActive($userId, $active, $user->id);
 } catch (Throwable) {

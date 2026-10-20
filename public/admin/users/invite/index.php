@@ -69,6 +69,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 new UserAdministrationRepository($runtime->database),
                 new SystemClock(),
                 $runtime->applicationKey,
+                $runtime->auditEventRepository(),
+                $runtime->transactionManager(),
             );
             $result = $service->create(
                 Request::postString('email'),
@@ -83,7 +85,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                     new InvitationRepository($runtime->database),
                     new SystemClock(),
                     $runtime->applicationKey,
-                ))->revoke($result->id);
+                    $runtime->auditEventRepository(),
+                    $runtime->transactionManager(),
+                ))->revoke(
+                    $result->id,
+                    $user->id,
+                    'mail_configuration_invalid'
+                );
 
                 throw new RuntimeException(
                     'Invitation mail configuration is invalid.'
@@ -98,7 +106,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                     new InvitationRepository($runtime->database),
                     new SystemClock(),
                     $runtime->applicationKey,
-                ))->revoke($result->id);
+                    $runtime->auditEventRepository(),
+                    $runtime->transactionManager(),
+                ))->revoke(
+                    $result->id,
+                    $user->id,
+                    'mail_delivery_failed'
+                );
 
                 throw new RuntimeException(
                     'Invitation email could not be sent.'

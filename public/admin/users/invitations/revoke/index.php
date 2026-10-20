@@ -57,8 +57,13 @@ try {
         new InvitationRepository($runtime->database),
         new SystemClock(),
         $runtime->applicationKey,
+        $runtime->auditEventRepository(),
+        $runtime->transactionManager(),
     );
-    $service->revoke((int) Request::postString('invitation_id'));
+    $service->revoke(
+        (int) Request::postString('invitation_id'),
+        $user->id
+    );
 } catch (Throwable) {
     http_response_code(400);
     exit;

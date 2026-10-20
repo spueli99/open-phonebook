@@ -22,12 +22,12 @@ Completed or in active foundation work:
 - guarded platform role management
 - email-based password reset/recovery with global session invalidation
 - system email delivery for invitations
+- persistent security/admin audit events
 
 Still planned in the foundation area:
 
 - optional organizations
 - organization-scoped authorization policies
-- audit-event persistence
 
 ## Contacts
 
