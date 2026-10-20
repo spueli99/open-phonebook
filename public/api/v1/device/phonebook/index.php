@@ -78,6 +78,12 @@ try {
     exit;
 }
 
+try {
+    $runtime->authentication->markUsed($device);
+} catch (Throwable) {
+    // Usage telemetry must not break a successful phonebook response.
+}
+
 header('Content-Type: ' . $export->contentType);
 header('Content-Disposition: inline; filename="' . $export->fileName . '"');
 header('Cache-Control: no-store, private');
