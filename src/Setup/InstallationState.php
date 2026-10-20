@@ -17,7 +17,7 @@ final class InstallationState
         return is_file($this->lockFile);
     }
 
-    public function markInstalled(): void
+    public function assertWritable(): void
     {
         if ($this->isInstalled()) {
             throw new RuntimeException('Open Phonebook is already installed.');
@@ -25,9 +25,28 @@ final class InstallationState
 
         $directory = dirname($this->lockFile);
 
-        if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
-            throw new RuntimeException('Unable to create installation storage directory.');
+        if (
+            !is_dir($directory)
+            && !mkdir($directory, 0700, true)
+            && !is_dir($directory)
+        ) {
+            throw new RuntimeException(
+                'Unable to create installation storage directory.'
+            );
         }
+
+        if (!is_writable($directory)) {
+            throw new RuntimeException(
+                'Installation storage directory is not writable.'
+            );
+        }
+    }
+
+    public function markInstalled(): void
+    {
+        $this->assertWritable();
+
+        $directory = dirname($this->lockFile);
 
         $content = json_encode(
             ['installed_at' => gmdate(DATE_ATOM)],

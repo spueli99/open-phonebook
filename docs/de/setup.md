@@ -40,13 +40,15 @@ Nach erfolgreicher Installation wird die lokale Laufzeitkonfiguration in `config
 
 Während des Setups werden unter anderem eingesetzt:
 
-- HTTPS
+- HTTPS, zwingend bereits vor Start der Setup-Session und vor Auslieferung jedes Setup-Schritts
 - sichere Session-Cookies
 - CSRF-Schutz
 - serverseitige Validierung
 - Escaping der HTML-Ausgabe
 - restriktive Security-Header
 - keine Ausgabe von Datenbankfehlern oder Zugangsdaten an den Browser
+
+Vor Migrationen oder Anlage des ersten Administrators prüft der Installer zusätzlich, ob `config/local.php` und `storage/installed.lock` tatsächlich geschrieben werden können. Vorhersehbare Dateisystem-/Berechtigungsfehler brechen damit vor Datenbankänderungen ab.
 
 Nach erfolgreicher Installation wird `storage/installed.lock` angelegt. Danach ist der Installer gesperrt.
 

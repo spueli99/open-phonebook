@@ -79,6 +79,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Web setup enforces HTTPS before every setup step/session and preflights config/install-lock writability before database changes
 - CI audits the committed Composer lock against published security advisories before merge/release
 - Direct Yealink callbacks use a separate revocable credential scope, reject Bearer/query-token authentication, require HTTPS, and whitelist only documented callback parameters
 - Device credential last-used timestamps are updated only after successful authenticated device operations; invalid or rejected requests do not count as credential use

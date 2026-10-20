@@ -36,6 +36,9 @@ final class Installer
             throw new RuntimeException('Open Phonebook is already installed.');
         }
 
+        $this->configWriter->assertWritable();
+        $this->installationState->assertWritable();
+
         $database = ConnectionFactory::create($databaseConfig);
         (new MigrationRunner($database))->run(Migrations::all());
 

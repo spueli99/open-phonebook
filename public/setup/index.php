@@ -30,7 +30,18 @@ if (!is_file($autoload)) {
 require $autoload;
 
 $https = SetupRequest::isHttps();
-Session::start($https);
+
+if (!$https) {
+    http_response_code(400);
+    header('Content-Type: text/plain; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    echo "Open Phonebook setup requires HTTPS.\n";
+    exit;
+}
+
+Session::start(true);
 
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');

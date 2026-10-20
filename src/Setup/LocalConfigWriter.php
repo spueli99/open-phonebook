@@ -12,16 +12,29 @@ final class LocalConfigWriter
     {
     }
 
+    public function assertWritable(): void
+    {
+        $directory = dirname($this->path);
+
+        if (!is_dir($directory) || !is_writable($directory)) {
+            throw new RuntimeException(
+                'Configuration directory is not writable.'
+            );
+        }
+
+        if (is_file($this->path) && !is_writable($this->path)) {
+            throw new RuntimeException(
+                'Local configuration is not writable.'
+            );
+        }
+    }
+
     /**
      * @param array<string, mixed> $config
      */
     public function write(array $config): void
     {
-        $directory = dirname($this->path);
-
-        if (!is_dir($directory)) {
-            throw new RuntimeException('Configuration directory does not exist.');
-        }
+        $this->assertWritable();
 
         $content = "<?php\n\ndeclare(strict_types=1);\n\nreturn "
             . var_export($config, true)
