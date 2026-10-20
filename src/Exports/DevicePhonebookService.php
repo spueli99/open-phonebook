@@ -8,7 +8,6 @@ use OpenPhonebook\Contacts\AddressBookAccessService;
 use OpenPhonebook\Contacts\ContactRepositoryInterface;
 use OpenPhonebook\Devices\AuthenticatedDevice;
 use OpenPhonebook\Devices\DeviceAddressBookRepositoryInterface;
-use OpenPhonebook\Devices\DeviceCredentialScope;
 use RuntimeException;
 
 final class DevicePhonebookService
@@ -27,12 +26,6 @@ final class DevicePhonebookService
      */
     public function entriesFor(AuthenticatedDevice $device): array
     {
-        if ($device->scope !== DeviceCredentialScope::PhonebookRead) {
-            throw new RuntimeException(
-                'Device credential scope cannot read phonebooks.'
-            );
-        }
-
         $assigned = array_fill_keys(
             $this->assignments->addressBookIdsForDevice(
                 $device->deviceId
