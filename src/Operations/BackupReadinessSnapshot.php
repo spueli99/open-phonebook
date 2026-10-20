@@ -12,12 +12,14 @@ final readonly class BackupReadinessSnapshot
      *     contact_sources: int,
      *     notification_channels: int,
      *     notification_retry_payloads: int,
-     *     device_credentials: int
+     *     device_credentials: int,
+     *     active_invitations: int
      * } $keyDependentRecords
      */
     public function __construct(
         public BackupReadinessStatus $status,
-        public string $applicationKeyFingerprint,
+        public bool $applicationKeyAvailable,
+        public ?string $applicationKeyFingerprint,
         public bool $localConfigPresent,
         public bool $installationLockPresent,
         public array $missingMigrationIds,
