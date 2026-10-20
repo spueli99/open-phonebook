@@ -6,8 +6,7 @@ namespace OpenPhonebook\Tests\Support\Operations;
 
 use OpenPhonebook\Operations\BackupReadinessRepositoryInterface;
 
-final class InMemoryBackupReadinessRepository
-    implements BackupReadinessRepositoryInterface
+final class InMemoryBackupReadinessRepository implements BackupReadinessRepositoryInterface
 {
     /**
      * @param list<string> $migrationIds
