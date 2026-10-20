@@ -29,7 +29,7 @@ final class Version202610200001 implements Migration
                 started_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
                 ended_at DATETIME NULL,
-                UNIQUE KEY call_sessions_device_external_unique (
+                INDEX call_sessions_device_external_idx (
                     device_id,
                     external_call_id
                 ),
