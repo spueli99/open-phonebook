@@ -32,6 +32,9 @@ final class DashboardView
         $notificationsLink = '<p><a href="/notifications/">'
             . Html::escape($translator->get('nav.notifications'))
             . '</a></p>';
+        $callsLink = '<p><a href="/calls/">'
+            . Html::escape($translator->get('nav.calls'))
+            . '</a></p>';
         $operationsLink = $canViewOperations
             ? '<p><a href="/admin/operations/">'
                 . Html::escape($translator->get('nav.operations'))
@@ -58,6 +61,7 @@ final class DashboardView
             . $contactsLink
             . $devicesLink
             . $notificationsLink
+            . $callsLink
             . $operationsLink
             . $auditLink
             . $adminLink
