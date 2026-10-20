@@ -7,8 +7,7 @@ namespace OpenPhonebook\Tests\Support\Notifications;
 use OpenPhonebook\Notifications\UserTimezoneRepositoryInterface;
 use RuntimeException;
 
-final class InMemoryUserTimezoneRepository
-    implements UserTimezoneRepositoryInterface
+final class InMemoryUserTimezoneRepository implements UserTimezoneRepositoryInterface
 {
     /** @var array<int, string> */
     private array $timezones = [];
