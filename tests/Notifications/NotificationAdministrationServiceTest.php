@@ -10,6 +10,7 @@ use OpenPhonebook\Notifications\NotificationTrigger;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Tests\Support\Devices\InMemoryDeviceRepository;
 use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationChannelRepository;
+use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationDeliveryRepository;
 use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationRuleRepository;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -32,7 +33,8 @@ final class NotificationAdministrationServiceTest extends TestCase
             $channels,
             $rules,
             $devices,
-            $cipher
+            $cipher,
+            new InMemoryNotificationDeliveryRepository()
         );
 
         $channelId = $service->createChannel(
@@ -63,17 +65,23 @@ final class NotificationAdministrationServiceTest extends TestCase
             10,
             $channelId,
             1,
-            NotificationTrigger::Missed
+            NotificationTrigger::Missed,
+            '22:00',
+            '07:00'
         );
 
         self::assertCount(1, $service->rules(10));
+        self::assertSame('22:00', $service->rules(10)[0]->quietStart);
+        self::assertSame('07:00', $service->rules(10)[0]->quietEnd);
 
         try {
             $service->createRule(
                 10,
                 $channelId,
                 1,
-                NotificationTrigger::Missed
+                NotificationTrigger::Missed,
+                '22:00',
+                '07:00'
             );
             self::fail('Duplicate notification rule was accepted.');
         } catch (RuntimeException) {
@@ -89,6 +97,40 @@ final class NotificationAdministrationServiceTest extends TestCase
         );
     }
 
+    public function testInvalidQuietHoursAreRejected(): void
+    {
+        $channels = new InMemoryNotificationChannelRepository();
+        $devices = new InMemoryDeviceRepository();
+        $service = new NotificationAdministrationService(
+            $channels,
+            new InMemoryNotificationRuleRepository(),
+            $devices,
+            new NotificationConfigCipher(
+                new SecretCipher(self::APP_KEY)
+            ),
+            new InMemoryNotificationDeliveryRepository()
+        );
+        $channelId = $service->createChannel(
+            10,
+            'Mail',
+            'email',
+            [
+                'recipient' => 'user@example.test',
+                'from' => 'phonebook@example.test',
+            ]
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->createRule(
+            10,
+            $channelId,
+            null,
+            NotificationTrigger::Incoming,
+            '22:00',
+            null
+        );
+    }
+
     public function testOtherUsersCannotUseChannel(): void
     {
         $channels = new InMemoryNotificationChannelRepository();
@@ -98,7 +140,8 @@ final class NotificationAdministrationServiceTest extends TestCase
             new InMemoryDeviceRepository(),
             new NotificationConfigCipher(
                 new SecretCipher(self::APP_KEY)
-            )
+            ),
+            new InMemoryNotificationDeliveryRepository()
         );
         $channelId = $service->createChannel(
             10,
