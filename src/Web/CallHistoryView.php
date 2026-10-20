@@ -6,7 +6,6 @@ namespace OpenPhonebook\Web;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OpenPhonebook\Calls\CallDirection;
 use OpenPhonebook\Calls\CallHistoryItem;
 use OpenPhonebook\Calls\CallHistoryPage;
 use OpenPhonebook\Calls\CallSessionState;
