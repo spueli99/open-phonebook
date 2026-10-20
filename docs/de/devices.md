@@ -10,9 +10,10 @@ Im ersten Modell gehört jedes Gerät genau einem Benutzer.
 
 ## Geräte-Credentials
 
-Beim Anlegen eines Geräts wird ein Credential mit folgendem Scope erzeugt:
+Beim Anlegen eines Geräts wird zunächst ein Telefonbuch-Credential erzeugt. Ein Gerät kann unabhängig Credentials für folgende Scopes besitzen:
 
-`phonebook:read`
+- `phonebook:read`
+- `call-events:write`
 
 Der Klartext-Token wird nur unmittelbar nach dem Anlegen oder Rotieren angezeigt.
 
@@ -30,7 +31,7 @@ Beim Rotieren werden alle noch aktiven Credentials desselben Geräts und Scopes 
 
 Ein Widerruf lässt das Gerät bestehen, entfernt aber den nutzbaren Zugang.
 
-Beim Deaktivieren eines Geräts wird das aktive Phonebook-Credential automatisch widerrufen. Eine spätere Reaktivierung erzeugt bewusst keinen neuen Token; der Besitzer muss anschließend ausdrücklich rotieren.
+Beim Deaktivieren eines Geräts werden alle aktiven Geräte-Credentials widerrufen. Eine spätere Reaktivierung erzeugt bewusst keine neuen Tokens; der Besitzer muss die benötigten Scopes ausdrücklich rotieren.
 
 ## Adressbuchzuordnung
 
@@ -49,8 +50,8 @@ Aktuell möglich:
 - Gerät anlegen
 - Hersteller/Modell hinterlegen
 - Gerät aktivieren/deaktivieren
-- Phonebook-Credential rotieren
-- Phonebook-Credential widerrufen
+- Phonebook-Credential rotieren/widerrufen
+- Call-Event-Credential rotieren/widerrufen
 - lesbare Adressbücher zuweisen
 
 ## Telefonbuch-Exporte
@@ -67,9 +68,14 @@ Credentials werden ausschließlich über den HTTP-Authorization-Header angenomme
 
 Ein Abruf ist auf 5.000 Kontakte begrenzt. Der Yealink-Serializer verwirft XML-Ausgaben oberhalb von 1,5 MB. CSV-Ausgaben sichern führende Tabellenkalkulations-Formelzeichen ab.
 
+## Call-Event-Credentials
+
+Anrufereignisse verwenden den unabhängigen Scope `call-events:write`. Rotation oder Widerruf dieses Scopes beeinflusst `phonebook:read` nicht.
+
+Siehe [Anrufereignisse](call-events.md).
+
 ## Später
 
-- Call-Event-Credentials/Scopes
 - organisationsweite Geräte
 - Last-used-Aktualisierung im Authentifizierungspfad
 - weitere Hersteller-Exporter
