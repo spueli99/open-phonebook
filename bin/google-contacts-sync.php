@@ -140,6 +140,7 @@ try {
                 1
             );
         } catch (Throwable) {
+            // Preserve the original failure if heartbeat persistence also fails.
         }
     }
     fwrite(
