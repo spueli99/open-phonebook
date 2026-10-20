@@ -107,6 +107,10 @@ Device credentials are independent from human authentication. Implemented scopes
 
 Device address-book assignments may only be created for books the owner can currently read. Device-facing phonebook exports and caller lookup re-check current owner access as well as the stored assignment before returning contact-derived data. Device requests use a sessionless runtime. The generic call-event endpoint accepts only POST JSON, caps the body at 16 KiB, requires `call-events:write`, and exposes generic client errors rather than internal exception details. Normal device tokens are never accepted from query parameters. The Yealink Action URL adapter remains separate from a public callback endpoint until secure callback authentication is verified.
 
+## Notification security
+
+Notification channels and rules are owner-scoped. Provider configuration is serialized and encrypted at rest with the existing AES-256-GCM secret cipher before being stored in the database. Stored provider secrets are not rendered back into the management UI. Notification mutations require authenticated browser sessions and CSRF protection. Rules may reference only channels and devices owned by the same user. Pushover tokens and user/group keys are validated before storage and transport; email addresses are validated and CR/LF header injection is rejected. Provider failures are isolated after call-state commit and do not expose provider secrets in device responses.
+
 ## Privacy
 
 Call-history retention is configurable and may be disabled.
