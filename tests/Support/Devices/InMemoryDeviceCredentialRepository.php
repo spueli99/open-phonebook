@@ -48,7 +48,10 @@ final class InMemoryDeviceCredentialRepository implements DeviceCredentialReposi
         DeviceCredentialScope $scope
     ): void {
         foreach ($this->credentials as $hash => $credential) {
-            if ($credential['device_id'] === $deviceId) {
+            if (
+                $credential['device_id'] === $deviceId
+                && $credential['scope'] === $scope
+            ) {
                 $this->credentials[$hash]['active'] = false;
             }
         }
@@ -61,6 +64,7 @@ final class InMemoryDeviceCredentialRepository implements DeviceCredentialReposi
         foreach ($this->credentials as $credential) {
             if (
                 $credential['device_id'] === $deviceId
+                && $credential['scope'] === $scope
                 && $credential['active']
             ) {
                 return true;
@@ -79,6 +83,7 @@ final class InMemoryDeviceCredentialRepository implements DeviceCredentialReposi
         if (
             $credential === null
             || !$credential['active']
+            || $credential['scope'] !== $scope
         ) {
             return null;
         }

@@ -212,6 +212,83 @@ final class DeviceAdministrationServiceTest extends TestCase
         $service->revokeCredential(11, 1);
     }
 
+    public function testCallEventCredentialIsIndependentFromPhonebook(): void
+    {
+        [$service, $credentials] = $this->service();
+        $credentials->setOwner(1, 10);
+        $phonebook = $service->create(10, 'Phone', null, null);
+        $callEvents = $service->rotateCredential(
+            10,
+            1,
+            DeviceCredentialScope::CallEventsWrite
+        );
+        $authenticator = new DeviceCredentialAuthenticator(
+            $credentials,
+            self::APP_KEY
+        );
+
+        self::assertNotNull(
+            $authenticator->authenticate(
+                $phonebook->plainTextToken,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+        self::assertNull(
+            $authenticator->authenticate(
+                $phonebook->plainTextToken,
+                DeviceCredentialScope::CallEventsWrite
+            )
+        );
+        self::assertNotNull(
+            $authenticator->authenticate(
+                $callEvents->plainTextToken,
+                DeviceCredentialScope::CallEventsWrite
+            )
+        );
+
+        $service->revokeCredential(
+            10,
+            1,
+            DeviceCredentialScope::CallEventsWrite
+        );
+
+        self::assertTrue($service->hasActiveCredential(10, 1));
+        self::assertFalse(
+            $service->hasActiveCredential(
+                10,
+                1,
+                DeviceCredentialScope::CallEventsWrite
+            )
+        );
+    }
+
+    public function testDeactivationRevokesAllDeviceScopes(): void
+    {
+        [$service, $credentials] = $this->service();
+        $credentials->setOwner(1, 10);
+        $service->create(10, 'Phone', null, null);
+        $service->rotateCredential(
+            10,
+            1,
+            DeviceCredentialScope::CallEventsWrite
+        );
+
+        $service->setActive(10, 1, false);
+
+        self::assertFalse(
+            $credentials->hasActive(
+                1,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+        self::assertFalse(
+            $credentials->hasActive(
+                1,
+                DeviceCredentialScope::CallEventsWrite
+            )
+        );
+    }
+
     /**
      * @return array{
      *     DeviceAdministrationService,

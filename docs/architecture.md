@@ -69,7 +69,7 @@ Authorization is modeled separately with explicit permission identifiers. Admini
 
 Invitation services are separate from authentication. Invitation tokens create accounts but do not themselves create authenticated sessions.
 
-Devices never reuse human sessions or human passwords. Each initial device belongs to one user and authenticates with a separately scoped and revocable credential. Device-to-address-book assignments are explicit. Phonebook exports run through a vendor-neutral exporter interface and a sessionless device runtime; every request revalidates the owner's current address-book access so stale assignments cannot preserve revoked access.
+Devices never reuse human sessions or human passwords. Each initial device belongs to one user and authenticates with separately scoped and revocable credentials. `phonebook:read` and `call-events:write` are independent. Device-to-address-book assignments are explicit. Phonebook exports run through a vendor-neutral exporter interface and a sessionless device runtime; every request revalidates the owner's current address-book access so stale assignments cannot preserve revoked access. Call events enter through a generic normalized application boundary, are persisted through a transactional state machine, and vendor-specific Action URL values are translated by adapters before they reach the core.
 
 See [Authentication](authentication.md), [Permissions](permissions.md), and [User Management](user-management.md).
 

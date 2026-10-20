@@ -15,14 +15,16 @@ final class DeviceManagementView
      * @param list<Device> $devices
      * @param list<AddressBookAccess> $addressBooks
      * @param array<int, list<int>> $assignments
-     * @param array<int, bool> $credentialStates
+     * @param array<int, bool> $phonebookCredentialStates
+     * @param array<int, bool> $callEventCredentialStates
      */
     public static function render(
         Translator $translator,
         array $devices,
         array $addressBooks,
         array $assignments,
-        array $credentialStates,
+        array $phonebookCredentialStates,
+        array $callEventCredentialStates,
         string $csrfToken,
         ?DeviceCredentialCreationResult $credential = null,
         ?string $notice = null,
@@ -72,11 +74,17 @@ final class DeviceManagementView
 
         foreach ($devices as $device) {
             $deviceAssignments = $assignments[$device->id] ?? [];
-            $hasCredential = $credentialStates[$device->id] ?? false;
+            $hasPhonebookCredential =
+                $phonebookCredentialStates[$device->id] ?? false;
+            $hasCallEventCredential =
+                $callEventCredentialStates[$device->id] ?? false;
             $statusKey = $device->isActive
                 ? 'devices.status.active'
                 : 'devices.status.inactive';
-            $credentialKey = $hasCredential
+            $phonebookCredentialKey = $hasPhonebookCredential
+                ? 'devices.credential.active'
+                : 'devices.credential.none';
+            $callEventCredentialKey = $hasCallEventCredential
                 ? 'devices.credential.active'
                 : 'devices.credential.none';
 
@@ -132,10 +140,21 @@ final class DeviceManagementView
                 . '</dd>'
                 . '<dt>'
                 . Html::escape(
-                    $translator->get('devices.credential')
+                    $translator->get('devices.credential.phonebook')
                 )
                 . '</dt><dd>'
-                . Html::escape($translator->get($credentialKey))
+                . Html::escape(
+                    $translator->get($phonebookCredentialKey)
+                )
+                . '</dd>'
+                . '<dt>'
+                . Html::escape(
+                    $translator->get('devices.credential.call_events')
+                )
+                . '</dt><dd>'
+                . Html::escape(
+                    $translator->get($callEventCredentialKey)
+                )
                 . '</dd></dl>'
                 . '<form method="post" action="/devices/update/" '
                 . 'class="identity">'
@@ -181,6 +200,22 @@ final class DeviceManagementView
                     $csrfToken,
                     $translator->get(
                         'devices.credential.revoke'
+                    )
+                )
+                . self::actionForm(
+                    '/devices/call-events/credential/rotate/',
+                    $device->id,
+                    $csrfToken,
+                    $translator->get(
+                        'devices.call_events.rotate'
+                    )
+                )
+                . self::actionForm(
+                    '/devices/call-events/credential/revoke/',
+                    $device->id,
+                    $csrfToken,
+                    $translator->get(
+                        'devices.call_events.revoke'
                     )
                 )
                 . '</div>'

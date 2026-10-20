@@ -6,6 +6,7 @@ namespace OpenPhonebook\Web;
 
 use OpenPhonebook\Devices\DeviceAdministrationService;
 use OpenPhonebook\Devices\DeviceCredentialCreationResult;
+use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\I18n\Translator;
 
 final class DeviceManagementPage
@@ -25,17 +26,25 @@ final class DeviceManagementPage
     ): string {
         $devices = $this->devices->allOwnedBy($ownerUserId);
         $assignments = [];
-        $credentialStates = [];
+        $phonebookCredentialStates = [];
+        $callEventCredentialStates = [];
 
         foreach ($devices as $device) {
             $assignments[$device->id] = $this->devices->addressBookIds(
                 $ownerUserId,
                 $device->id
             );
-            $credentialStates[$device->id] =
+            $phonebookCredentialStates[$device->id] =
                 $this->devices->hasActiveCredential(
                     $ownerUserId,
-                    $device->id
+                    $device->id,
+                    DeviceCredentialScope::PhonebookRead
+                );
+            $callEventCredentialStates[$device->id] =
+                $this->devices->hasActiveCredential(
+                    $ownerUserId,
+                    $device->id,
+                    DeviceCredentialScope::CallEventsWrite
                 );
         }
 
@@ -44,7 +53,8 @@ final class DeviceManagementPage
             $devices,
             $this->devices->accessibleAddressBooks($ownerUserId),
             $assignments,
-            $credentialStates,
+            $phonebookCredentialStates,
+            $callEventCredentialStates,
             $csrfToken,
             $credential,
             $notice,

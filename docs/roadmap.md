@@ -88,10 +88,17 @@ Still planned:
 
 ## Call events
 
-- generic call-event API
-- call-session state machine
-- Yealink Action URL adapter
-- caller lookup
+Completed or in active work:
+
+- independent `call-events:write` device credentials
+- generic JSON call-event API
+- transactional call-session state machine
+- Yealink Action URL normalization adapter
+- scoped caller lookup through assigned/currently-readable address books
+
+Still planned:
+
+- secure direct Yealink callback transport/endpoint
 - configurable call-history retention
 - generic endpoint aliases for intercoms and other known callers
 

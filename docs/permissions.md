@@ -67,14 +67,14 @@ Private personal address books remain inaccessible unless explicitly shared. Per
 
 ## Devices
 
-Devices use scoped credentials rather than user sessions. The initial implemented scope is `phonebook:read`.
+Devices use scoped credentials rather than user sessions. Implemented scopes are `phonebook:read` and `call-events:write`.
 
 A device credential may grant only the operations needed for that device, such as:
 
 - retrieve assigned phonebook export
 - submit normalized or vendor-specific call events
 
-Credentials support explicit rotation and revocation. Device owners may assign only address books they can currently read. Device-facing exports must revalidate both the stored assignment and the owner's current access.
+Credentials support explicit per-scope rotation and revocation. Rotating or revoking one scope does not affect the other; device deactivation revokes all device scopes. Device owners may assign only address books they can currently read. Device-facing exports and caller lookup revalidate both the stored assignment and the owner's current access.
 
 ## System administrators
 

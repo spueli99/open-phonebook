@@ -37,6 +37,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Scoped `phonebook:read` device credentials with rotation and revocation
 - Device phonebook exporter interface with JSON, CSV, and Yealink XML adapters
 - Sessionless device-facing phonebook endpoint with export-time access revalidation
+- Independent `call-events:write` device credentials with owner-managed rotation and revocation
+- Generic JSON call-event API with transactional call-session state machine
+- Yealink Action URL normalization adapter and scoped caller lookup
 
 ### Security
 
@@ -52,6 +55,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Device tokens are stored only as domain-separated HMAC hashes and require active device and owner state
 - Device phonebook exports accept credentials only through Authorization headers, revalidate current address-book access, and return private no-store responses
 - CSV phonebook exports neutralize spreadsheet formula prefixes
+- Call-event credentials are scope-isolated from phonebook credentials; device deactivation revokes both
+- Call-event requests are body-size limited, sessionless, and require explicit `call-events:write` authorization
+- Caller lookup is limited to device-assigned address books the owner can still read
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance

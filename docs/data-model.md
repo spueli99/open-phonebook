@@ -75,20 +75,17 @@ Explicit many-to-many assignment between devices and address books. Assignment c
 
 ### call_sessions
 
-Derived call lifecycle.
+One derived call lifecycle per call occurrence. Open sessions are looked up by device and external call ID; external IDs may be reused after a terminal session.
 
-Typical outcomes:
+The physical schema stores direction, current state, local/remote numbers, optional resolved contact name, and UTC lifecycle timestamps.
 
-- incoming
-- outgoing
-- completed
-- missed
-- cancelled
-- ended/unknown
+Current states include ringing, calling, connected, completed, missed, and cancelled.
 
 ### call_events
 
-Immutable normalized events such as ringing, calling, connected, and idle.
+Append-only normalized lifecycle events linked to a call session.
+
+The physical schema stores the canonical event type, resulting state, and UTC occurrence timestamp.
 
 ## Notifications
 
