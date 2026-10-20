@@ -131,7 +131,8 @@ final class DeviceAdministrationService
 
     public function rotateCredential(
         int $ownerUserId,
-        int $deviceId
+        int $deviceId,
+        DeviceCredentialScope $scope = DeviceCredentialScope::PhonebookRead
     ): DeviceCredentialCreationResult {
         $token = DeviceCredentialToken::generate(
             $this->applicationKey
@@ -141,6 +142,7 @@ final class DeviceAdministrationService
             function () use (
                 $ownerUserId,
                 $deviceId,
+                $scope,
                 $token
             ): DeviceCredentialCreationResult {
                 $device = $this->devices->findOwnedByForUpdate(
@@ -160,17 +162,17 @@ final class DeviceAdministrationService
 
                 $this->credentials->revokeActive(
                     $deviceId,
-                    DeviceCredentialScope::PhonebookRead
+                    $scope
                 );
                 $this->credentials->create(
                     $deviceId,
-                    DeviceCredentialScope::PhonebookRead,
+                    $scope,
                     $token->hash
                 );
 
                 return new DeviceCredentialCreationResult(
                     $device,
-                    DeviceCredentialScope::PhonebookRead,
+                    $scope,
                     $token->plainText,
                 );
             }
@@ -179,10 +181,11 @@ final class DeviceAdministrationService
 
     public function revokeCredential(
         int $ownerUserId,
-        int $deviceId
+        int $deviceId,
+        DeviceCredentialScope $scope = DeviceCredentialScope::PhonebookRead
     ): void {
         $this->transactions->transactional(
-            function () use ($ownerUserId, $deviceId): void {
+            function () use ($ownerUserId, $deviceId, $scope): void {
                 if (
                     $this->devices->findOwnedByForUpdate(
                         $deviceId,
@@ -194,7 +197,7 @@ final class DeviceAdministrationService
 
                 $this->credentials->revokeActive(
                     $deviceId,
-                    DeviceCredentialScope::PhonebookRead
+                    $scope
                 );
             }
         );
@@ -237,10 +240,12 @@ final class DeviceAdministrationService
                 }
 
                 if (!$active) {
-                    $this->credentials->revokeActive(
-                        $deviceId,
-                        DeviceCredentialScope::PhonebookRead
-                    );
+                    foreach (DeviceCredentialScope::cases() as $scope) {
+                        $this->credentials->revokeActive(
+                            $deviceId,
+                            $scope
+                        );
+                    }
                 }
             }
         );
@@ -275,13 +280,14 @@ final class DeviceAdministrationService
 
     public function hasActiveCredential(
         int $ownerUserId,
-        int $deviceId
+        int $deviceId,
+        DeviceCredentialScope $scope = DeviceCredentialScope::PhonebookRead
     ): bool {
         $this->requireOwnedDevice($ownerUserId, $deviceId);
 
         return $this->credentials->hasActive(
             $deviceId,
-            DeviceCredentialScope::PhonebookRead
+            $scope
         );
     }
 
