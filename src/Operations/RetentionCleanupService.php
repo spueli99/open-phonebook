@@ -10,6 +10,7 @@ use RuntimeException;
 final class RetentionCleanupService
 {
     private const BATCH_SIZE = 500;
+    private const MAX_BATCHES_PER_AREA = 100;
 
     public function __construct(
         private readonly RetentionCleanupRepositoryInterface $repository,
@@ -43,6 +44,8 @@ final class RetentionCleanupService
     {
         $deleted = 0;
 
+        $batches = 0;
+
         do {
             $batch = $this->repository
                 ->deleteTerminalCallSessionsBefore(
@@ -50,7 +53,11 @@ final class RetentionCleanupService
                     self::BATCH_SIZE
                 );
             $deleted += $batch;
-        } while ($batch === self::BATCH_SIZE);
+            $batches++;
+        } while (
+            $batch === self::BATCH_SIZE
+            && $batches < self::MAX_BATCHES_PER_AREA
+        );
 
         return $deleted;
     }
@@ -59,6 +66,8 @@ final class RetentionCleanupService
     {
         $deleted = 0;
 
+        $batches = 0;
+
         do {
             $batch = $this->repository
                 ->deleteTerminalNotificationDeliveriesBefore(
@@ -66,7 +75,11 @@ final class RetentionCleanupService
                     self::BATCH_SIZE
                 );
             $deleted += $batch;
-        } while ($batch === self::BATCH_SIZE);
+            $batches++;
+        } while (
+            $batch === self::BATCH_SIZE
+            && $batches < self::MAX_BATCHES_PER_AREA
+        );
 
         return $deleted;
     }
