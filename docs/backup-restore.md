@@ -253,6 +253,10 @@ If shell access is unavailable:
 
 Never place a database dump or runtime configuration under the public document root for download.
 
+## Updates
+
+Before every schema-changing application update, complete a verified backup using this recovery boundary. The separate [Release and update process](update-release.md) defines update readiness, explicit migration execution, and rollback behavior.
+
 ## Disaster-recovery principle
 
 The database and application key form one recovery unit.
