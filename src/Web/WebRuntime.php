@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenPhonebook\Web;
 
+use OpenPhonebook\Auth\UserRepository;
 use OpenPhonebook\Auth\UserSession;
 use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Config\Config;
@@ -68,10 +69,12 @@ final readonly class WebRuntime
             throw new RuntimeException('Application key is missing or invalid.');
         }
 
+        $database = ConnectionFactory::create($databaseConfig);
+
         return new self(
             $config,
-            ConnectionFactory::create($databaseConfig),
-            new UserSession(),
+            $database,
+            new UserSession(new UserRepository($database)),
             $applicationKey,
             $projectRoot,
         );
