@@ -36,7 +36,7 @@ Die Richtung ist nur beim initialen `ringing`- bzw. `calling`-Ereignis erforderl
 
 ## Session-Zustände
 
-Sessions werden durch Gerät und externe Call-ID eindeutig bestimmt.
+Offene Sessions werden über Gerät und externe Call-ID zugeordnet. Nach Abschluss darf dieselbe externe Call-ID bei einem späteren Anruf erneut verwendet werden.
 
 - eingehend `ringing` -> `ringing`
 - ausgehend `calling` -> `calling`
