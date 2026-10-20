@@ -12,6 +12,7 @@ use OpenPhonebook\Tests\Support\Clock\FrozenClock;
 use OpenPhonebook\Tests\Support\Operations\InMemoryOperationsMetricsRepository;
 use OpenPhonebook\Tests\Support\Operations\InMemorySchedulerHeartbeatRepository;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class OperationsHealthServiceTest extends TestCase
 {
@@ -132,6 +133,21 @@ final class OperationsHealthServiceTest extends TestCase
         self::assertSame(3, $scheduler->lastAttempted);
         self::assertSame(2, $scheduler->lastSucceeded);
         self::assertSame(1, $scheduler->lastFailed);
+    }
+
+    public function testTooSmallStaleThresholdIsRejected(): void
+    {
+        $service = new OperationsHealthService(
+            new InMemoryOperationsMetricsRepository(),
+            new InMemorySchedulerHeartbeatRepository(),
+            new FrozenClock('2026-10-20 10:00:00'),
+            [
+                SchedulerTask::NotificationDelivery->value => 59,
+            ]
+        );
+
+        $this->expectException(RuntimeException::class);
+        $service->snapshot();
     }
 
     public function testDatabaseFailureIsReflected(): void
