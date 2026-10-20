@@ -89,6 +89,7 @@ final class DevicePhonebookServiceTest extends TestCase
             $serviceAfterRevocation->entriesFor(
                 new AuthenticatedDevice(
                     1,
+                    1,
                     10,
                     DeviceCredentialScope::PhonebookRead
                 )
