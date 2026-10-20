@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Web\DeviceRuntime;
+use OpenPhonebook\Web\Request;
 use OpenPhonebook\Web\SecurityHeaders;
 use Throwable;
 
@@ -19,6 +20,9 @@ require $autoload;
 
 SecurityHeaders::sendPrivate();
 
+$clientIp = Request::clientIp();
+$throttleEndpoint = 'phonebook';
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
     http_response_code(405);
     header('Allow: GET');
@@ -32,12 +36,22 @@ try {
     exit;
 }
 
+if ($runtime->throttle->isBlocked($throttleEndpoint, $clientIp)) {
+    http_response_code(429);
+    header('Retry-After: 900');
+    exit;
+}
+
 $device = $runtime->authentication->authenticate(
     $_SERVER,
     DeviceCredentialScope::PhonebookRead
 );
 
 if ($device === null) {
+    $runtime->throttle->registerFailure(
+        $throttleEndpoint,
+        $clientIp
+    );
     http_response_code(401);
     header(
         'WWW-Authenticate: Bearer realm="Open Phonebook"',
@@ -49,6 +63,8 @@ if ($device === null) {
     );
     exit;
 }
+
+$runtime->throttle->clear($throttleEndpoint, $clientIp);
 
 $format = $_GET['format'] ?? '';
 
