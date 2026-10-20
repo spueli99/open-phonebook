@@ -53,6 +53,8 @@ final class UserSession
         ];
         foreach ($required as $key) {
             if (!array_key_exists($key, $value)) {
+                $this->invalidate();
+
                 return null;
             }
         }
@@ -79,8 +81,7 @@ final class UserSession
             || $current->isDeleted
             || $current->authRevision !== $sessionUser->authRevision
         ) {
-            unset($_SESSION[self::KEY]);
-            Session::regenerate();
+            $this->invalidate();
 
             return null;
         }
@@ -96,6 +97,11 @@ final class UserSession
     public function logout(): void
     {
         $this->requireSession();
+        $this->invalidate();
+    }
+
+    private function invalidate(): void
+    {
         unset($_SESSION[self::KEY]);
         Session::regenerate();
     }
