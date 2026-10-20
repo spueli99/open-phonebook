@@ -129,12 +129,21 @@ Still planned:
 
 ## Operations
 
-- health/diagnostics
+Completed or in active work:
+
+- authenticated system-admin health/diagnostics page
+- scheduler/cron heartbeat persistence
+- configurable stale detection for Google sync and notification delivery
+- aggregate notification-queue diagnostics
+- database query health check
+
+Still planned:
+
 - backup and restore documentation
-- scheduler/cron heartbeat
 - Docker deployment option
 - API documentation
 - release/update process
+- optional external monitoring integration
 
 ## Explicit non-goals
 
