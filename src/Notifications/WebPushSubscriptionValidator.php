@@ -26,7 +26,8 @@ final class WebPushSubscriptionValidator
             $config['endpoint'] ?? '',
             $config['p256dh'] ?? '',
             $config['auth'] ?? '',
-            $config['content_encoding'] ?? ''
+            $config['content_encoding'] ?? '',
+            $config['browser_id'] ?? ''
         );
     }
 
@@ -34,12 +35,14 @@ final class WebPushSubscriptionValidator
         string $endpoint,
         string $p256dh,
         string $auth,
-        string $contentEncoding
+        string $contentEncoding,
+        string $browserId
     ): WebPushSubscriptionData {
         $endpoint = trim($endpoint);
         $p256dh = trim($p256dh);
         $auth = trim($auth);
         $contentEncoding = trim($contentEncoding);
+        $browserId = strtolower(trim($browserId));
 
         if (
             strlen($endpoint) > 4096
@@ -87,11 +90,18 @@ final class WebPushSubscriptionValidator
             );
         }
 
+        if (preg_match('/^[a-f0-9]{32}$/', $browserId) !== 1) {
+            throw new RuntimeException(
+                'Invalid Web Push browser identifier.'
+            );
+        }
+
         return new WebPushSubscriptionData(
             $endpoint,
             $p256dh,
             $auth,
-            $contentEncoding
+            $contentEncoding,
+            $browserId
         );
     }
 
