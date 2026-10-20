@@ -22,6 +22,16 @@ use OpenPhonebook\Exports\DevicePhonebookService;
 use OpenPhonebook\Exports\JsonPhonebookExporter;
 use OpenPhonebook\Exports\PhonebookExporterRegistry;
 use OpenPhonebook\Exports\YealinkPhonebookExporter;
+use OpenPhonebook\Notifications\CallNotificationDispatcher;
+use OpenPhonebook\Notifications\EmailNotificationProvider;
+use OpenPhonebook\Notifications\NotificationChannelRepository;
+use OpenPhonebook\Notifications\NotificationConfigCipher;
+use OpenPhonebook\Notifications\NotificationProviderRegistry;
+use OpenPhonebook\Notifications\NotificationRuleRepository;
+use OpenPhonebook\Notifications\PhpMailTransport;
+use OpenPhonebook\Notifications\PushoverNotificationProvider;
+use OpenPhonebook\Security\SecretCipher;
+use OpenPhonebook\Http\CurlHttpClient;
 use PDO;
 use RuntimeException;
 
@@ -33,6 +43,7 @@ final readonly class DeviceRuntime
         public DevicePhonebookService $phonebooks,
         public PhonebookExporterRegistry $exporters,
         public CallEventService $callEvents,
+        public CallNotificationDispatcher $notifications,
     ) {
     }
 
@@ -101,6 +112,21 @@ final readonly class DeviceRuntime
                     self::phoneNumberNormalizer($config)
                 ),
                 $transactions
+            ),
+            new CallNotificationDispatcher(
+                new NotificationRuleRepository($database),
+                new NotificationChannelRepository($database),
+                new NotificationProviderRegistry([
+                    new PushoverNotificationProvider(
+                        new CurlHttpClient()
+                    ),
+                    new EmailNotificationProvider(
+                        new PhpMailTransport()
+                    ),
+                ]),
+                new NotificationConfigCipher(
+                    new SecretCipher($applicationKey)
+                )
             )
         );
     }
