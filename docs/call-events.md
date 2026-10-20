@@ -96,4 +96,9 @@ The adapter is intentionally separate from the public HTTP controller. A direct 
 
 Timestamps are stored in UTC.
 
-Configurable history retention remains a later roadmap item.
+## History retention
+
+Terminal call sessions are retained for 180 days by default. The scheduled retention cleanup deletes only sessions whose `ended_at` is older than the configured cutoff. Open/ringing/connected sessions are never selected by retention cleanup. Related `call_events` are removed automatically through the existing database cascade when their terminal session is deleted.
+
+Configure `operations.retention_days.call_history` in `config/local.php` or use `OPENPHONEBOOK_CALL_HISTORY_RETENTION_DAYS`. A value of `0` disables call-history cleanup. Supported values are `0` through `3650` days.
+
