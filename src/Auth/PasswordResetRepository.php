@@ -16,6 +16,23 @@ final class PasswordResetRepository implements PasswordResetRepositoryInterface
     {
     }
 
+    public function lockUser(int $userId): void
+    {
+        $statement = $this->prepare(
+            'SELECT id
+             FROM users
+             WHERE id = :id
+             FOR UPDATE'
+        );
+        $statement->execute(['id' => $userId]);
+
+        if ($statement->fetchColumn() === false) {
+            throw new RuntimeException(
+                'Password reset user no longer exists.'
+            );
+        }
+    }
+
     public function hasRecentRequest(
         int $userId,
         DateTimeImmutable $since
