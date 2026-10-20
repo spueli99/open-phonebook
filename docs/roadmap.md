@@ -113,9 +113,6 @@ Completed or in active work:
 - call-event notification rules for incoming, missed, and completed calls
 - optional per-device rule scoping
 - provider-failure isolation after call-state commit
-
-Completed or in active work also includes:
-
 - per-rule quiet hours in the user's timezone
 - persistent cron-driven delivery queue
 - bounded retry/backoff and stale-worker recovery
