@@ -6,6 +6,10 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ## Unreleased
 
+### Fixed
+
+- Web setup now shows the one-time installation-success screen after creating the installation lock instead of immediately replacing it with the locked-setup response
+
 ### Added
 
 - CI MariaDB smoke coverage for the complete fresh-install migration chain, update readiness, and migration idempotency

@@ -56,8 +56,28 @@ $contentSecurityPolicy = "default-src 'none'; "
 header('Content-Security-Policy: ' . $contentSecurityPolicy);
 
 $installation = new InstallationState($projectRoot . '/storage/installed.lock');
+$step = $_GET['step'] ?? 'environment';
+$step = is_string($step) ? $step : 'environment';
+$errors = [];
+$setupSession = new SetupSession();
 
 if ($installation->isInstalled()) {
+    if (
+        $step === 'complete'
+        && $setupSession->consumeCompletionNotice()
+    ) {
+        echo SetupView::page(
+            'Installation complete',
+            '<p class="ok"><strong>'
+            . 'Open Phonebook has been installed successfully.'
+            . '</strong></p>'
+            . '<p>The setup endpoint is now locked. '
+            . 'Continue to the application.</p>'
+            . '<p><a href="../">Open Open Phonebook</a></p>'
+        );
+        exit;
+    }
+
     http_response_code(404);
     echo SetupView::page(
         'Setup unavailable',
@@ -65,11 +85,6 @@ if ($installation->isInstalled()) {
     );
     exit;
 }
-
-$step = $_GET['step'] ?? 'environment';
-$step = is_string($step) ? $step : 'environment';
-$errors = [];
-$setupSession = new SetupSession();
 
 if ($step === 'environment') {
     $checker = new EnvironmentChecker();
@@ -257,6 +272,7 @@ if ($step === 'application') {
                 );
 
                 $setupSession->clear();
+                $setupSession->markCompletionNotice();
                 Session::regenerate();
                 CsrfToken::rotate();
 
@@ -353,20 +369,7 @@ if ($step === 'application') {
 }
 
 if ($step === 'complete') {
-    if (!$installation->isInstalled()) {
-        header('Location: ?step=environment', true, 303);
-        exit;
-    }
-
-    echo SetupView::page(
-        'Installation complete',
-        '<p class="ok"><strong>'
-        . 'Open Phonebook has been installed successfully.'
-        . '</strong></p>'
-        . '<p>The setup endpoint is now locked. '
-        . 'Continue to the application.</p>'
-        . '<p><a href="../">Open Open Phonebook</a></p>'
-    );
+    header('Location: ?step=environment', true, 303);
     exit;
 }
 

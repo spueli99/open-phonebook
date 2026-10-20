@@ -36,6 +36,26 @@ final class SetupSession
         unset($_SESSION[self::KEY]);
     }
 
+    public function markCompletionNotice(): void
+    {
+        $this->requireSession();
+        $_SESSION[self::KEY]['completion_notice'] = true;
+    }
+
+    public function consumeCompletionNotice(): bool
+    {
+        $this->requireSession();
+
+        $value = $_SESSION[self::KEY]['completion_notice'] ?? false;
+        unset($_SESSION[self::KEY]['completion_notice']);
+
+        if ($_SESSION[self::KEY] === []) {
+            unset($_SESSION[self::KEY]);
+        }
+
+        return $value === true;
+    }
+
     private function requireSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
