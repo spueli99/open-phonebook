@@ -12,6 +12,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Added
 
+- Shared authenticated-app header/footer chrome and normalized action-button layout across management views
+
 - Responsive dashboard navigation cards with permission-aware administration links and a compact logout header
 
 - Shared responsive application UI foundation with a local CSP-compatible stylesheet for authenticated and account-management views
