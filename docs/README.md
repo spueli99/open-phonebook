@@ -13,6 +13,7 @@
 - [Backup and restore](backup-restore.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
+- [Audit events](audit.md)
 - [Setup installer](setup-installer.md)
 - [API](api.md)
 - [Security](security.md)
