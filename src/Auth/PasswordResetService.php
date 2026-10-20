@@ -49,16 +49,6 @@ final class PasswordResetService
         $cooldownStart = $now->sub(
             new DateInterval(self::REQUEST_COOLDOWN)
         );
-
-        if (
-            $this->resets->hasRecentRequest(
-                $user->id,
-                $cooldownStart
-            )
-        ) {
-            return;
-        }
-
         $token = PasswordResetToken::generate(
             $this->applicationKey
         );
@@ -71,8 +61,20 @@ final class PasswordResetService
                 $user,
                 $token,
                 $expiresAt,
-                $now
-            ): int {
+                $now,
+                $cooldownStart
+            ): ?int {
+                $this->resets->lockUser($user->id);
+
+                if (
+                    $this->resets->hasRecentRequest(
+                        $user->id,
+                        $cooldownStart
+                    )
+                ) {
+                    return null;
+                }
+
                 $this->resets->invalidateUsableForUser(
                     $user->id,
                     $now
@@ -86,6 +88,10 @@ final class PasswordResetService
                 );
             }
         );
+
+        if ($requestId === null) {
+            return;
+        }
 
         try {
             $this->mailer->send(
