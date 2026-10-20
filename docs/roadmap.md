@@ -21,10 +21,10 @@ Completed or in active foundation work:
 - active invitation management
 - guarded platform role management
 - email-based password reset/recovery with global session invalidation
+- system email delivery for invitations with manual fallback
 
 Still planned in the foundation area:
 
-- email delivery for invitations
 - optional organizations
 - organization-scoped authorization policies
 - audit-event persistence
