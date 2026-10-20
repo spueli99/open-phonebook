@@ -80,6 +80,8 @@ final class BackupReadinessFormatter
                             $snapshot->localConfigPresent,
                         'installation_lock_present' =>
                             $snapshot->installationLockPresent,
+                        'composer_lock_present' =>
+                            $snapshot->dependencyLockPresent,
                     ],
                     'schema' => [
                         'missing_migration_ids' =>
