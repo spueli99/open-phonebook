@@ -70,11 +70,13 @@ final class UserAdministrationServiceTest extends TestCase
         $repository = new InMemoryUserAdministrationRepository([
             1 => $this->user(1, 'system_admin', true),
         ]);
-        $service = new UserAdministrationService($repository);
+        $audit = new RecordingAuditEventWriter();
+        $service = new UserAdministrationService($repository, $audit);
 
         $service->setActive(1, true, 1);
 
         self::assertTrue($repository->find(1)?->isActive);
+        self::assertSame([], $audit->events);
     }
 
     public function testSystemAdminCanPromoteMember(): void
