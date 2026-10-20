@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use OpenPhonebook\Clock\SystemClock;
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Contacts\AddressBookAccessRepository;
 use OpenPhonebook\Contacts\AddressBookAccessService;
@@ -14,6 +15,8 @@ use OpenPhonebook\Google\GoogleContactsSyncService;
 use OpenPhonebook\Google\GoogleOAuthClient;
 use OpenPhonebook\Google\GooglePeopleClient;
 use OpenPhonebook\Http\CurlHttpClient;
+use OpenPhonebook\Operations\SchedulerHeartbeatRepository;
+use OpenPhonebook\Operations\SchedulerTask;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Sources\ContactSourceRepository;
 use RuntimeException;
@@ -28,6 +31,9 @@ if (!is_file($autoload)) {
 }
 
 require $autoload;
+
+$heartbeat = null;
+$clock = new SystemClock();
 
 try {
     $config = Config::load($projectRoot);
@@ -75,6 +81,11 @@ try {
     }
 
     $database = ConnectionFactory::create($databaseConfig);
+    $heartbeat = new SchedulerHeartbeatRepository($database);
+    $heartbeat->markStarted(
+        SchedulerTask::GoogleContactsSync,
+        $clock->now()
+    );
     $sources = new ContactSourceRepository($database);
     $http = new CurlHttpClient();
 
@@ -99,7 +110,37 @@ try {
         $sources,
         $synchronizer
     ))->run();
+
+    if ($result->failed() > 0) {
+        $heartbeat->markFailed(
+            SchedulerTask::GoogleContactsSync,
+            $clock->now(),
+            $result->attempted,
+            $result->succeeded,
+            $result->failed()
+        );
+    } else {
+        $heartbeat->markSucceeded(
+            SchedulerTask::GoogleContactsSync,
+            $clock->now(),
+            $result->attempted,
+            $result->succeeded,
+            0
+        );
+    }
 } catch (Throwable) {
+    if ($heartbeat instanceof SchedulerHeartbeatRepository) {
+        try {
+            $heartbeat->markFailed(
+                SchedulerTask::GoogleContactsSync,
+                $clock->now(),
+                0,
+                0,
+                1
+            );
+        } catch (Throwable) {
+        }
+    }
     fwrite(
         STDERR,
         "Google Contacts scheduler could not be started.\n"
