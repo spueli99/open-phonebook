@@ -12,7 +12,8 @@ Zu einem vollständigen Recovery-Satz gehören deshalb:
 2. Runtime-Secret-Konfiguration einschließlich des exakten Application Keys
 3. `storage/installed.lock`
 4. passender Open-Phonebook-Code-/Release-Stand
-5. nicht geheimes Readiness-Manifest/Fingerprint zur Kontrolle
+5. `composer.lock` aus dem Deployment, sofern vorhanden
+6. nicht geheimes Readiness-Manifest/Fingerprint zur Kontrolle
 
 Cache- und Logdateien unter `storage/` sind aktuell nicht für die Wiederherstellung erforderlich. Derzeit existiert kein separates persistentes Benutzer-Upload-Verzeichnis.
 
@@ -36,6 +37,7 @@ Geprüft werden:
 - wirksamer Application Key vorhanden und ausreichend lang
 - `storage/installed.lock` vorhanden
 - Vorhandensein von `config/local.php`
+- Vorhandensein von `composer.lock`
 - Anzahl von Datensätzen, deren weitere Nutzbarkeit vom gleichen Application Key abhängt
 
 Die Ausgabe enthält niemals den Application Key, Datenbankpasswort, OAuth-Client-Secret, Provider-Token, Nachrichtentext, Rufnummern oder Kontaktdaten.
@@ -109,7 +111,15 @@ Sichern:
 
 Die Datei ist kein Secret. Ihre Wiederherstellung verhindert aber, dass der Setup-Assistent versehentlich wieder freigeschaltet wird.
 
-### 4. Code-/Release-Stand
+### 4. Dependency-Lock
+
+`composer.lock` sichern, wenn die Datei im eingesetzten Deployment vorhanden ist.
+
+Ohne Dependency-Lock kann Composer bei einer Wiederherstellung neuere, weiterhin kompatible Paketversionen auflösen. Die Readiness-Prüfung liefert deshalb bei fehlender `composer.lock` eine Warnung.
+
+Im Repository ist aktuell keine `composer.lock` eingecheckt. Das sollte später in einem separaten Dependency-Management-PR sauber gelöst werden. Bis dahin sollte eine im Deployment erzeugte Lock-Datei bzw. das Deployment-Artefakt mit aufbewahrt werden.
+
+### 5. Code-/Release-Stand
 
 Den exakten Open-Phonebook-Release, Git-Commit oder das eingesetzte Deployment-Artefakt dokumentieren.
 
@@ -137,10 +147,11 @@ Login-Throttling-HMACs gelten bewusst nicht als recovery-kritische Benutzerdaten
 4. Vollständigen Datenbankdump erstellen.
 5. `config/local.php` bzw. die entsprechenden Environment-Secrets sicher sichern.
 6. `storage/installed.lock` sichern.
-7. Exakten Release-/Commit-Stand dokumentieren.
-8. Datenbank und Secret-Backup getrennt oder in einem verschlüsselten Backup-Speicher ablegen.
-9. Prüfen, dass der Dump nicht leer und mit dem vorgesehenen Restore-Werkzeug lesbar ist.
-10. Regelmäßig einen Restore in einer isolierten Umgebung testen.
+7. `composer.lock` sichern, sofern vorhanden.
+8. Exakten Release-/Commit-Stand dokumentieren.
+9. Datenbank und Secret-Backup getrennt oder in einem verschlüsselten Backup-Speicher ablegen.
+10. Prüfen, dass der Dump nicht leer und mit dem vorgesehenen Restore-Werkzeug lesbar ist.
+11. Regelmäßig einen Restore in einer isolierten Umgebung testen.
 
 Ein Backup ohne jemals getestete Wiederherstellung gilt nicht als nachgewiesen funktionsfähig.
 
@@ -157,11 +168,12 @@ Reihenfolge:
 5. Vollständigen SQL-Dump importieren.
 6. Ursprüngliche Runtime-Konfiguration und den ursprünglichen Application Key wiederherstellen.
 7. `storage/installed.lock` wiederherstellen.
-8. Composer-Produktivabhängigkeiten für diesen Code-Stand installieren.
-9. Readiness-Prüfung mit dem Fingerprint des Backup-Manifests ausführen.
-10. Funktionstests durchführen.
-11. Notification- und Google-Cronjobs wieder aktivieren.
-12. Öffentlichen Zugriff wieder freigeben.
+8. `composer.lock` wiederherstellen, sofern sie Bestandteil des Deployments/Backups war.
+9. Composer-Produktivabhängigkeiten für diesen Code-Stand möglichst anhand des Locks installieren.
+10. Readiness-Prüfung mit dem Fingerprint des Backup-Manifests ausführen.
+11. Funktionstests durchführen.
+12. Notification- und Google-Cronjobs wieder aktivieren.
+13. Öffentlichen Zugriff wieder freigeben.
 
 Den Web-Installer **nicht** gegen eine wiederhergestellte Datenbank ausführen.
 
@@ -185,7 +197,7 @@ Die Wiederherstellung darf nicht freigegeben werden, wenn:
 - der Application Key nicht verfügbar ist
 - der Installationslock fehlt
 
-Fehlt `config/local.php`, obwohl der wirksame Application Key aus Environment-/Hosting-Konfiguration verfügbar ist, ergibt sich nur eine Warnung. In diesem Fall müssen sämtliche erforderlichen Plattform-Secrets separat geprüft werden.
+Fehlt `config/local.php`, obwohl der wirksame Application Key aus Environment-/Hosting-Konfiguration verfügbar ist, ergibt sich nur eine Warnung. Auch eine fehlende `composer.lock` erzeugt eine Warnung, da die Dependency-Auflösung dann nicht exakt reproduzierbar ist. In diesem Fall müssen sämtliche erforderlichen Plattform-Secrets separat geprüft werden.
 
 ## Funktionstest nach Restore
 
