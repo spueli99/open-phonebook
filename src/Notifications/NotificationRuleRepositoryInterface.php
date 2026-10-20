@@ -31,7 +31,9 @@ interface NotificationRuleRepositoryInterface
         int $ownerUserId,
         int $channelId,
         ?int $deviceId,
-        NotificationTrigger $trigger
+        NotificationTrigger $trigger,
+        ?string $quietStart,
+        ?string $quietEnd
     ): int;
 
     public function delete(
