@@ -52,6 +52,20 @@ Controls include:
 
 See [Authentication](authentication.md).
 
+## Password reset
+
+Password-reset requests use a generic public response and a per-account five-minute issuance cooldown. The endpoint pads POST handling to a minimum response duration to reduce straightforward timing-based account enumeration.
+
+Reset tokens are 256-bit random values and are stored only as hashes derived from a dedicated HKDF domain (`open-phonebook/password-reset-token/v1`). They expire after 30 minutes and are single-use.
+
+Reset links carry the plaintext token only in the URL fragment. Browser fragments are removed before the token is submitted in a CSRF-protected same-origin POST, keeping reset secrets out of normal request URLs and access logs.
+
+Mail failures do not produce account-specific responses. If delivery fails after a token was created, that token is immediately consumed so an undelivered usable credential is not left behind.
+
+Successful reset atomically consumes the token, replaces the password hash, and increments `users.auth_revision`. Browser sessions validate their stored revision against the current user row and are invalidated after password recovery, account deactivation, or deletion.
+
+The system-mail sender is runtime configuration and may be supplied through `OPENPHONEBOOK_MAIL_FROM`. Reset email requires the configured HTTPS application base URL.
+
 ## Invitations
 
 Invitation tokens are capability secrets.
@@ -118,6 +132,8 @@ Call-history retention is configurable and may be disabled.
 Authentication throttling does not persist raw email/IP combinations.
 
 Invitation tokens are not persisted in plaintext.
+
+Password-reset tokens are not persisted in plaintext.
 
 Users should eventually be able to export and delete their own application data.
 
