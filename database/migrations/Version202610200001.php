@@ -21,6 +21,7 @@ final class Version202610200001 implements Migration
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 device_id BIGINT UNSIGNED NOT NULL,
                 external_call_id VARCHAR(191) NOT NULL,
+                active_external_call_id VARCHAR(191) NULL,
                 direction VARCHAR(16) NOT NULL,
                 state VARCHAR(32) NOT NULL,
                 local_number VARCHAR(120) NULL,
@@ -32,6 +33,10 @@ final class Version202610200001 implements Migration
                 INDEX call_sessions_device_external_idx (
                     device_id,
                     external_call_id
+                ),
+                UNIQUE KEY call_sessions_device_active_external_unique (
+                    device_id,
+                    active_external_call_id
                 ),
                 INDEX call_sessions_device_started_idx (
                     device_id,
