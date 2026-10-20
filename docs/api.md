@@ -65,7 +65,16 @@ The call-session service derives terminal states such as `completed`, `missed`, 
 
 Vendor-specific payloads are translated by adapters. The Yealink Action URL adapter is implemented as a normalization layer, but no direct callback endpoint is enabled until a secure callback credential transport has been verified.
 
+## Notifications
+
+Notification channels and rules are currently managed through the authenticated web UI and shared application services; no public notification-management API is exposed yet.
+
+Call-event notification dispatch occurs after a successful call-state commit. Current triggers are `incoming`, `missed`, and `completed`. Rules may apply to all of a user's devices or one specific owned device.
+
+Current providers are Pushover and email.
+
 ## Exports
+
 
 Device phonebook output is generated through exporter interfaces rather than embedding vendor XML in controllers.
 
