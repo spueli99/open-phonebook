@@ -11,6 +11,7 @@
 - [Notifications](notifications.md)
 - [Operations and health diagnostics](operations.md)
 - [Backup and restore](backup-restore.md)
+- [Release and updates](update-release.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Audit events](audit.md)
