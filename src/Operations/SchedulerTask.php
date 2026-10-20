@@ -8,4 +8,5 @@ enum SchedulerTask: string
 {
     case GoogleContactsSync = 'google_contacts_sync';
     case NotificationDelivery = 'notification_delivery';
+    case RetentionCleanup = 'retention_cleanup';
 }
