@@ -123,7 +123,8 @@ Web Push subscription management is currently a browser-session feature, not a p
 
 The authenticated notification page uses CSRF-protected POST endpoints to register or disable the current browser subscription:
 
+- `/notifications/web-push/status/`
 - `/notifications/web-push/subscribe/`
 - `/notifications/web-push/unsubscribe/`
 
-These endpoints accept browser-generated PushSubscription material only for the authenticated user. They do not expose the VAPID private key or other notification-channel credentials.
+The status endpoint is read-only and lets the current browser compare its local PushSubscription with the owner's server-side channel state. Subscribe/unsubscribe mutations remain explicit user actions. These endpoints accept browser-generated PushSubscription material only for the authenticated user. They do not expose the VAPID private key or other notification-channel credentials.
