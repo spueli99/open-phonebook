@@ -14,6 +14,7 @@ final class NotificationAdministrationService
         private readonly NotificationRuleRepositoryInterface $rules,
         private readonly DeviceRepositoryInterface $devices,
         private readonly NotificationConfigCipher $configCipher,
+        private readonly NotificationDeliveryRepositoryInterface $deliveries,
     ) {
     }
 
@@ -39,6 +40,20 @@ final class NotificationAdministrationService
     public function rules(int $ownerUserId): array
     {
         return $this->rules->allOwnedBy($ownerUserId);
+    }
+
+    /**
+     * @return array{
+     *     pending: int,
+     *     processing: int,
+     *     sent: int,
+     *     failed: int,
+     *     cancelled: int
+     * }
+     */
+    public function deliveryCounts(int $ownerUserId): array
+    {
+        return $this->deliveries->countsOwnedBy($ownerUserId);
     }
 
     /**
