@@ -397,12 +397,30 @@ final class NotificationManagementView
                     )
                 )
                 . '</td><td>'
+                . Html::escape(
+                    self::formatTime(
+                        $item->availableAt,
+                        $timezone
+                    )
+                )
+                . '</td><td>'
                 . (
                     $item->lastErrorAt === null
                         ? '—'
                         : Html::escape(
                             self::formatTime(
                                 $item->lastErrorAt,
+                                $timezone
+                            )
+                        )
+                )
+                . '</td><td>'
+                . (
+                    $item->sentAt === null
+                        ? '—'
+                        : Html::escape(
+                            self::formatTime(
+                                $item->sentAt,
                                 $timezone
                             )
                         )
@@ -460,7 +478,19 @@ final class NotificationManagementView
             . '</th><th>'
             . Html::escape(
                 $translator->get(
+                    'notifications.history.available'
+                )
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get(
                     'notifications.history.last_error'
+                )
+            )
+            . '</th><th>'
+            . Html::escape(
+                $translator->get(
+                    'notifications.history.sent'
                 )
             )
             . '</th><th>'
