@@ -49,6 +49,8 @@ final class BackupReadinessFormatter
                 'notification retry payloads',
             'device_credentials' => 'active device credentials',
             'active_invitations' => 'active invitation tokens',
+            'active_password_resets' =>
+                'active password reset tokens',
         ];
 
         foreach ($labels as $key => $label) {
