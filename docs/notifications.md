@@ -194,9 +194,16 @@ Rules cannot reference another user's channel or device.
 
 Provider secrets are encrypted at rest and are not written to ordinary application output.
 
+## History retention
+
+Terminal notification delivery records are retained for 90 days by default. Cleanup deletes only `sent`, `failed`, and `cancelled` records whose `updated_at` is older than the configured cutoff. `pending` and `processing` jobs are never deleted by retention cleanup.
+
+A failed delivery remains manually retryable while it is retained. Retrying resets the record to `pending` and updates its timestamp, so a later terminal result receives a fresh retention window. Once an old failed record is removed, its encrypted retry payload is removed with it.
+
+Configure `operations.retention_days.notification_history` in `config/local.php` or use `OPENPHONEBOOK_NOTIFICATION_HISTORY_RETENTION_DAYS`. A value of `0` disables notification-history cleanup. Supported values are `0` through `3650` days.
+
 ## Deferred
 
 - filtering/pagination for larger delivery histories
-- bulk history cleanup/retention policy
 - additional providers
 - per-rule custom message templates

@@ -130,6 +130,7 @@ return [
     'operations.status.never_run' => 'Noch nie gelaufen',
     'operations.task.google_contacts_sync' => 'Google-Kontakte-Synchronisierung',
     'operations.task.notification_delivery' => 'Benachrichtigungszustellung',
+    'operations.task.retention_cleanup' => 'Historienbereinigung',
     'audit.title' => 'Audit-Protokoll',
     'audit.help' => 'Letzte sicherheitsrelevante administrative Ereignisse. Normales Lesen von Kontakten wird nicht protokolliert.',
     'audit.time' => 'Zeit',

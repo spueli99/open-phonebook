@@ -79,4 +79,10 @@ Der Adapter ist absichtlich vom öffentlichen HTTP-Controller getrennt. Ein dire
 
 Zeitstempel werden in UTC gespeichert.
 
+## Aufbewahrung der Anrufhistorie
+
+Beendete Anrufsitzungen werden standardmäßig 180 Tage aufbewahrt. Die geplante Historienbereinigung löscht ausschließlich Sitzungen, deren `ended_at` älter als der konfigurierte Stichtag ist. Offene, klingelnde oder verbundene Sitzungen werden niemals durch die Retention-Bereinigung ausgewählt. Zugehörige `call_events` werden beim Löschen der beendeten Sitzung über die bestehende Datenbank-Cascade automatisch mit entfernt.
+
+Konfiguration über `operations.retention_days.call_history` in `config/local.php` oder `OPENPHONEBOOK_CALL_HISTORY_RETENTION_DAYS`. Der Wert `0` deaktiviert die Bereinigung der Anrufhistorie. Zulässig sind `0` bis `3650` Tage.
+
 Konfigurierbare Aufbewahrungsfristen bleiben ein späterer Roadmap-Punkt.

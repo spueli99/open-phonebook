@@ -11,6 +11,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - System-admin operations diagnostics with database, scheduler, and notification-queue health
 - Persistent aggregate heartbeats for Google Contacts sync and notification delivery cron jobs
 - Configurable scheduler stale thresholds with environment overrides
+- Configurable call-history and notification-history retention with daily cron cleanup and scheduler heartbeat
 - Dedicated `view_operations` permission
 - Server-side backup/restore readiness CLI with JSON manifest output
 - Committed Composer dependency lock for reproducible development, CI, deployment, and disaster recovery
@@ -73,6 +74,7 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Security
 
+- Retention cleanup never deletes open call sessions or pending/processing notification jobs; only terminal records older than configured cutoffs are eligible
 - Audit log UI is authenticated, system-admin-only, read-only, bounded to the latest 100 events, and HTML-escapes all dynamic values
 - Update readiness and migration execution block databases containing migration IDs unknown to the deployed code
 - Production update guidance requires a verified backup before schema migration and defines restore-based rollback when older code no longer understands the schema

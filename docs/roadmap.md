@@ -100,7 +100,6 @@ Completed or in active work:
 Still planned:
 
 - secure direct Yealink callback transport/endpoint
-- configurable call-history retention
 - generic endpoint aliases for intercoms and other known callers
 
 ## Notifications
@@ -128,7 +127,7 @@ Completed or in active work:
 
 Still planned:
 
-- history filtering/pagination and retention cleanup
+- history filtering/pagination
 - future additional providers
 
 ## Operations
@@ -140,6 +139,7 @@ Completed or in active work:
 - configurable stale detection for Google sync and notification delivery
 - aggregate notification-queue diagnostics
 - database query health check
+- configurable call/notification history retention and cron cleanup
 - backup/restore recovery documentation
 - server-side backup/restore readiness CLI
 - application-key fingerprint verification for restores

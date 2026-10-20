@@ -156,6 +156,31 @@ final class Config
                 'OPENPHONEBOOK_NOTIFICATION_STALE_SECONDS'
             )
         );
+        self::assign(
+            $values,
+            [
+                'operations',
+                'scheduler_stale_after_seconds',
+                'retention_cleanup',
+            ],
+            Environment::int(
+                'OPENPHONEBOOK_RETENTION_CLEANUP_STALE_SECONDS'
+            )
+        );
+        self::assign(
+            $values,
+            ['operations', 'retention_days', 'call_history'],
+            Environment::int(
+                'OPENPHONEBOOK_CALL_HISTORY_RETENTION_DAYS'
+            )
+        );
+        self::assign(
+            $values,
+            ['operations', 'retention_days', 'notification_history'],
+            Environment::int(
+                'OPENPHONEBOOK_NOTIFICATION_HISTORY_RETENTION_DAYS'
+            )
+        );
 
         self::assign($values, ['database', 'host'], Environment::get('OPENPHONEBOOK_DB_HOST'));
         self::assign($values, ['database', 'port'], Environment::int('OPENPHONEBOOK_DB_PORT'));

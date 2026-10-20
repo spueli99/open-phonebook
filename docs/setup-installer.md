@@ -124,6 +124,16 @@ The installation lock is deliberately written last. This prevents a partially co
 
 Re-enabling setup requires deliberate server-side intervention.
 
+## Scheduled jobs after setup
+
+For normal operation, configure the cron-compatible jobs required by the enabled features:
+
+- notification delivery, normally every minute: `php bin/notification-deliveries.php`
+- Google Contacts synchronization, for example every five minutes when Google is configured: `php bin/google-contacts-sync.php`
+- history retention cleanup, normally once per day: `php bin/history-retention-cleanup.php`
+
+The retention job is safe to schedule even when one retention area is disabled with `0`. Scheduler health for all configured background jobs is visible to system administrators on the Operations page.
+
 ## External integrations
 
 Google Contacts, SMTP, Pushover, device credentials, address books, and call-event adapters are not configured by the initial installer. They belong in the authenticated application.

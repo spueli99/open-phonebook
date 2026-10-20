@@ -43,6 +43,11 @@ return [
         'scheduler_stale_after_seconds' => [
             'google_contacts_sync' => 1800,
             'notification_delivery' => 300,
+            'retention_cleanup' => 129600,
+        ],
+        'retention_days' => [
+            'call_history' => 180,
+            'notification_history' => 90,
         ],
     ],
     'security' => [

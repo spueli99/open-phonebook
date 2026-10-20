@@ -192,9 +192,16 @@ Regeln können weder Kanäle noch Geräte anderer Benutzer referenzieren.
 
 Provider-Secrets werden verschlüsselt gespeichert und nicht in normale Ausgaben geschrieben.
 
+## Aufbewahrung der Benachrichtigungshistorie
+
+Abgeschlossene Benachrichtigungszustellungen werden standardmäßig 90 Tage aufbewahrt. Die Bereinigung löscht ausschließlich Datensätze mit `sent`, `failed` oder `cancelled`, deren `updated_at` älter als der konfigurierte Stichtag ist. `pending` und `processing` werden niemals durch die Retention-Bereinigung gelöscht.
+
+Eine fehlgeschlagene Zustellung bleibt solange manuell wiederholbar, wie sie aufbewahrt wird. Ein Retry setzt den Datensatz wieder auf `pending` und aktualisiert den Zeitstempel; ein späterer Abschluss erhält dadurch eine neue vollständige Aufbewahrungsfrist. Wird ein alter fehlgeschlagener Datensatz entfernt, wird auch sein verschlüsselter Retry-Payload gelöscht.
+
+Konfiguration über `operations.retention_days.notification_history` in `config/local.php` oder `OPENPHONEBOOK_NOTIFICATION_HISTORY_RETENTION_DAYS`. Der Wert `0` deaktiviert die Bereinigung der Benachrichtigungshistorie. Zulässig sind `0` bis `3650` Tage.
+
 ## Später
 
 - Filter/Paginierung für größere Zustellhistorien
-- Aufbewahrungs-/Bereinigungsregeln für die Historie
 - weitere Provider
 - individuelle Nachrichtentemplates pro Regel
