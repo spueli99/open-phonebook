@@ -6,6 +6,7 @@ Open Phonebook contains cron-driven background work for:
 
 - Google Contacts synchronization
 - notification delivery
+- history retention cleanup
 
 The operations diagnostics page provides a minimal technical view of whether these jobs are running on schedule. It also displays the deployed Open Phonebook version from the committed `VERSION` file.
 
@@ -75,6 +76,12 @@ Google Contacts synchronization may run every five minutes unless a deployment i
 
 `php bin/google-contacts-sync.php`
 
+History retention cleanup should normally run once per day:
+
+`php bin/history-retention-cleanup.php`
+
+The default stale threshold for retention cleanup is 129600 seconds (36 hours), allowing a daily job reasonable scheduler/hosting delay. It can be overridden with `OPENPHONEBOOK_RETENTION_CLEANUP_STALE_SECONDS` or the corresponding `operations.scheduler_stale_after_seconds.retention_cleanup` setting.
+
 If a different schedule is used, adjust the stale threshold accordingly.
 
 ## Notification queue metrics
@@ -112,8 +119,11 @@ Scheduler heartbeat writes never include exception messages because those could 
 
 See [Backup and restore](backup-restore.md) for the recovery set, readiness CLI, key-fingerprint verification, database export/import guidance, and post-restore checks.
 
+## History retention
+
+Default retention periods are 180 days for terminal call sessions and 90 days for terminal notification deliveries. Both are configurable independently and can be disabled with `0`. Cleanup is intentionally cron-driven rather than request-driven so user-facing requests never perform bulk deletion work.
+
 ## Future operations work
 
-- optional history retention/cleanup controls
 - Docker deployment option
 - external monitoring integration if required
