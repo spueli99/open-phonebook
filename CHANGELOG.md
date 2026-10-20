@@ -8,6 +8,8 @@ The project is currently in the pre-release architecture and foundation phase.
 
 ### Fixed
 
+- Fixed MariaDB call-state updates with native PDO prepares by using distinct terminal-state placeholders; CI now exercises ringing → connected → completed against MariaDB.
+
 - Web setup now shows the one-time installation-success screen after creating the installation lock instead of immediately replacing it with the locked-setup response
 
 ### Added
