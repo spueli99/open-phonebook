@@ -35,7 +35,10 @@ final class CallEventService
                     return $this->createSession($device, $event);
                 }
 
-                if ($session->direction !== $event->direction) {
+                if (
+                    $event->direction !== null
+                    && $session->direction !== $event->direction
+                ) {
                     throw new RuntimeException(
                         'Call direction cannot change.'
                     );
@@ -68,6 +71,12 @@ final class CallEventService
         AuthenticatedDevice $device,
         NormalizedCallEvent $event
     ): CallEventResult {
+        if ($event->direction === null) {
+            throw new RuntimeException(
+                'Initial call event requires direction.'
+            );
+        }
+
         $state = match ($event->type) {
             CallEventType::Ringing => $event->direction
                 === CallDirection::Incoming
