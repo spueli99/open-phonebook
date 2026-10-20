@@ -15,7 +15,8 @@ final class InMemoryBackupReadinessRepository implements BackupReadinessReposito
      *     notification_channels: int,
      *     notification_retry_payloads: int,
      *     device_credentials: int,
-     *     active_invitations: int
+     *     active_invitations: int,
+     *     active_password_resets: int
      * } $counts
      */
     public function __construct(
@@ -26,6 +27,7 @@ final class InMemoryBackupReadinessRepository implements BackupReadinessReposito
             'notification_retry_payloads' => 0,
             'device_credentials' => 0,
             'active_invitations' => 0,
+            'active_password_resets' => 0,
         ],
     ) {
     }
