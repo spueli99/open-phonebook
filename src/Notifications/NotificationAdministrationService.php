@@ -18,6 +18,14 @@ final class NotificationAdministrationService
     }
 
     /**
+     * @return list<\OpenPhonebook\Devices\Device>
+     */
+    public function devices(int $ownerUserId): array
+    {
+        return $this->devices->allOwnedBy($ownerUserId);
+    }
+
+    /**
      * @return list<NotificationChannel>
      */
     public function channels(int $ownerUserId): array
