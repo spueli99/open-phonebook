@@ -10,8 +10,7 @@ use PDO;
 use PDOStatement;
 use RuntimeException;
 
-final class RetentionCleanupRepository
-    implements RetentionCleanupRepositoryInterface
+final class RetentionCleanupRepository implements RetentionCleanupRepositoryInterface
 {
     public function __construct(private readonly PDO $database)
     {
