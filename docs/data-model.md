@@ -91,11 +91,13 @@ The physical schema stores the canonical event type, resulting state, and UTC oc
 
 ### notification_channels
 
-User-configured provider endpoints.
+User-owned provider endpoints. The physical schema stores a display name, provider identifier, encrypted provider configuration, active state, and timestamps. Provider secrets are not stored in plaintext.
 
 ### notification_rules
 
-Conditions that determine when and how to notify.
+Owner-scoped conditions connecting one notification channel to a trigger. A rule may optionally target one device owned by the same user; a null device applies to all of that user's devices.
+
+Current triggers are incoming, missed, and completed call notifications.
 
 ## Time
 

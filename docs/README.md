@@ -8,6 +8,7 @@
 - [Google Contacts](google-contacts.md)
 - [Devices](devices.md)
 - [Call events](call-events.md)
+- [Notifications](notifications.md)
 - [Data model](data-model.md)
 - [Permissions](permissions.md)
 - [Setup installer](setup-installer.md)

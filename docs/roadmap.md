@@ -104,11 +104,22 @@ Still planned:
 
 ## Notifications
 
+Completed or in active work:
+
+- generic notification provider interface and registry
+- encrypted user-owned notification channels
 - Pushover
 - email
-- notification rules
+- call-event notification rules for incoming, missed, and completed calls
+- optional per-device rule scoping
+- provider-failure isolation after call-state commit
+
+Still planned:
+
 - quiet hours
+- retry/backoff queue and delivery diagnostics
 - Web Push/PWA
+- test-send action
 - future additional providers
 
 ## Operations

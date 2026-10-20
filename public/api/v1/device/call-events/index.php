@@ -84,6 +84,12 @@ try {
     exit;
 }
 
+try {
+    $runtime->notifications->dispatch($device, $result);
+} catch (Throwable) {
+    // Notification failures must not change the accepted call event.
+}
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 header('Pragma: no-cache');

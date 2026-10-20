@@ -20,6 +20,10 @@ use OpenPhonebook\Google\GoogleOAuthClient;
 use OpenPhonebook\Google\GooglePeopleClient;
 use OpenPhonebook\Http\CurlHttpClient;
 use OpenPhonebook\I18n\Translator;
+use OpenPhonebook\Notifications\NotificationAdministrationService;
+use OpenPhonebook\Notifications\NotificationChannelRepository;
+use OpenPhonebook\Notifications\NotificationConfigCipher;
+use OpenPhonebook\Notifications\NotificationRuleRepository;
 use OpenPhonebook\Security\SecretCipher;
 use OpenPhonebook\Security\Session;
 use PDO;
@@ -93,6 +97,18 @@ final readonly class WebRuntime
             ),
             $transactions,
             $this->applicationKey
+        );
+    }
+
+    public function notificationAdministrationService(): NotificationAdministrationService
+    {
+        return new NotificationAdministrationService(
+            new NotificationChannelRepository($this->database),
+            new NotificationRuleRepository($this->database),
+            new DeviceRepository($this->database),
+            new NotificationConfigCipher(
+                new SecretCipher($this->applicationKey)
+            )
         );
     }
 

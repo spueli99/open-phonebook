@@ -76,7 +76,20 @@ A device credential may grant only the operations needed for that device, such a
 
 Credentials support explicit per-scope rotation and revocation. Rotating or revoking one scope does not affect the other; device deactivation revokes all device scopes. Device owners may assign only address books they can currently read. Device-facing exports and caller lookup revalidate both the stored assignment and the owner's current access.
 
+## Notifications
+
+Notification channels and rules are personal resources. A user may create, activate, deactivate, and delete only their own channels and rules.
+
+A notification rule may reference only:
+
+- a channel owned by that user
+- either all of the user's devices or one device owned by that user
+- a supported notification trigger
+
+Provider configuration is never exposed merely because another account has an administrative role.
+
 ## System administrators
+
 
 System administration should focus on platform operations. The UI should avoid exposing private user contacts merely because an account has administrative privileges, even though server operators inherently control the underlying infrastructure.
 
