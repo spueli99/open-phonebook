@@ -75,14 +75,16 @@ Completed or in active work:
 - device management
 - scoped phonebook credentials
 - explicit readable address-book assignment
+- exporter interface and registry
+- sessionless device-facing phonebook endpoint
+- JSON exporter
+- CSV exporter
+- Yealink Remote Phone Book exporter
 
 Still planned:
 
-- exporter interface
-- Yealink exporter
-- JSON exporter
-- CSV exporter
 - future Snom, Grandstream, Fanvil and other adapters
+- credential last-used tracking
 
 ## Call events
 

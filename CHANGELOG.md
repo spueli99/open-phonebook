@@ -35,6 +35,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - Cron-compatible Google Contacts scheduler without a continuously running worker
 - User-owned device management with explicit address-book assignment
 - Scoped `phonebook:read` device credentials with rotation and revocation
+- Device phonebook exporter interface with JSON, CSV, and Yealink XML adapters
+- Sessionless device-facing phonebook endpoint with export-time access revalidation
 
 ### Security
 
@@ -48,6 +50,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - Import drafts bind the selected parser format so confirmation cannot switch CSV and vCard interpretation
 - Google refresh and incremental sync tokens are AES-256-GCM encrypted at rest; OAuth uses single-use state plus PKCE and the contacts.readonly scope only
 - Device tokens are stored only as domain-separated HMAC hashes and require active device and owner state
+- Device phonebook exports accept credentials only through Authorization headers, revalidate current address-book access, and return private no-store responses
+- CSV phonebook exports neutralize spreadsheet formula prefixes
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance

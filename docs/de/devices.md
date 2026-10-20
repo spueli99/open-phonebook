@@ -38,7 +38,7 @@ Einem Gerät dürfen nur Adressbücher zugewiesen werden, die sein Besitzer aktu
 
 Die Zuordnung ist ausdrücklich. Ein Gerät erhält nicht automatisch alle Adressbücher seines Besitzers.
 
-Spätere Export-Endpunkte müssen die gespeicherte Gerätezuordnung bei jedem Abruf erneut mit dem aktuellen Adressbuchzugriff des Besitzers schneiden. So kann eine alte Gerätezuordnung keine später widerrufene Freigabe umgehen.
+Telefonbuch-Export-Endpunkte schneiden die gespeicherte Gerätezuordnung bei jedem Abruf erneut mit dem aktuellen Adressbuchzugriff des Besitzers. So kann eine alte Gerätezuordnung keine später widerrufene Freigabe umgehen.
 
 ## Verwaltung
 
@@ -53,15 +53,23 @@ Aktuell möglich:
 - Phonebook-Credential widerrufen
 - lesbare Adressbücher zuweisen
 
+## Telefonbuch-Exporte
+
+Der Geräte-Endpunkt lautet:
+
+`GET /api/v1/device/phonebook/?format=<format>`
+
+Implementiert sind `json`, `csv` und `yealink`.
+
+Die Ausgabe erfolgt über eine herstellerneutrale Exporter-Schnittstelle. Der Endpunkt verwendet eine sitzungslose Geräte-Laufzeit, verlangt den bestehenden Scope `phonebook:read` und verwendet keine Browser-Sitzung.
+
+Credentials werden ausschließlich über den HTTP-Authorization-Header angenommen, niemals über Token-Parameter in der URL. Private Antworten werden mit No-Store-Headern ausgeliefert.
+
+Ein Abruf ist auf 5.000 Kontakte begrenzt. Der Yealink-Serializer verwirft XML-Ausgaben oberhalb von 1,5 MB. CSV-Ausgaben sichern führende Tabellenkalkulations-Formelzeichen ab.
+
 ## Später
 
-Folgende Punkte gehören zu den nächsten Roadmap-Blöcken:
-
-- Phonebook-Exporter-Schnittstelle
-- Yealink-Exportformat
-- JSON-Export
-- CSV-Export
-- HTTP-Endpunkt für Geräte
 - Call-Event-Credentials/Scopes
 - organisationsweite Geräte
 - Last-used-Aktualisierung im Authentifizierungspfad
+- weitere Hersteller-Exporter

@@ -105,7 +105,7 @@ Google OAuth client credentials remain in runtime configuration and are not stor
 
 Device credentials are independent from human authentication. The initial device scope is `phonebook:read`. Tokens are 256-bit random values displayed only once; the database stores only a domain-separated HMAC-SHA-256 hash keyed by the application key. Rotation revokes previous active credentials for the same device/scope. Device authentication additionally requires an active device and an active, non-deleted owner account.
 
-Device address-book assignments may only be created for books the owner can currently read. Future device-facing export endpoints must re-check current owner access as well as stored assignment before returning contacts.
+Device address-book assignments may only be created for books the owner can currently read. Device-facing phonebook exports re-check current owner access as well as the stored assignment before returning contacts. Device export requests use a sessionless runtime, accept credentials only from the HTTP Authorization header, and return private no-store responses.
 
 ## Privacy
 
