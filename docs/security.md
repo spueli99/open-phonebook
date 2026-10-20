@@ -81,7 +81,7 @@ Controls include:
 - fragment-based client transport so tokens are not included in ordinary HTTP request URLs
 - immediate fragment removal before the token is submitted in a CSRF-protected same-origin POST
 
-When valid system-mail configuration is available, invitation links are delivered through the shared validated mail transport and the plaintext token is not rendered back into the administrator browser. Existing deployments without mail configuration retain the explicit one-time manual-link fallback. A delivery failure after creation or renewal revokes the newly issued invitation immediately, preventing an undelivered usable token from remaining active.
+Invitation links are delivered only through the shared validated mail transport and the plaintext token is never rendered back into the administrator browser. Invitation creation and renewal require valid HTTPS base-URL and system-mail configuration. Invalid configuration or a delivery failure revokes the newly issued invitation immediately, preventing an undelivered usable token from remaining active.
 
 See [User Management](user-management.md).
 
