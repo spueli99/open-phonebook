@@ -90,12 +90,17 @@ Passwords require at least 12 characters and are stored using PHP `password_hash
 
 The user row and invitation acceptance marker are committed in the same database transaction.
 
+## Password recovery
+
+Local users can request a password reset from the login page. The public request response does not reveal whether an account exists. Active accounts receive a 30-minute, single-use reset link by system email.
+
+Completing recovery invalidates all prior browser sessions for that account through the authentication revision mechanism.
+
 ## Current limitations
 
 Not yet included:
 
 - invitation email delivery
-- password reset
 - public registration
 - organization-scoped administration
 - audit-event persistence
