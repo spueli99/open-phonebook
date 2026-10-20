@@ -32,6 +32,11 @@ $options = getopt(
     ]
 );
 
+if ($options === false) {
+    fwrite(STDERR, "Unable to parse command-line options.\n");
+    exit(2);
+}
+
 $expectedFingerprint = $options['expected-key-fingerprint']
     ?? null;
 
