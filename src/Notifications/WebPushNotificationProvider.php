@@ -28,6 +28,5 @@ final class WebPushNotificationProvider implements NotificationProviderInterface
                 'Web Push subscription has expired.'
             );
         }
-
     }
 }
