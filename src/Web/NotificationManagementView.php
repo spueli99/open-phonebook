@@ -72,22 +72,6 @@ final class NotificationManagementView
                     )
                 )
                 . '</p>'
-                . (
-                    $rule->quietStart === null
-                    || $rule->quietEnd === null
-                        ? ''
-                        : '<p>'
-                            . Html::escape(
-                                $translator->get(
-                                    'notifications.quiet_hours'
-                                )
-                            )
-                            . ': '
-                            . Html::escape($rule->quietStart)
-                            . '–'
-                            . Html::escape($rule->quietEnd)
-                            . '</p>'
-                )
                 . self::postForm(
                     '/notifications/channel/status/',
                     $csrfToken,
@@ -142,6 +126,22 @@ final class NotificationManagementView
                         : $device->name
                 )
                 . '</p>'
+                . (
+                    $rule->quietStart === null
+                    || $rule->quietEnd === null
+                        ? ''
+                        : '<p>'
+                            . Html::escape(
+                                $translator->get(
+                                    'notifications.quiet_hours'
+                                )
+                            )
+                            . ': '
+                            . Html::escape($rule->quietStart)
+                            . '–'
+                            . Html::escape($rule->quietEnd)
+                            . '</p>'
+                )
                 . self::postForm(
                     '/notifications/rule/delete/',
                     $csrfToken,
