@@ -61,12 +61,12 @@ final class NotificationAdministrationService
 
     public function deliveryHistory(
         int $ownerUserId,
-        NotificationDeliveryHistoryFilter $filter,
+        ?NotificationDeliveryHistoryFilter $filter = null,
         int $limit = 50
     ): NotificationDeliveryHistoryPage {
         return $this->deliveries->historyOwnedBy(
             $ownerUserId,
-            $filter,
+            $filter ?? new NotificationDeliveryHistoryFilter(),
             $limit
         );
     }
