@@ -18,6 +18,16 @@ The user interface and user documentation are intended to support at least Engli
 - avoid introducing a PBX dependency
 - keep shared-hosting compatibility in mind
 
+## Dependencies
+
+`composer.lock` is committed and is the source of truth for dependency versions.
+
+For normal development and CI, use:
+
+`composer install`
+
+Do not run `composer update` as part of unrelated feature work. Dependency updates should be intentional, reviewed as their own change, and commit the resulting `composer.lock` diff.
+
 ## Pull requests
 
-Keep pull requests focused. Describe the problem, the chosen approach, and any migration or security implications.
+Keep pull requests focused. Describe the problem, the chosen approach, and any migration, dependency, or security implications.

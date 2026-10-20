@@ -12,7 +12,7 @@ Zu einem vollständigen Recovery-Satz gehören deshalb:
 2. Runtime-Secret-Konfiguration einschließlich des exakten Application Keys
 3. `storage/installed.lock`
 4. passender Open-Phonebook-Code-/Release-Stand
-5. `composer.lock` aus dem Deployment, sofern vorhanden
+5. `composer.lock` aus dem passenden Repository-/Deployment-Stand
 6. nicht geheimes Readiness-Manifest/Fingerprint zur Kontrolle
 
 Cache- und Logdateien unter `storage/` sind aktuell nicht für die Wiederherstellung erforderlich. Derzeit existiert kein separates persistentes Benutzer-Upload-Verzeichnis.
@@ -113,11 +113,11 @@ Die Datei ist kein Secret. Ihre Wiederherstellung verhindert aber, dass der Setu
 
 ### 4. Dependency-Lock
 
-`composer.lock` sichern, wenn die Datei im eingesetzten Deployment vorhanden ist.
+`composer.lock` ist im Repository eingecheckt und muss gemeinsam mit dem passenden Code-/Release-Stand aufbewahrt werden.
 
-Ohne Dependency-Lock kann Composer bei einer Wiederherstellung neuere, weiterhin kompatible Paketversionen auflösen. Die Readiness-Prüfung liefert deshalb bei fehlender `composer.lock` eine Warnung.
+Composer muss bei der Wiederherstellung anhand dieses Locks installieren, damit dieselben Dependency-Versionen wiederhergestellt werden.
 
-Im Repository ist aktuell keine `composer.lock` eingecheckt. Das sollte später in einem separaten Dependency-Management-PR sauber gelöst werden. Bis dahin sollte eine im Deployment erzeugte Lock-Datei bzw. das Deployment-Artefakt mit aufbewahrt werden.
+Fehlt `composer.lock`, liefert die Readiness-Prüfung weiterhin eine Warnung, weil die Dependency-Auflösung dann nicht mehr exakt reproduzierbar ist.
 
 ### 5. Code-/Release-Stand
 
@@ -147,7 +147,7 @@ Login-Throttling-HMACs gelten bewusst nicht als recovery-kritische Benutzerdaten
 4. Vollständigen Datenbankdump erstellen.
 5. `config/local.php` bzw. die entsprechenden Environment-Secrets sicher sichern.
 6. `storage/installed.lock` sichern.
-7. `composer.lock` sichern, sofern vorhanden.
+7. `composer.lock` sichern.
 8. Exakten Release-/Commit-Stand dokumentieren.
 9. Datenbank und Secret-Backup getrennt oder in einem verschlüsselten Backup-Speicher ablegen.
 10. Prüfen, dass der Dump nicht leer und mit dem vorgesehenen Restore-Werkzeug lesbar ist.
@@ -168,8 +168,8 @@ Reihenfolge:
 5. Vollständigen SQL-Dump importieren.
 6. Ursprüngliche Runtime-Konfiguration und den ursprünglichen Application Key wiederherstellen.
 7. `storage/installed.lock` wiederherstellen.
-8. `composer.lock` wiederherstellen, sofern sie Bestandteil des Deployments/Backups war.
-9. Composer-Produktivabhängigkeiten für diesen Code-Stand möglichst anhand des Locks installieren.
+8. Die passende `composer.lock` wiederherstellen.
+9. Composer-Produktivabhängigkeiten für diesen Code-Stand anhand des Locks installieren.
 10. Readiness-Prüfung mit dem Fingerprint des Backup-Manifests ausführen.
 11. Funktionstests durchführen.
 12. Notification- und Google-Cronjobs wieder aktivieren.
