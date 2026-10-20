@@ -114,6 +114,28 @@ final class Config
             ['providers', 'google', 'client_secret'],
             Environment::get('OPENPHONEBOOK_GOOGLE_CLIENT_SECRET')
         );
+        self::assign(
+            $values,
+            [
+                'operations',
+                'scheduler_stale_after_seconds',
+                'google_contacts_sync',
+            ],
+            Environment::int(
+                'OPENPHONEBOOK_GOOGLE_SYNC_STALE_SECONDS'
+            )
+        );
+        self::assign(
+            $values,
+            [
+                'operations',
+                'scheduler_stale_after_seconds',
+                'notification_delivery',
+            ],
+            Environment::int(
+                'OPENPHONEBOOK_NOTIFICATION_STALE_SECONDS'
+            )
+        );
 
         self::assign($values, ['database', 'host'], Environment::get('OPENPHONEBOOK_DB_HOST'));
         self::assign($values, ['database', 'port'], Environment::int('OPENPHONEBOOK_DB_PORT'));
