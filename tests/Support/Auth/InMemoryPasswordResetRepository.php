@@ -9,8 +9,7 @@ use OpenPhonebook\Auth\PasswordResetRepositoryInterface;
 use OpenPhonebook\Auth\PasswordResetRequest;
 use RuntimeException;
 
-final class InMemoryPasswordResetRepository
-    implements PasswordResetRepositoryInterface
+final class InMemoryPasswordResetRepository implements PasswordResetRepositoryInterface
 {
     /** @var array<int, array{request: PasswordResetRequest, token_hash: string, requested_at: DateTimeImmutable}> */
     private array $requests = [];
