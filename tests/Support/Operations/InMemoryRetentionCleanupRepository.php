@@ -11,26 +11,36 @@ final class InMemoryRetentionCleanupRepository implements RetentionCleanupReposi
 {
     public ?DateTimeImmutable $callCutoff = null;
     public ?DateTimeImmutable $notificationCutoff = null;
+    public ?int $callLimit = null;
+    public ?int $notificationLimit = null;
 
+    /**
+     * @param list<int> $callBatches
+     * @param list<int> $notificationBatches
+     */
     public function __construct(
-        private readonly int $deletedCalls = 0,
-        private readonly int $deletedNotifications = 0,
+        private array $callBatches = [0],
+        private array $notificationBatches = [0],
     ) {
     }
 
     public function deleteTerminalCallSessionsBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int {
         $this->callCutoff = $cutoff;
+        $this->callLimit = $limit;
 
-        return $this->deletedCalls;
+        return array_shift($this->callBatches) ?? 0;
     }
 
     public function deleteTerminalNotificationDeliveriesBefore(
-        DateTimeImmutable $cutoff
+        DateTimeImmutable $cutoff,
+        int $limit
     ): int {
         $this->notificationCutoff = $cutoff;
+        $this->notificationLimit = $limit;
 
-        return $this->deletedNotifications;
+        return array_shift($this->notificationBatches) ?? 0;
     }
 }
