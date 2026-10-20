@@ -31,7 +31,12 @@ Expected resource groups include:
 
 Human API access and browser sessions are distinct from device authentication.
 
-Devices use scoped, revocable credentials.
+Devices use scoped, revocable credentials. Device phonebook requests accept credentials only through the HTTP `Authorization` header:
+
+- Bearer: `Authorization: Bearer <device-token>`
+- HTTP Basic for phone compatibility: username `device`, device token as password
+
+Device tokens must never be placed in URLs or query strings.
 
 ## Versioning
 
@@ -53,6 +58,22 @@ The call-session service derives final state such as missed, completed, or cance
 ## Exports
 
 Device phonebook output is generated through exporter interfaces rather than embedding vendor XML in controllers.
+
+Implemented endpoint:
+
+`GET /api/v1/device/phonebook/?format=<format>`
+
+Implemented formats:
+
+- `json`
+- `csv`
+- `yealink`
+
+The endpoint requires the `phonebook:read` device scope. It intersects explicit device-to-address-book assignments with the owner's current address-book access on every request.
+
+The device runtime is sessionless: device fetches do not create or reuse browser sessions.
+
+Responses containing contact data are marked `Cache-Control: no-store, private` and `X-Content-Type-Options: nosniff`.
 
 ## Health
 
