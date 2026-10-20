@@ -224,6 +224,7 @@ return [
     'users.invite.title' => 'Benutzer einladen',
     'users.invite.create' => 'Einladung erstellen',
     'users.invite.created' => 'Einladung wurde erstellt.',
+    'users.invite.sent' => 'Der Einladungslink wurde per System-E-Mail versendet. Der Token wird im Browser nicht angezeigt.',
     'users.invite.copy_once' => 'Diesen Einladungslink jetzt kopieren und sicher an den Empfänger senden.',
     'users.invitation.expires' => 'Gültig bis',
     'users.invitation.renew' => 'Erneuern',
