@@ -125,10 +125,10 @@ Completed or in active work:
 - authenticated browser subscription lifecycle
 - minimal installable PWA manifest/service worker without private offline caching
 - automatic cleanup of expired push subscriptions
+- owner-scoped notification history filtering and cursor pagination
 
 Still planned:
 
-- history filtering/pagination
 - future additional providers
 
 ## Operations

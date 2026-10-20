@@ -6,7 +6,9 @@ namespace OpenPhonebook\Tests\Support\Notifications;
 
 use DateTimeImmutable;
 use OpenPhonebook\Notifications\NotificationDelivery;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryFilter;
 use OpenPhonebook\Notifications\NotificationDeliveryHistoryItem;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryPage;
 use OpenPhonebook\Notifications\NotificationDeliveryRepositoryInterface;
 use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationMessage;
@@ -167,10 +169,12 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         return $counts;
     }
 
-    public function recentOwnedBy(
+    public function historyOwnedBy(
         int $ownerUserId,
+        NotificationDeliveryHistoryFilter $filter,
         int $limit = 50
-    ): array {
+    ): NotificationDeliveryHistoryPage {
+        $limit = max(1, min(100, $limit));
         $ids = array_keys($this->deliveries);
         rsort($ids);
         $history = [];
@@ -178,7 +182,25 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
         foreach ($ids as $id) {
             $delivery = $this->deliveries[$id];
 
-            if ($delivery->ownerUserId !== $ownerUserId) {
+            if (
+                $delivery->ownerUserId !== $ownerUserId
+                || (
+                    $filter->status !== null
+                    && $delivery->status !== $filter->status
+                )
+                || (
+                    $filter->trigger !== null
+                    && $delivery->trigger !== $filter->trigger
+                )
+                || (
+                    $filter->channelId !== null
+                    && $delivery->channelId !== $filter->channelId
+                )
+                || (
+                    $filter->beforeId !== null
+                    && $delivery->id >= $filter->beforeId
+                )
+            ) {
                 continue;
             }
 
@@ -200,12 +222,21 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
                     && $delivery->channelId !== null
             );
 
-            if (count($history) >= max(1, min(100, $limit))) {
+            if (count($history) > $limit) {
                 break;
             }
         }
 
-        return $history;
+        $hasMore = count($history) > $limit;
+
+        if ($hasMore) {
+            array_pop($history);
+        }
+
+        return new NotificationDeliveryHistoryPage(
+            $history,
+            $hasMore ? $history[array_key_last($history)]->id : null
+        );
     }
 
     public function retryCandidateOwnedBy(

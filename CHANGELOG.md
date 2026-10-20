@@ -68,6 +68,7 @@ The project is currently in the pre-release architecture and foundation phase.
 - Persistent cron-driven notification delivery queue with bounded retry/backoff and stale-worker recovery
 - Aggregate notification delivery diagnostics in the management UI
 - Owner-scoped recent notification delivery history with localized timestamps
+- Notification delivery history filters for status, trigger, and channel with cursor pagination
 - Manual retry for failed deliveries using domain-separated encrypted retry payloads
 - Queue-based test sends for active notification channels
 - Web Push notification provider integrated into the existing queue/rule/history model

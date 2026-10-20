@@ -238,11 +238,36 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
         return $counts;
     }
 
-    public function recentOwnedBy(
+    public function historyOwnedBy(
         int $ownerUserId,
+        NotificationDeliveryHistoryFilter $filter,
         int $limit = 50
-    ): array {
+    ): NotificationDeliveryHistoryPage {
         $limit = max(1, min(100, $limit));
+        $fetchLimit = $limit + 1;
+        $conditions = ['d.owner_user_id = :owner_user_id'];
+        $parameters = ['owner_user_id' => $ownerUserId];
+
+        if ($filter->status !== null) {
+            $conditions[] = 'd.status = :status';
+            $parameters['status'] = $filter->status->value;
+        }
+
+        if ($filter->trigger !== null) {
+            $conditions[] = 'd.trigger_name = :trigger_name';
+            $parameters['trigger_name'] = $filter->trigger->value;
+        }
+
+        if ($filter->channelId !== null) {
+            $conditions[] = 'd.channel_id = :channel_id';
+            $parameters['channel_id'] = $filter->channelId;
+        }
+
+        if ($filter->beforeId !== null) {
+            $conditions[] = 'd.id < :before_id';
+            $parameters['before_id'] = $filter->beforeId;
+        }
+
         $statement = $this->prepare(
             'SELECT d.id, d.channel_id, c.name AS channel_name,
                     c.is_active AS channel_active,
@@ -253,11 +278,11 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
              LEFT JOIN notification_channels c
                ON c.id = d.channel_id
               AND c.owner_user_id = d.owner_user_id
-             WHERE d.owner_user_id = :owner_user_id
-             ORDER BY d.created_at DESC, d.id DESC
-             LIMIT ' . $limit
+             WHERE ' . implode(' AND ', $conditions) . '
+             ORDER BY d.id DESC
+             LIMIT ' . $fetchLimit
         );
-        $statement->execute(['owner_user_id' => $ownerUserId]);
+        $statement->execute($parameters);
 
         $history = [];
 
@@ -301,7 +326,16 @@ final class NotificationDeliveryRepository implements NotificationDeliveryReposi
             );
         }
 
-        return $history;
+        $hasMore = count($history) > $limit;
+
+        if ($hasMore) {
+            array_pop($history);
+        }
+
+        return new NotificationDeliveryHistoryPage(
+            $history,
+            $hasMore ? $history[array_key_last($history)]->id : null
+        );
     }
 
     public function retryCandidateOwnedBy(

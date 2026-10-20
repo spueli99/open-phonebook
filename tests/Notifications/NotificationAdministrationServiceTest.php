@@ -6,6 +6,8 @@ namespace OpenPhonebook\Tests\Notifications;
 
 use OpenPhonebook\Notifications\NotificationAdministrationService;
 use OpenPhonebook\Notifications\NotificationConfigCipher;
+use OpenPhonebook\Notifications\NotificationDeliveryHistoryFilter;
+use OpenPhonebook\Notifications\NotificationDeliveryStatus;
 use OpenPhonebook\Notifications\NotificationMessageCipher;
 use OpenPhonebook\Notifications\NotificationTrigger;
 use OpenPhonebook\Security\SecretCipher;
@@ -180,8 +182,8 @@ final class NotificationAdministrationServiceTest extends TestCase
         $deliveries->markFailed($deliveryId, $clock->now());
 
         $history = $service->deliveryHistory(10);
-        self::assertCount(1, $history);
-        self::assertTrue($history[0]->canRetry);
+        self::assertCount(1, $history->items);
+        self::assertTrue($history->items[0]->canRetry);
 
         $service->retryDelivery(10, $deliveryId);
 
@@ -190,6 +192,98 @@ final class NotificationAdministrationServiceTest extends TestCase
             $deliveries->get($deliveryId)->status->value
         );
         self::assertSame(0, $deliveries->get($deliveryId)->attempts);
+    }
+
+
+    public function testDeliveryHistorySupportsFiltersAndCursorPagination(): void
+    {
+        $channels = new InMemoryNotificationChannelRepository();
+        $deliveries = new InMemoryNotificationDeliveryRepository();
+        $clock = new FrozenClock('2026-10-20 10:00:00');
+        $service = new NotificationAdministrationService(
+            $channels,
+            new InMemoryNotificationRuleRepository(),
+            new InMemoryDeviceRepository(),
+            new NotificationConfigCipher(
+                new SecretCipher(self::APP_KEY)
+            ),
+            $deliveries,
+            NotificationMessageCipher::fromApplicationKey(
+                self::APP_KEY
+            ),
+            $clock
+        );
+        $mailId = $service->createChannel(
+            10,
+            'Mail',
+            'email',
+            [
+                'recipient' => 'user@example.test',
+                'from' => 'phonebook@example.test',
+            ]
+        );
+        $pushId = $service->createChannel(
+            10,
+            'Push',
+            'pushover',
+            [
+                'token' => str_repeat('A', 30),
+                'user' => str_repeat('B', 30),
+            ]
+        );
+
+        $first = $service->testChannel(10, $mailId);
+        $second = $service->testChannel(10, $mailId);
+        $third = $service->testChannel(10, $pushId);
+
+        $deliveries->claimDue($clock->now(), 10);
+        $deliveries->markSent($first, $clock->now());
+        $deliveries->markFailed($second, $clock->now());
+
+        $failed = $service->deliveryHistory(
+            10,
+            new NotificationDeliveryHistoryFilter(
+                status: NotificationDeliveryStatus::Failed
+            )
+        );
+
+        self::assertCount(1, $failed->items);
+        self::assertSame($second, $failed->items[0]->id);
+
+        $mail = $service->deliveryHistory(
+            10,
+            new NotificationDeliveryHistoryFilter(
+                channelId: $mailId
+            ),
+            1
+        );
+
+        self::assertCount(1, $mail->items);
+        self::assertSame($second, $mail->items[0]->id);
+        self::assertSame($second, $mail->olderBeforeId);
+
+        $older = $service->deliveryHistory(
+            10,
+            new NotificationDeliveryHistoryFilter(
+                channelId: $mailId,
+                beforeId: $mail->olderBeforeId
+            ),
+            1
+        );
+
+        self::assertCount(1, $older->items);
+        self::assertSame($first, $older->items[0]->id);
+        self::assertNull($older->olderBeforeId);
+
+        $otherChannel = $service->deliveryHistory(
+            10,
+            new NotificationDeliveryHistoryFilter(
+                channelId: $pushId
+            )
+        );
+
+        self::assertCount(1, $otherChannel->items);
+        self::assertSame($third, $otherChannel->items[0]->id);
     }
 
     public function testOtherUserCannotRetryFailedDelivery(): void

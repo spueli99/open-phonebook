@@ -204,6 +204,5 @@ Configure `operations.retention_days.notification_history` in `config/local.php`
 
 ## Deferred
 
-- filtering/pagination for larger delivery histories
 - additional providers
 - per-rule custom message templates
