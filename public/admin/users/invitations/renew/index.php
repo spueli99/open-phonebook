@@ -101,6 +101,5 @@ echo InvitationCreateView::render(
     $translator,
     CsrfToken::issue(),
     null,
-    null,
     $mailSent
 );
