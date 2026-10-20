@@ -48,7 +48,7 @@ Example:
 
 ## Session state
 
-Sessions are keyed by device and external call ID.
+Open sessions are matched by device and external call ID. Once a session is terminal, the same external call ID may be reused by a later call.
 
 Initial states:
 
