@@ -4,7 +4,7 @@
 
 The initial authentication foundation provides local email/password authentication for human users.
 
-It deliberately does not implement public registration, password reset, MFA, OIDC, LDAP, or external identity providers yet. Those capabilities can be added later without changing the basic session and authorization boundaries.
+It deliberately does not implement public registration, MFA, OIDC, LDAP, or external identity providers yet. Password reset/recovery is implemented through short-lived single-use email links.
 
 ## Login flow
 
@@ -31,6 +31,38 @@ Open Phonebook uses PHP's `PASSWORD_DEFAULT` algorithm so the password storage f
 
 The installer currently requires at least 12 password characters for the initial administrator.
 
+## Password reset and account recovery
+
+The login page links to a password-reset request form.
+
+Request behavior is deliberately enumeration-resistant:
+
+- the same public confirmation is shown whether an active account exists or not
+- invalid, unknown, inactive, or deleted accounts do not create reset records
+- one account can receive at most one new reset request within five minutes
+- POST responses are padded to a minimum duration to reduce simple account-existence timing differences
+- mail-delivery failures are not exposed to the requester
+
+Reset tokens are:
+
+- 256-bit random values
+- valid for 30 minutes
+- single-use
+- stored only as a domain-separated HMAC-SHA-256 hash
+- never placed in query strings
+
+Reset links use a URL fragment:
+
+`/password-reset/#<token>`
+
+The fragment is not sent in the HTTP request. Same-origin JavaScript removes it from browser history and submits it through a CSRF-protected POST. The plaintext token then remains only in the server-side reset session until completion or expiry.
+
+A successful reset changes the password and increments the user's `auth_revision` atomically. Every authenticated browser session carries the revision from login and revalidates it against the database. A revision mismatch invalidates the session, so changing a password through recovery signs out all previously authenticated browser sessions.
+
+The reset password must contain at least 12 characters and is stored with `password_hash()`.
+
+System-generated reset mail uses the configured `mail.from` / `OPENPHONEBOOK_MAIL_FROM` sender and requires an HTTPS `app.base_url`.
+
 ## Session model
 
 Browser sessions use:
@@ -41,6 +73,7 @@ Browser sessions use:
 - Secure cookies on HTTPS
 - PHP strict session mode
 - session identifier regeneration after login and logout
+- current account-state and authentication-revision validation on protected browser requests
 
 The session stores only the minimum authenticated identity needed by the current application layer:
 
@@ -103,7 +136,6 @@ Development-facing identifiers remain English.
 Planned future work includes:
 
 - account invitation workflow
-- password reset/recovery
 - optional TOTP/WebAuthn
 - optional OIDC
 - optional LDAP
