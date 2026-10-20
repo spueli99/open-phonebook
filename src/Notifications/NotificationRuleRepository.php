@@ -18,7 +18,7 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
     {
         $statement = $this->database->prepare(
             'SELECT id, owner_user_id, channel_id, device_id,
-                    trigger_name, is_active
+                    trigger_name, quiet_start, quiet_end, is_active
              FROM notification_rules
              WHERE owner_user_id = :owner_user_id
              ORDER BY id ASC'
@@ -42,7 +42,7 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
     ): array {
         $statement = $this->database->prepare(
             'SELECT id, owner_user_id, channel_id, device_id,
-                    trigger_name, is_active
+                    trigger_name, quiet_start, quiet_end, is_active
              FROM notification_rules
              WHERE owner_user_id = :owner_user_id
                AND is_active = 1
@@ -101,7 +101,9 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
         int $ownerUserId,
         int $channelId,
         ?int $deviceId,
-        NotificationTrigger $trigger
+        NotificationTrigger $trigger,
+        ?string $quietStart,
+        ?string $quietEnd
     ): int {
         $statement = $this->database->prepare(
             'INSERT INTO notification_rules (
@@ -110,6 +112,8 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                 device_id,
                 device_key,
                 trigger_name,
+                quiet_start,
+                quiet_end,
                 is_active,
                 created_at,
                 updated_at
@@ -119,6 +123,8 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                 :device_id,
                 :device_key,
                 :trigger_name,
+                :quiet_start,
+                :quiet_end,
                 1,
                 UTC_TIMESTAMP(),
                 UTC_TIMESTAMP()
@@ -130,6 +136,8 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
             'device_id' => $deviceId,
             'device_key' => $deviceId ?? 0,
             'trigger_name' => $trigger->value,
+            'quiet_start' => $quietStart,
+            'quiet_end' => $quietEnd,
         ]);
 
         return (int) $this->database->lastInsertId();
@@ -176,6 +184,12 @@ final class NotificationRuleRepository implements NotificationRuleRepositoryInte
                 NotificationTrigger::from(
                     (string) $row['trigger_name']
                 ),
+                $row['quiet_start'] === null
+                    ? null
+                    : substr((string) $row['quiet_start'], 0, 5),
+                $row['quiet_end'] === null
+                    ? null
+                    : substr((string) $row['quiet_end'], 0, 5),
                 (bool) $row['is_active'],
             );
         }
