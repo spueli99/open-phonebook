@@ -127,7 +127,7 @@ Notification channels and rules are owner-scoped. Provider configuration is seri
 
 ## Privacy
 
-Call-history retention is configurable and may be disabled.
+Call-history and notification-history retention are configurable independently and may be disabled by setting the respective retention period to `0`. The scheduled cleanup deletes only terminal call sessions and terminal notification-delivery records; open calls and pending/processing delivery jobs are never eligible. Deleting an old failed notification also removes its encrypted retry payload.
 
 Authentication throttling does not persist raw email/IP combinations.
 
