@@ -18,7 +18,9 @@ final class BackupReadinessService
     ) {
     }
 
-    public function snapshot(): BackupReadinessSnapshot
+    public function snapshot(
+        ?string $expectedKeyFingerprint = null
+    ): BackupReadinessSnapshot
     {
         $applied = $this->repository->appliedMigrationIds();
         $missing = array_values(
@@ -34,6 +36,12 @@ final class BackupReadinessService
                 $this->applicationKey
             )
             : null;
+        $fingerprintMatches = $expectedKeyFingerprint === null
+            ? null
+            : hash_equals(
+                strtolower($expectedKeyFingerprint),
+                strtolower($fingerprint ?? '')
+            );
 
         $status = BackupReadinessStatus::Ready;
 
@@ -42,6 +50,7 @@ final class BackupReadinessService
             || !$this->installationLockPresent
             || $missing !== []
             || $unknown !== []
+            || $fingerprintMatches === false
         ) {
             $status = BackupReadinessStatus::Failed;
         } elseif (!$this->localConfigPresent) {
@@ -52,6 +61,7 @@ final class BackupReadinessService
             $status,
             $keyAvailable,
             $fingerprint,
+            $fingerprintMatches,
             $this->localConfigPresent,
             $this->installationLockPresent,
             $missing,
