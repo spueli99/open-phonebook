@@ -126,6 +126,12 @@ final class PasswordResetRepository implements PasswordResetRepositoryInterface
                AND used_at IS NULL'
         );
         $statement->execute(['id' => $requestId]);
+
+        if ($statement->rowCount() !== 1) {
+            throw new RuntimeException(
+                'Password reset is no longer usable.'
+            );
+        }
     }
 
     private function prepare(string $sql): PDOStatement
