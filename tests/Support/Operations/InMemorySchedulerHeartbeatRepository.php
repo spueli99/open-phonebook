@@ -9,8 +9,7 @@ use OpenPhonebook\Operations\SchedulerHeartbeat;
 use OpenPhonebook\Operations\SchedulerHeartbeatRepositoryInterface;
 use OpenPhonebook\Operations\SchedulerTask;
 
-final class InMemorySchedulerHeartbeatRepository
-    implements SchedulerHeartbeatRepositoryInterface
+final class InMemorySchedulerHeartbeatRepository implements SchedulerHeartbeatRepositoryInterface
 {
     /** @var array<string, SchedulerHeartbeat> */
     private array $heartbeats = [];
