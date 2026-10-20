@@ -141,7 +141,7 @@ After every update:
 
 Before creating a tagged release:
 
-1. CI on the release commit is green for all supported PHP versions.
+1. CI on the release commit is green for all supported PHP versions, including the locked Composer dependency audit.
 2. `VERSION` matches the intended release version.
 3. `composer.lock` is committed and validated.
 4. Changelog is updated.
