@@ -100,6 +100,7 @@ Especially critical:
 
 - `OPENPHONEBOOK_APP_KEY` / `app.key`
 - Google OAuth client credentials when configured
+- the system mail sender configuration used for password recovery
 - Web Push VAPID subject/public/private key when configured
 - database connection credentials or the information required to recreate them
 - relevant base URL / phone-region / operations overrides
@@ -141,6 +142,7 @@ The readiness report counts application-key-dependent records without exposing t
 - encrypted notification retry payloads
 - active device credentials whose stored hashes are keyed by the application key
 - active invitation tokens whose hashes are keyed by the application key
+- active password-reset tokens whose hashes use application-key-derived domain-separated material
 
 Login-throttling subject hashes are intentionally not treated as recovery-critical user data. A key change can make old throttle buckets irrelevant, but it does not destroy contacts, accounts, or integration secrets.
 
