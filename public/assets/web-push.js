@@ -57,7 +57,7 @@
         && 'PushManager' in window
         && 'Notification' in window
         && 'crypto' in window;
-    const post = async (url, fields) => {
+    const request = async (url, fields) => {
         const body = new URLSearchParams(fields);
         const response = await fetch(url, {
             method: 'POST',
@@ -72,6 +72,11 @@
         if (!response.ok) {
             throw new Error('Web Push request failed.');
         }
+
+        return response;
+    };
+    const post = async (url, fields) => {
+        await request(url, fields);
     };
     const registration = async () => {
         await navigator.serviceWorker.register('/service-worker.js', {
@@ -95,6 +100,22 @@
             browser_id: browserId(),
         });
     };
+    const serverActive = async (subscription) => {
+        const response = await request(
+            '/notifications/web-push/status/',
+            {
+                _csrf: root.dataset.csrfToken || '',
+                browser_id: browserId(),
+                endpoint:
+                    subscription === null
+                        ? ''
+                        : subscription.endpoint,
+            }
+        );
+        const payload = await response.json();
+
+        return payload.active === true;
+    };
     const refresh = async () => {
         if (!supported()) {
             setStatus(label('labelUnsupported'));
@@ -103,28 +124,32 @@
             return;
         }
 
-        if (Notification.permission === 'denied') {
-            setStatus(label('labelDenied'));
-            enable.disabled = true;
-            disable.disabled = false;
-            return;
-        }
-
         try {
             const current = await (await registration())
                 .pushManager
                 .getSubscription();
-            if (current !== null) {
-                await syncSubscription(current);
+            const active = await serverActive(current);
+
+            if (
+                Notification.permission === 'denied'
+                && !active
+                && current === null
+            ) {
+                setStatus(label('labelDenied'));
+                enable.disabled = true;
+                disable.disabled = true;
+                return;
             }
 
             setStatus(
-                current === null
-                    ? label('labelDisabled')
-                    : label('labelEnabled')
+                active && current !== null
+                    ? label('labelEnabled')
+                    : label('labelDisabled')
             );
-            enable.disabled = current !== null;
-            disable.disabled = current === null;
+            enable.disabled =
+                Notification.permission === 'denied'
+                || (active && current !== null);
+            disable.disabled = !active && current === null;
         } catch {
             setStatus(label('labelError'));
         }
@@ -167,14 +192,18 @@
 
     disable.addEventListener('click', async () => {
         try {
-            await post('/notifications/web-push/unsubscribe/', {
-                _csrf: root.dataset.csrfToken || '',
-                browser_id: browserId(),
-            });
-
             const worker = await registration();
             const subscription =
                 await worker.pushManager.getSubscription();
+
+            await post('/notifications/web-push/unsubscribe/', {
+                _csrf: root.dataset.csrfToken || '',
+                browser_id: browserId(),
+                endpoint:
+                    subscription === null
+                        ? ''
+                        : subscription.endpoint,
+            });
 
             if (subscription !== null) {
                 await subscription.unsubscribe();
