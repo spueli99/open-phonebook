@@ -42,6 +42,9 @@ The project is currently in the pre-release architecture and foundation phase.
 - Yealink Action URL normalization adapter and scoped caller lookup
 - User-owned encrypted notification channels with Pushover and email providers
 - Call notification rules for incoming, missed, and completed calls with optional device scoping
+- Per-rule quiet hours evaluated in each user's configured timezone
+- Persistent cron-driven notification delivery queue with bounded retry/backoff and stale-worker recovery
+- Aggregate notification delivery diagnostics in the management UI
 
 ### Security
 
@@ -63,6 +66,8 @@ The project is currently in the pre-release architecture and foundation phase.
 - Notification provider secrets are encrypted at rest and never rendered back into the management UI
 - Notification changes require authenticated, CSRF-protected owner-scoped requests
 - Provider failures are isolated after call-state commit and cannot roll back call history
+- Device-facing call requests never contact external notification providers directly
+- Queue claims are transactionally locked and stale processing jobs are recoverable after ten minutes
 - Owner-scoped authorization boundary for private address books and contacts
 - CSRF protection for address-book and contact mutations
 - CSRF protection for login, logout, user administration, and invitation acceptance
