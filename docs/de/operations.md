@@ -43,7 +43,7 @@ Die Oberfläche bewertet Heartbeats als:
 - `failed`: der letzte abgeschlossene Lauf ist fehlgeschlagen
 - `never_run`: es wurde noch nie ein Heartbeat gespeichert
 
-Ein Fehler bleibt sichtbar, bis ein späterer Scheduler-Lauf erneut startet und anschließend abgeschlossen wird.
+Ein Fehler bleibt sichtbar, bis ein späterer Scheduler-Lauf erneut startet. Der Zeitpunkt des letzten Fehlers bleibt auch nach diesem Start und nach späteren erfolgreichen Läufen sichtbar.
 
 ## Standard-Zeitgrenzen
 
