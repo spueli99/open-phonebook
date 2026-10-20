@@ -38,7 +38,7 @@ A device may be assigned only address books that its owner can currently read.
 
 Assignments are explicit. A device receives no address book merely because its owner can access it.
 
-Future export endpoints must intersect the stored device assignments with the owner's current address-book access again at request time. This prevents a stale assignment from bypassing a later share revocation.
+Phonebook export requests intersect the stored device assignments with the owner's current address-book access again at request time. This prevents a stale assignment from bypassing a later share revocation.
 
 ## Management
 
@@ -53,15 +53,23 @@ Current management operations:
 - revoke phonebook credential
 - assign readable address books
 
+## Phonebook exports
+
+The device endpoint is:
+
+`GET /api/v1/device/phonebook/?format=<format>`
+
+Implemented formats are `json`, `csv`, and `yealink`.
+
+Phonebook output is generated through a vendor-neutral exporter interface. The endpoint uses a sessionless device runtime, requires the existing `phonebook:read` credential scope, and does not reuse browser sessions.
+
+Credentials are accepted through the HTTP Authorization header, never through query-string token parameters. Private responses are marked no-store.
+
+One response is limited to 5,000 contacts. The Yealink serializer additionally rejects XML output above 1.5 MB. CSV output neutralizes leading spreadsheet formula characters.
+
 ## Deferred
 
-The following belong to later roadmap blocks:
-
-- phonebook exporter interface
-- Yealink export format
-- JSON export
-- CSV export
-- device-facing HTTP endpoint
 - call-event credentials/scopes
 - organization-owned devices
 - last-used tracking in the authentication path
+- additional vendor exporters
