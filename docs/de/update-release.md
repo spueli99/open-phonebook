@@ -141,7 +141,7 @@ Nach jedem Update:
 
 Vor einem getaggten Release:
 
-1. CI auf dem Release-Commit ist für alle unterstützten PHP-Versionen grün.
+1. CI auf dem Release-Commit ist für alle unterstützten PHP-Versionen grün, einschließlich Sicherheits-Audit der gelockten Composer-Abhängigkeiten.
 2. `VERSION` entspricht exakt der geplanten Release-Version.
 3. `composer.lock` ist eingecheckt und validiert.
 4. Changelog ist aktuell.
