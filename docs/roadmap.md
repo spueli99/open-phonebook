@@ -20,11 +20,11 @@ Completed or in active foundation work:
 - initial explicit permission model
 - active invitation management
 - guarded platform role management
+- email-based password reset/recovery with global session invalidation
 
 Still planned in the foundation area:
 
 - email delivery for invitations
-- password reset/recovery
 - optional organizations
 - organization-scoped authorization policies
 - audit-event persistence
