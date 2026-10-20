@@ -14,6 +14,7 @@ final class BackupReadinessService
         private readonly ?string $applicationKey,
         private readonly bool $localConfigPresent,
         private readonly bool $installationLockPresent,
+        private readonly bool $dependencyLockPresent,
         private readonly array $expectedMigrationIds,
     ) {
     }
@@ -55,7 +56,10 @@ final class BackupReadinessService
             || $fingerprintMatches === false
         ) {
             $status = BackupReadinessStatus::Failed;
-        } elseif (!$this->localConfigPresent) {
+        } elseif (
+            !$this->localConfigPresent
+            || !$this->dependencyLockPresent
+        ) {
             $status = BackupReadinessStatus::Warning;
         }
 
@@ -66,6 +70,7 @@ final class BackupReadinessService
             $fingerprintMatches,
             $this->localConfigPresent,
             $this->installationLockPresent,
+            $this->dependencyLockPresent,
             $missing,
             $unknown,
             $this->repository->keyDependentRecordCounts()
