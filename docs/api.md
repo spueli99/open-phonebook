@@ -44,16 +44,26 @@ Breaking API changes require a new API version.
 
 ## Call events
 
-The core should accept normalized call events. Vendor-specific payloads are translated by adapters.
+Implemented endpoint:
 
-Canonical event examples:
+`POST /api/v1/device/call-events/`
 
-- ringing
-- calling
-- connected
-- idle
+It requires a device credential with scope `call-events:write`, which is independent from `phonebook:read`.
 
-The call-session service derives final state such as missed, completed, or cancelled.
+The request body must be JSON and is limited to 16 KiB.
+
+Canonical events:
+
+- `ringing`
+- `calling`
+- `connected`
+- `idle`
+
+Initial events require direction `incoming` or `outgoing`; follow-up events are attached by device and external call ID.
+
+The call-session service derives terminal states such as `completed`, `missed`, and `cancelled`. Invalid transitions are rejected.
+
+Vendor-specific payloads are translated by adapters. The Yealink Action URL adapter is implemented as a normalization layer, but no direct callback endpoint is enabled until a secure callback credential transport has been verified.
 
 ## Exports
 
