@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OpenPhonebook\Config\Config;
 use OpenPhonebook\Database\ConnectionFactory;
+use OpenPhonebook\Database\Migration;
 use OpenPhonebook\Database\MigrationRunner;
 use OpenPhonebook\Database\Migrations;
 use OpenPhonebook\Operations\BackupReadinessRepository;
@@ -32,7 +33,8 @@ try {
     $database = ConnectionFactory::create($databaseConfig);
     $migrations = Migrations::all();
     $expectedMigrationIds = array_map(
-        static fn ($migration): string => $migration->id(),
+        static fn (Migration $migration): string =>
+            $migration->id(),
         $migrations
     );
     $appliedMigrationIds = (
