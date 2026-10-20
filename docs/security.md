@@ -156,4 +156,6 @@ The server restricts browser subscription endpoints to HTTPS and known push-serv
 
 The PWA service worker intentionally has no fetch handler and creates no offline cache. Authenticated pages, contact data, cookies, and application responses are therefore not persisted into a service-worker-controlled cache.
 
-Notification-click URLs are constrained to relative same-origin paths. Expired subscriptions are automatically deactivated on push-service 404/410 responses.
+The HTML Content Security Policy allows only the minimum additional same-origin PWA capabilities: service workers, manifest/images, and same-origin subscription requests. It does not allow arbitrary external connections.
+
+Notification-click URLs are normalized and origin-checked before navigation; protocol-relative or cross-origin targets fall back to the application root. Expired subscriptions are automatically deactivated on push-service 404/410 responses.
