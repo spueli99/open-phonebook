@@ -45,5 +45,6 @@ echo (new DeviceManagementPage(
     $runtime->translator($user->locale)
 ))->render(
     $user->id,
+    $user->timezone,
     CsrfToken::issue()
 );
