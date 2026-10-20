@@ -14,6 +14,9 @@ use PHPUnit\Framework\TestCase;
 
 final class PhonebookExporterTest extends TestCase
 {
+    /**
+     * @return list<PhonebookEntry>
+     */
     private function entries(): array
     {
         return [
