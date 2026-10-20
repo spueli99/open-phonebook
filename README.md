@@ -38,7 +38,7 @@ Open Phonebook is not intended to become a PBX. It will not handle SIP registrat
 
 ## Status
 
-Early architecture and foundation phase. No stable release yet.
+Pre-release, feature-complete enough for focused 0.1.0 hardening and deployment validation. There is no stable release yet; production use should follow the documented backup, update-readiness, and security guidance.
 
 ## Documentation
 
