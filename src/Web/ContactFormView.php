@@ -54,7 +54,7 @@ final class ContactFormView
             . 'form{display:grid;gap:12px}label{display:grid;gap:4px}input,textarea,button{padding:8px}'
             . '.phone{display:grid;grid-template-columns:1fr 2fr;gap:8px}</style>'
             . '<link rel="stylesheet" href="/assets/app.css">'
-            . '</head><body><main>'
+            . '</head><body>' . AppChrome::header() . '<main>'
             . '<nav><a href="/address-books/view/?id=' . $addressBookId . '">'
             . Html::escape($translator->get('contacts.back')) . '</a></nav>'
             . '<h1>' . Html::escape($title) . '</h1>'
@@ -102,7 +102,7 @@ final class ContactFormView
             . $phoneRows
             . '<p>' . Html::escape($translator->get('contacts.phone_numbers.help')) . '</p></fieldset>'
             . '<button type="submit">' . Html::escape($translator->get('contacts.save')) . '</button>'
-            . '</form></main></body></html>';
+            . '</form></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private static function phoneRow(
