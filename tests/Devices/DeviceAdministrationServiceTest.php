@@ -282,6 +282,63 @@ final class DeviceAdministrationServiceTest extends TestCase
         );
     }
 
+    public function testYealinkCallbackCredentialIsIndependent(): void
+    {
+        [$service, $credentials] = $this->service();
+        $credentials->setOwner(1, 10);
+        $service->create(10, 'Phone', null, null);
+        $callback = $service->rotateCredential(
+            10,
+            1,
+            DeviceCredentialScope::YealinkCallbackWrite
+        );
+        $authenticator = new DeviceCredentialAuthenticator(
+            $credentials,
+            self::APP_KEY
+        );
+
+        self::assertNotNull(
+            $authenticator->authenticate(
+                $callback->plainTextToken,
+                DeviceCredentialScope::YealinkCallbackWrite
+            )
+        );
+        self::assertNull(
+            $authenticator->authenticate(
+                $callback->plainTextToken,
+                DeviceCredentialScope::CallEventsWrite
+            )
+        );
+        self::assertTrue(
+            $service->hasActiveCredential(
+                10,
+                1,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+
+        $service->revokeCredential(
+            10,
+            1,
+            DeviceCredentialScope::YealinkCallbackWrite
+        );
+
+        self::assertFalse(
+            $service->hasActiveCredential(
+                10,
+                1,
+                DeviceCredentialScope::YealinkCallbackWrite
+            )
+        );
+        self::assertTrue(
+            $service->hasActiveCredential(
+                10,
+                1,
+                DeviceCredentialScope::PhonebookRead
+            )
+        );
+    }
+
     public function testDeactivationRevokesAllDeviceScopes(): void
     {
         [$service, $credentials] = $this->service();
@@ -291,6 +348,11 @@ final class DeviceAdministrationServiceTest extends TestCase
             10,
             1,
             DeviceCredentialScope::CallEventsWrite
+        );
+        $service->rotateCredential(
+            10,
+            1,
+            DeviceCredentialScope::YealinkCallbackWrite
         );
 
         $service->setActive(10, 1, false);
@@ -305,6 +367,12 @@ final class DeviceAdministrationServiceTest extends TestCase
             $credentials->hasActive(
                 1,
                 DeviceCredentialScope::CallEventsWrite
+            )
+        );
+        self::assertFalse(
+            $credentials->hasActive(
+                1,
+                DeviceCredentialScope::YealinkCallbackWrite
             )
         );
     }
