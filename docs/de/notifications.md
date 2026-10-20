@@ -56,18 +56,60 @@ Reihenfolge:
 
 1. Geräteereignis authentifizieren und prüfen
 2. Call-/Session-Zustand committen
-3. Benachrichtigungsregeln auswerten
-4. passende Provider aufrufen
+3. passende Benachrichtigungsregeln auswerten
+4. Regeln innerhalb einer aktiven Ruhezeit unterdrücken
+5. für jeden verbleibenden aktiven Kanal einen persistenten Zustelljob anlegen
+6. den Call-Event-Request ohne externen Provider-Aufruf beantworten
 
-Ein Providerfehler kann daher die Anrufhistorie weder zurückrollen noch beschädigen.
+Provider-Latenz oder ein Providerfehler können damit weder die Anrufhistorie zurückrollen noch den Geräte-Request verzögern.
 
-Wiederholte Incoming-Callbacks erzeugen keine doppelten Incoming-Benachrichtigungen, weil nur eine neu angelegte eingehende Ringing-Session `incoming` auslöst. Terminale Zustände werden nicht erneut geöffnet.
+## Ruhezeiten
+
+Ruhezeiten werden pro Regel mit lokaler Start- und Endzeit konfiguriert.
+
+Ausgewertet wird in der beim Benutzer hinterlegten Zeitzone, einschließlich Sommer-/Winterzeit.
+
+Normale Fenster wie `13:00–15:00` und Zeiträume über Mitternacht wie `22:00–07:00` werden unterstützt. Der Startzeitpunkt gehört zur Ruhezeit, der Endzeitpunkt nicht mehr.
+
+Während der Ruhezeit unterdrückte Benachrichtigungen werden bewusst verworfen und später nicht nachträglich versendet.
+
+## Zustellqueue und Retry
+
+Die Zustellung übernimmt der cron-kompatible Worker:
+
+`php bin/notification-deliveries.php`
+
+Er sollte üblicherweise einmal pro Minute gestartet werden.
+
+Zustelljobs besitzen einen der Zustände:
+
+- `pending`
+- `processing`
+- `sent`
+- `failed`
+- `cancelled`
+
+Der erste Versuch ist sofort fällig. Temporäre Providerfehler werden mit begrenztem Backoff wiederholt:
+
+- nach Versuch 1: 1 Minute
+- nach Versuch 2: 5 Minuten
+- nach Versuch 3: 15 Minuten
+- nach Versuch 4: 60 Minuten
+- Versuch 5 ist der letzte Provider-Versuch
+
+Das Claiming erfolgt transaktional mit Datenbank-Row-Lock. Ein `processing`-Job mit einem Lock älter als zehn Minuten wird wieder auf `pending` gesetzt, sodass ein späterer Cron-Lauf einen abgestürzten Worker auffangen kann.
+
+Gelöschte oder deaktivierte Kanäle führen zu `cancelled`. Fehlende Provider oder nicht entschlüsselbare Provider-Konfigurationen führen unmittelbar zu `failed`.
+
+Die Verwaltungsseite zeigt aggregierte Zähler für pending, processing, sent, failed und cancelled.
+
+Die Zustellung arbeitet innerhalb des Retry-Fensters nach dem At-least-once-Prinzip. Stürzt ein Prozess nach erfolgreicher externer Zustellung, aber vor dem lokalen `sent`-Update ab, kann bei Providern ohne Idempotenz ein Duplikat nicht vollständig ausgeschlossen werden.
 
 ## Fehlerisolation
 
-Jeder passende Kanal wird unabhängig abgearbeitet. Ein deaktivierter Kanal, unbekannter Provider, eine ungültige verschlüsselte Konfiguration, ein Quotenfehler oder ein Transportfehler blockiert die übrigen Kanäle nicht.
+Jeder Queue-Job wird unabhängig verarbeitet. Ein fehlerhafter Kanal blockiert keine anderen Jobs.
 
-Die erste synchrone Umsetzung wiederholt fehlgeschlagene Zustellungen nicht und speichert noch keine Zustellversuche. Queue, Retry und Zustelldiagnose bleiben spätere Betriebsfunktionen.
+Der Worker beendet sich nur dann mit Exit-Code 1, wenn in diesem Lauf ein Job endgültig fehlschlägt. Temporäre Reschedules gelten als normaler Betrieb. Start-/Konfigurationsfehler verwenden Exit-Code 2.
 
 ## Pushover
 
@@ -104,9 +146,8 @@ Provider-Secrets werden verschlüsselt gespeichert und nicht in normale Ausgaben
 
 ## Später
 
-- Ruhezeiten
-- Retry-/Backoff-Queue
-- Zustellhistorie und Diagnose
+- detaillierte Zustellhistorie und Diagnoseansicht
+- manueller Retry
 - Testversand
 - Web Push/PWA
 - weitere Provider
