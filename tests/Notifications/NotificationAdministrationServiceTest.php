@@ -259,7 +259,27 @@ final class NotificationAdministrationServiceTest extends TestCase
             null,
             NotificationTrigger::Missed
         );
-        $service->disableWebPush(10, $browserId);
+        self::assertTrue(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/first-token'
+            )
+        );
+
+        $service->disableWebPush(
+            10,
+            $browserId,
+            'https://fcm.googleapis.com/fcm/send/first-token'
+        );
+
+        self::assertFalse(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/first-token'
+            )
+        );
 
         $secondId = $service->registerWebPush(
             10,
@@ -273,6 +293,13 @@ final class NotificationAdministrationServiceTest extends TestCase
         self::assertSame($channelId, $secondId);
         self::assertTrue(
             $channels->findOwnedBy($channelId, 10)?->isActive
+        );
+        self::assertTrue(
+            $service->webPushActive(
+                10,
+                $browserId,
+                'https://fcm.googleapis.com/fcm/send/second-token'
+            )
         );
         self::assertCount(1, $service->rules(10));
     }
