@@ -1,0 +1,43 @@
+name: Update Web Push dependencies
+
+on:
+  push:
+    branches:
+      - feature/web-push-pwa
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: feature/web-push-pwa
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: curl, dom, json, mbstring, openssl, pdo, pdo_mysql, xmlreader, xmlwriter
+          coverage: none
+          tools: composer:v2
+
+      - name: Update Web Push dependencies
+        run: composer update minishlink/web-push guzzlehttp/guzzle --with-all-dependencies --no-interaction --prefer-dist --no-progress
+
+      - name: Commit lock file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composer.lock
+          if git diff --cached --quiet; then
+            echo "composer.lock is already up to date"
+            exit 0
+          fi
+          git commit -m "Lock Web Push dependencies"
+          git push origin HEAD:feature/web-push-pwa
