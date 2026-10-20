@@ -117,7 +117,6 @@ SecurityHeaders::sendHtml();
 echo InvitationCreateView::render(
     $translator,
     CsrfToken::issue(),
-    null,
     $error,
     $mailSent
 );
