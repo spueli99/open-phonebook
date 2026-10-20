@@ -182,7 +182,7 @@ The browser stores a random local browser identifier. This lets a refreshed subs
 
 Push delivery runs through the existing persistent notification queue. Successful messages are encrypted by the Web Push library before transport. Expired push subscriptions reported as HTTP 404/410 are automatically disabled and the queued delivery is cancelled rather than retried.
 
-The push payload contains only the rendered notification title/body and an internal same-origin target URL. The service worker validates that click targets remain relative to the application origin.
+The push payload contains only the rendered notification title/body and an internal same-origin target URL. The service worker normalizes and verifies the target origin before navigating; protocol-relative or cross-origin targets fall back to the application root.
 
 ## Security
 
