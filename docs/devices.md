@@ -10,9 +10,10 @@ Each device is owned by exactly one user in the initial model.
 
 ## Device credentials
 
-Creating a device generates one credential with the scope:
+Creating a device initially generates a phonebook credential. Devices can independently hold credentials for:
 
-`phonebook:read`
+- `phonebook:read`
+- `call-events:write`
 
 The plaintext token is shown once immediately after creation or rotation.
 
@@ -30,7 +31,7 @@ Rotating a credential revokes all currently active credentials for the same devi
 
 Revoking a credential leaves the device configured but without a usable token.
 
-Deactivating a device automatically revokes its active phonebook credential. Reactivating a device does not silently create a new credential; the owner must explicitly rotate it.
+Deactivating a device automatically revokes all active device credentials. Reactivating a device does not silently create new credentials; the owner must explicitly rotate each required scope.
 
 ## Address-book assignment
 
@@ -49,8 +50,8 @@ Current management operations:
 - create device
 - set vendor/model metadata
 - activate/deactivate device
-- rotate phonebook credential
-- revoke phonebook credential
+- rotate/revoke phonebook credential
+- rotate/revoke call-event credential
 - assign readable address books
 
 ## Phonebook exports
@@ -67,9 +68,14 @@ Credentials are accepted through the HTTP Authorization header, never through qu
 
 One response is limited to 5,000 contacts. The Yealink serializer additionally rejects XML output above 1.5 MB. CSV output neutralizes leading spreadsheet formula characters.
 
+## Call-event credentials
+
+Call events use the independent `call-events:write` scope. Rotation or revocation of this scope does not affect `phonebook:read`.
+
+See [Call events](call-events.md).
+
 ## Deferred
 
-- call-event credentials/scopes
 - organization-owned devices
 - last-used tracking in the authentication path
 - additional vendor exporters
