@@ -52,8 +52,5 @@ return [
     ],
     'security' => [
         'force_https' => true,
-        'session_cookie_secure' => true,
-        'session_cookie_httponly' => true,
-        'session_cookie_samesite' => 'Lax',
     ],
 ];
