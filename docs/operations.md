@@ -43,7 +43,7 @@ The UI maps scheduler heartbeats to:
 - `failed`: the most recent completed run failed
 - `never_run`: no heartbeat has ever been recorded
 
-A failed status remains visible until a later scheduler run starts and subsequently completes.
+A failed status remains visible until a later scheduler run starts. The last failure timestamp remains visible after that start and after later successful runs.
 
 ## Default thresholds
 
