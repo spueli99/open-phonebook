@@ -12,7 +12,7 @@ A complete recovery set therefore contains:
 2. the runtime secret configuration, especially the exact application key
 3. `storage/installed.lock`
 4. the matching Open Phonebook code/release
-5. `composer.lock` from the deployed artifact when available
+5. `composer.lock` from the matching repository/deployment
 6. a non-secret readiness manifest/fingerprint for verification
 
 Current cache and log files under `storage/` are not required for recovery. Open Phonebook currently has no persistent user-upload directory that must be restored separately.
@@ -115,11 +115,11 @@ This file is not secret, but restoring it prevents the setup installer from bein
 
 ### 4. Dependency lock
 
-Back up `composer.lock` when it exists in the deployed artifact.
+`composer.lock` is committed to the repository and must be retained with the matching code/release.
 
-Without a dependency lock, Composer may resolve newer compatible dependency versions during recovery. The readiness check therefore reports a warning when `composer.lock` is absent.
+Composer installation during recovery must use the lock so the same dependency versions are restored.
 
-The repository currently does not contain a committed `composer.lock`; adding and maintaining one should be handled as a separate dependency-management change. Until then, retain the deployed lock/artifact if your deployment process generates one.
+The readiness check reports a warning if `composer.lock` is missing because dependency resolution would no longer be exactly reproducible.
 
 ### 5. Code/release identity
 
@@ -151,7 +151,7 @@ Recommended sequence:
 4. Create the complete database dump.
 5. Securely back up `config/local.php` or the equivalent environment-managed secrets.
 6. Back up `storage/installed.lock`.
-7. Back up `composer.lock` when present.
+7. Back up `composer.lock`.
 8. Record the exact application release/commit.
 9. Store database and secret backup separately or in an encrypted backup repository.
 10. Verify that the dump is non-empty and can be read by the chosen restore tool.
@@ -172,8 +172,8 @@ Recommended order:
 5. Import the complete SQL dump.
 6. Restore the original runtime configuration/application key.
 7. Restore `storage/installed.lock`.
-8. Restore `composer.lock` when it was part of the deployment/backup.
-9. Install Composer production dependencies for that code version using the lock when available.
+8. Restore the matching `composer.lock`.
+9. Install Composer production dependencies for that code version using the lock.
 10. Run the readiness check with the fingerprint from the backup manifest.
 11. Perform the functional checks below.
 12. Re-enable the notification and Google cron jobs.
