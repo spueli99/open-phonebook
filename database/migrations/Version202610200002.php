@@ -40,10 +40,17 @@ final class Version202610200002 implements Migration
                 owner_user_id BIGINT UNSIGNED NOT NULL,
                 channel_id BIGINT UNSIGNED NOT NULL,
                 device_id BIGINT UNSIGNED NULL,
+                device_key BIGINT UNSIGNED NOT NULL DEFAULT 0,
                 trigger_name VARCHAR(32) NOT NULL,
                 is_active TINYINT(1) NOT NULL DEFAULT 1,
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
+                UNIQUE KEY notification_rules_unique (
+                    owner_user_id,
+                    channel_id,
+                    device_key,
+                    trigger_name
+                ),
                 INDEX notification_rules_owner_idx (owner_user_id),
                 INDEX notification_rules_channel_idx (channel_id),
                 INDEX notification_rules_device_idx (device_id),
