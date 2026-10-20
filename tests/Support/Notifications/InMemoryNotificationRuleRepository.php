@@ -47,6 +47,26 @@ final class InMemoryNotificationRuleRepository
         );
     }
 
+    public function exists(
+        int $ownerUserId,
+        int $channelId,
+        ?int $deviceId,
+        NotificationTrigger $trigger
+    ): bool {
+        foreach ($this->rules as $rule) {
+            if (
+                $rule->ownerUserId === $ownerUserId
+                && $rule->channelId === $channelId
+                && $rule->deviceId === $deviceId
+                && $rule->trigger === $trigger
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function create(
         int $ownerUserId,
         int $channelId,
