@@ -10,6 +10,7 @@ enum AuditEventType: string
     case UserDeactivated = 'user.deactivated';
     case UserRoleChanged = 'user.role_changed';
     case InvitationCreated = 'invitation.created';
+    case InvitationAccepted = 'invitation.accepted';
     case InvitationRenewed = 'invitation.renewed';
     case InvitationRevoked = 'invitation.revoked';
 }
