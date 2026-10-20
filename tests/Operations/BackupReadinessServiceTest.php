@@ -43,6 +43,9 @@ final class BackupReadinessServiceTest extends TestCase
 
         $report = BackupReadinessFormatter::text($snapshot);
         self::assertStringNotContainsString(self::KEY, $report);
+        self::assertNotNull(
+            $snapshot->applicationKeyFingerprint
+        );
         self::assertStringContainsString(
             $snapshot->applicationKeyFingerprint,
             $report
