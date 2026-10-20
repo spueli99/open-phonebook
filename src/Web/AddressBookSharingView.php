@@ -66,7 +66,7 @@ final class AddressBookSharingView
             . 'th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left;vertical-align:top}'
             . 'form.share{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}'
             . 'input,select,button{padding:8px}</style>'
-            . '<link rel="stylesheet" href="/assets/app.css"></head><body><main><nav>'
+            . '<link rel="stylesheet" href="/assets/app.css"></head><body>' . AppChrome::header() . '<main><nav>'
             . '<a href="/address-books/view/?id='
             . $addressBook->id . '">'
             . Html::escape($translator->get('contacts.back'))
@@ -106,7 +106,7 @@ final class AddressBookSharingView
             . Html::escape($translator->get('users.actions'))
             . '</th></tr></thead><tbody>'
             . $rows
-            . '</tbody></table></main></body></html>';
+            . '</tbody></table></main>' . AppChrome::footer() . '</body></html>';
     }
 
     private function __construct()
