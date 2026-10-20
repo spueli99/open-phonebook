@@ -159,8 +159,8 @@ final class InMemoryNotificationDeliveryRepository implements NotificationDelive
             $delivery->ownerUserId,
             $delivery->channelId,
             $delivery->trigger,
-            $delivery->title,
-            $delivery->body,
+            '',
+            '',
             $status,
             $delivery->attempts,
             $delivery->availableAt
