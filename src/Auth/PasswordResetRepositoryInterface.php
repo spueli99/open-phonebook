@@ -8,6 +8,8 @@ use DateTimeImmutable;
 
 interface PasswordResetRepositoryInterface
 {
+    public function lockUser(int $userId): void;
+
     public function hasRecentRequest(
         int $userId,
         DateTimeImmutable $since
