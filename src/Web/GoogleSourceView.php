@@ -65,7 +65,7 @@ final class GoogleSourceView
             . '<style>'
             . 'body{font-family:system-ui,sans-serif;max-width:800px;margin:5vh auto;padding:20px}'
             . 'button,a.button{padding:8px 12px}'
-            . '</style></head><body><main>'
+            . '</style><link rel="stylesheet" href="/assets/app.css"></head><body><main>'
             . '<nav><a href="/address-books/view/?id='
             . $addressBook->id . '">'
             . Html::escape($translator->get('contacts.back'))
