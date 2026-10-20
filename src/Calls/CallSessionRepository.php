@@ -115,11 +115,11 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
                  contact_name = :contact_name,
                  updated_at = UTC_TIMESTAMP(),
                  ended_at = CASE
-                     WHEN :terminal = 1 THEN UTC_TIMESTAMP()
+                     WHEN :terminal_ended = 1 THEN UTC_TIMESTAMP()
                      ELSE ended_at
                  END,
                  active_external_call_id = CASE
-                     WHEN :terminal = 1 THEN NULL
+                     WHEN :terminal_active = 1 THEN NULL
                      ELSE active_external_call_id
                  END
              WHERE id = :id'
@@ -127,7 +127,8 @@ final class CallSessionRepository implements CallSessionRepositoryInterface
         $statement->execute([
             'state' => $state->value,
             'contact_name' => $contactName,
-            'terminal' => $state->isTerminal() ? 1 : 0,
+            'terminal_ended' => $state->isTerminal() ? 1 : 0,
+            'terminal_active' => $state->isTerminal() ? 1 : 0,
             'id' => $sessionId,
         ]);
 

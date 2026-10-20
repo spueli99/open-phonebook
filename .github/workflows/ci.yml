@@ -125,6 +125,9 @@ jobs:
       - name: Verify update readiness
         run: php bin/update-readiness.php
 
+      - name: Verify MariaDB call-session transitions
+        run: php tests/Integration/CallSessionRepositoryMariaDbSmoke.php
+
       - name: Verify migration idempotency
         run: |
           output="$(php bin/migrate.php)"
