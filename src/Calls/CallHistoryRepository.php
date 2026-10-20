@@ -76,7 +76,7 @@ final class CallHistoryRepository
             array_pop($items);
         }
 
-        $olderBeforeId = $hasMore && $items !== []
+        $olderBeforeId = $hasMore
             ? $items[array_key_last($items)]->id
             : null;
 
