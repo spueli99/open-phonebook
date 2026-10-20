@@ -96,6 +96,14 @@ The adapter is intentionally separate from the public HTTP controller. A direct 
 
 Timestamps are stored in UTC.
 
+## User call history
+
+Authenticated users can open `/calls/` to view recent calls from devices they own. The query is owner-scoped through `devices.owner_user_id`; call sessions from another user's devices are never included.
+
+The page shows up to 50 calls at a time with cursor-based loading of older entries. It displays time, direction, current/final state, remote number, the caller-name snapshot resolved when the call was processed, and device name. The technical event sequence is intentionally not exposed in the normal user view.
+
+Contact names are currently displayed as historical snapshots only. They are not linked back to a contact because `call_sessions` does not store a stable contact ID; generating a link from the name or number alone could point to the wrong contact after later address-book changes.
+
 ## History retention
 
 Terminal call sessions are retained for 180 days by default. The scheduled retention cleanup deletes only sessions whose `ended_at` is older than the configured cutoff. Open/ringing/connected sessions are never selected by retention cleanup. Related `call_events` are removed automatically through the existing database cascade when their terminal session is deleted.
