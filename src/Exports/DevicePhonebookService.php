@@ -53,8 +53,7 @@ final class DevicePhonebookService
             }
 
             foreach (
-                $this->contacts->allInAddressBook($addressBookId)
-                as $contact
+                $this->contacts->allInAddressBook($addressBookId) as $contact
             ) {
                 $phoneNumbers = [];
 
