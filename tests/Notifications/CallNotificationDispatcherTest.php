@@ -11,45 +11,43 @@ use OpenPhonebook\Calls\CallSessionState;
 use OpenPhonebook\Devices\AuthenticatedDevice;
 use OpenPhonebook\Devices\DeviceCredentialScope;
 use OpenPhonebook\Notifications\CallNotificationDispatcher;
-use OpenPhonebook\Notifications\NotificationConfigCipher;
-use OpenPhonebook\Notifications\NotificationProviderRegistry;
 use OpenPhonebook\Notifications\NotificationTrigger;
-use OpenPhonebook\Security\SecretCipher;
+use OpenPhonebook\Notifications\QuietHoursPolicy;
+use OpenPhonebook\Tests\Support\Clock\FrozenClock;
 use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationChannelRepository;
+use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationDeliveryRepository;
 use OpenPhonebook\Tests\Support\Notifications\InMemoryNotificationRuleRepository;
-use OpenPhonebook\Tests\Support\Notifications\RecordingNotificationProvider;
+use OpenPhonebook\Tests\Support\Notifications\InMemoryUserTimezoneRepository;
 use PHPUnit\Framework\TestCase;
 
 final class CallNotificationDispatcherTest extends TestCase
 {
-    private const APP_KEY =
-        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-
-    public function testIncomingRuleSendsResolvedCaller(): void
+    public function testIncomingRuleQueuesResolvedCaller(): void
     {
         $channels = new InMemoryNotificationChannelRepository();
         $rules = new InMemoryNotificationRuleRepository();
-        $cipher = new NotificationConfigCipher(
-            new SecretCipher(self::APP_KEY)
-        );
+        $deliveries = new InMemoryNotificationDeliveryRepository();
         $channelId = $channels->create(
             10,
             'Push',
-            'recording',
-            $cipher->encrypt(['target' => 'one'])
+            'pushover',
+            'encrypted'
         );
         $rules->create(
             10,
             $channelId,
             1,
-            NotificationTrigger::Incoming
+            NotificationTrigger::Incoming,
+            null,
+            null
         );
-        $provider = new RecordingNotificationProvider('recording');
+        $clock = new FrozenClock('2026-10-20 10:00:00');
         $dispatcher = new CallNotificationDispatcher(
             $rules,
             $channels,
-            new NotificationProviderRegistry([$provider]),
-            $cipher
+            $deliveries,
+            $this->quietHours($clock),
+            $clock
         );
 
         $dispatcher->dispatch(
@@ -69,56 +67,40 @@ final class CallNotificationDispatcherTest extends TestCase
             )
         );
 
-        self::assertCount(1, $provider->sent);
+        $counts = $deliveries->countsOwnedBy(10);
+        self::assertSame(1, $counts['pending']);
         self::assertSame(
             'Incoming call from Alice',
-            $provider->sent[0]['message']->body
+            $deliveries->get(1)->body
         );
     }
 
-    public function testInactiveChannelAndProviderFailureAreIsolated(): void
+    public function testQuietHoursSuppressNotification(): void
     {
         $channels = new InMemoryNotificationChannelRepository();
         $rules = new InMemoryNotificationRuleRepository();
-        $cipher = new NotificationConfigCipher(
-            new SecretCipher(self::APP_KEY)
-        );
-        $failedId = $channels->create(
+        $deliveries = new InMemoryNotificationDeliveryRepository();
+        $channelId = $channels->create(
             10,
-            'Failing',
-            'fail',
-            $cipher->encrypt(['target' => 'fail'])
+            'Push',
+            'pushover',
+            'encrypted'
         );
-        $workingId = $channels->create(
+        $rules->create(
             10,
-            'Working',
-            'ok',
-            $cipher->encrypt(['target' => 'ok'])
+            $channelId,
+            null,
+            NotificationTrigger::Missed,
+            '22:00',
+            '07:00'
         );
-        $disabledId = $channels->create(
-            10,
-            'Disabled',
-            'ok',
-            $cipher->encrypt(['target' => 'disabled'])
-        );
-        $channels->setActive($disabledId, 10, false);
-
-        foreach ([$failedId, $workingId, $disabledId] as $channelId) {
-            $rules->create(
-                10,
-                $channelId,
-                null,
-                NotificationTrigger::Missed
-            );
-        }
-
-        $failing = new RecordingNotificationProvider('fail', true);
-        $working = new RecordingNotificationProvider('ok');
+        $clock = new FrozenClock('2026-10-20 23:30:00');
         $dispatcher = new CallNotificationDispatcher(
             $rules,
             $channels,
-            new NotificationProviderRegistry([$failing, $working]),
-            $cipher
+            $deliveries,
+            $this->quietHours($clock),
+            $clock
         );
 
         $dispatcher->dispatch(
@@ -138,23 +120,39 @@ final class CallNotificationDispatcherTest extends TestCase
             )
         );
 
-        self::assertCount(1, $working->sent);
         self::assertSame(
-            ['target' => 'ok'],
-            $working->sent[0]['config']
+            0,
+            $deliveries->countsOwnedBy(10)['pending']
         );
     }
 
-    public function testNonMatchingStateDoesNotNotify(): void
+    public function testInactiveChannelDoesNotQueue(): void
     {
-        $provider = new RecordingNotificationProvider('recording');
+        $channels = new InMemoryNotificationChannelRepository();
+        $rules = new InMemoryNotificationRuleRepository();
+        $deliveries = new InMemoryNotificationDeliveryRepository();
+        $channelId = $channels->create(
+            10,
+            'Disabled',
+            'pushover',
+            'encrypted'
+        );
+        $channels->setActive($channelId, 10, false);
+        $rules->create(
+            10,
+            $channelId,
+            null,
+            NotificationTrigger::Completed,
+            null,
+            null
+        );
+        $clock = new FrozenClock('2026-10-20 10:00:00');
         $dispatcher = new CallNotificationDispatcher(
-            new InMemoryNotificationRuleRepository(),
-            new InMemoryNotificationChannelRepository(),
-            new NotificationProviderRegistry([$provider]),
-            new NotificationConfigCipher(
-                new SecretCipher(self::APP_KEY)
-            )
+            $rules,
+            $channels,
+            $deliveries,
+            $this->quietHours($clock),
+            $clock
         );
 
         $dispatcher->dispatch(
@@ -164,17 +162,28 @@ final class CallNotificationDispatcherTest extends TestCase
                     3,
                     1,
                     'call-3',
-                    CallDirection::Outgoing,
-                    CallSessionState::Calling,
+                    CallDirection::Incoming,
+                    CallSessionState::Completed,
                     '100',
-                    '+49211',
+                    '+49123',
                     null
                 ),
-                true
+                false
             )
         );
 
-        self::assertSame([], $provider->sent);
+        self::assertSame(
+            0,
+            $deliveries->countsOwnedBy(10)['pending']
+        );
+    }
+
+    private function quietHours(FrozenClock $clock): QuietHoursPolicy
+    {
+        $timezones = new InMemoryUserTimezoneRepository();
+        $timezones->set(10, 'UTC');
+
+        return new QuietHoursPolicy($clock, $timezones);
     }
 
     private function device(): AuthenticatedDevice
