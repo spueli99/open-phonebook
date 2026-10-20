@@ -46,6 +46,7 @@ if (
 
 try {
     $snapshot = $runtime->operationsHealthService()->snapshot();
+    $version = ApplicationVersion::read($projectRoot);
 } catch (Throwable) {
     http_response_code(503);
     exit;
@@ -57,5 +58,5 @@ echo OperationsHealthView::render(
     $runtime->translator($user->locale),
     $snapshot,
     $user->timezone,
-    ApplicationVersion::read($projectRoot)
+    $version
 );
